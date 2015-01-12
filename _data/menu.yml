@@ -9,3 +9,4 @@ Controller Types:
 Concepts:
     Wildcard Routes: '/wildcard-routes/'
     Request Verbs: '/request-verbs/'
+    Strategies: '/strategies/'
