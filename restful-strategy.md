@@ -58,7 +58,7 @@ The above route will return a response with the correct `201` status code and a 
 
 | Response Object                                                          | Status Code | Notes                   |
 | ------------------------------------------------------------------------ | ----------- | ----------------------- |
-| `League\Route\Http\JsonResponse`                                         | 200         |                         |
+| `League\Route\Http\JsonResponse\Ok`                                      | 200         |                         |
 | `League\Route\Http\JsonResponse\Created`                                 | 201         |                         |
 | `League\Route\Http\JsonResponse\Accepted`                                | 202         |                         |
 | `League\Route\Http\JsonResponse\NoContent`                               | 204         | Will not return a body. |
