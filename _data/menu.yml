@@ -11,7 +11,7 @@ Concepts:
     Request Verbs: '/request-verbs/'
     Strategies: '/strategies/'
 Strategies:
-    RequestResponseStrategy: '/request-response-strategy/'
-    UriStrategy: '/uri-strategy/'
-    MethodArgumentStrategy: '/method-argument-strategy/'
-    RestfulStrategy: '/restful-strategy/'
+    Request Response Strategy: '/request-response-strategy/'
+    Uri Strategy: '/uri-strategy/'
+    Method Argument Strategy: '/method-argument-strategy/'
+    Restful Strategy: '/restful-strategy/'
