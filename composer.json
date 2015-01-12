@@ -24,6 +24,10 @@
     "require-dev": {
         "phpunit/phpunit" : "4.*"
     },
+    "replace": {
+        "orno/route": "~1.0",
+        "orno/http": "~1.0"
+    },
     "autoload": {
         "psr-4": {
             "League\\Route\\": "src"
