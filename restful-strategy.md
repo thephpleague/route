@@ -59,12 +59,11 @@ The above route will return a response with the correct `201` status code and a 
 | Response Object                                                          | Status Code | Notes                   |
 | ------------------------------------------------------------------------ | ----------- | ----------------------- |
 | `League\Route\Http\JsonResponse`                                         | 200         |                         |
-| `League\Route\Http\JsonResponse\CreatedJsonResponse`                     | 201         |                         |
-| `League\Route\Http\JsonResponse\AcceptedJsonResponse`                    | 202         |                         |
-| `League\Route\Http\JsonResponse\NonAuthoritativeInformationJsonResponse` | 203         |                         |
-| `League\Route\Http\JsonResponse\NoContentJsonResponse`                   | 204         | Will not return a body. |
-| `League\Route\Http\JsonResponse\ResetContentJsonResponse`                | 205         |                         |
-| `League\Route\Http\JsonResponse\PartialContentJsonResponse`              | 206         |                         |
+| `League\Route\Http\JsonResponse\Created`                                 | 201         |                         |
+| `League\Route\Http\JsonResponse\Accepted`                                | 202         |                         |
+| `League\Route\Http\JsonResponse\NoContent`                               | 204         | Will not return a body. |
+| `League\Route\Http\JsonResponse\ResetContent`                            | 205         |                         |
+| `League\Route\Http\JsonResponse\PartialContent`                          | 206         |                         |
 
 ## HTTP 4xx Exceptions
 
