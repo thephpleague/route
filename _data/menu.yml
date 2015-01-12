@@ -8,3 +8,4 @@ Controller Types:
     Named Functions: '/controller-named-functions/'
 Concepts:
     Wildcard Routes: '/wildcard-routes/'
+    Request Verbs: '/request-verbs/'
