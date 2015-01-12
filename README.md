@@ -40,7 +40,6 @@ Contribute to this documentation in the [gh-pages branch](https://github.com/the
 
 ## Todo
 
-- Implement League version of Di when migrated from Orno.
 - Add knowledge of variadic uri wildcard arguments to `MethodArgumentStrategy`. (Blocked by changes to Di).
 
 ## Testing

@@ -8,8 +8,8 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use League\Config\Repository as Config;
-use League\Dic\Container;
-use League\Dic\ContainerInterface;
+use League\Container\Container;
+use League\Container\ContainerInterface;
 
 class RouteCollection extends RouteCollector
 {
@@ -19,7 +19,7 @@ class RouteCollection extends RouteCollector
     use Strategy\StrategyTrait;
 
     /**
-     * @var \League\Dic\ContainerInterface
+     * @var \League\Container\ContainerInterface
      */
     protected $container;
 
@@ -31,7 +31,7 @@ class RouteCollection extends RouteCollector
     /**
      * Constructor
      *
-     * @param \League\Dic\ContainerInterface $container
+     * @param \League\Container\ContainerInterface $container
      * @param \FastRoute\RouteParser      $parser
      * @param \FastRoute\DataGenerator    $generator
      */

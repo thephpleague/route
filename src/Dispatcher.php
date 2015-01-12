@@ -4,8 +4,8 @@ namespace League\Route;
 
 use FastRoute;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
-use League\Dic\ContainerAwareInterface;
-use League\Dic\ContainerInterface;
+use League\Container\ContainerAwareInterface;
+use League\Container\ContainerInterface;
 
 class Dispatcher extends GroupCountBasedDispatcher
 {
@@ -15,7 +15,7 @@ class Dispatcher extends GroupCountBasedDispatcher
     use Strategy\StrategyTrait;
 
     /**
-     * @var \League\Dic\ContainerInterface
+     * @var \League\Container\ContainerInterface
      */
     protected $container;
 

@@ -25,7 +25,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
                    ->method('someMethod')
                    ->will($this->throwException(new HttpException\ConflictException));
 
-        $container = $this->getMock('League\Dic\Container');
+        $container = $this->getMock('League\Container\Container');
 
         $container->expects($this->at(1))
                   ->method('get')
@@ -123,7 +123,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
                    ->with($this->equalTo('2'), $this->equalTo('phil'))
                    ->will($this->returnValue('hello world'));
 
-        $container = $this->getMock('League\Dic\ContainerInterface');
+        $container = $this->getMock('League\Container\ContainerInterface');
 
         $container->expects($this->once())
                   ->method('get')
@@ -149,7 +149,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('RuntimeException');
 
-        $container = $this->getMock('League\Dic\ContainerInterface');
+        $container = $this->getMock('League\Container\ContainerInterface');
 
         $collection = new Route\RouteCollection($container);
         $collection->setStrategy(new UriStrategy);
@@ -256,7 +256,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $controller = $this->getMock('SomeClass', ['someMethod']);
 
-        $container = $this->getMock('League\Dic\ContainerInterface');
+        $container = $this->getMock('League\Container\ContainerInterface');
 
         $container->expects($this->once())
                   ->method('get')

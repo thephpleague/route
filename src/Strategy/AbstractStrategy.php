@@ -2,22 +2,22 @@
 
 namespace League\Route\Strategy;
 
-use League\Dic\Container;
-use League\Dic\ContainerAwareInterface;
-use League\Dic\ContainerInterface;
+use League\Container\Container;
+use League\Container\ContainerAwareInterface;
+use League\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractStrategy implements ContainerAwareInterface
 {
     /**
-     * @var \League\Dic\ContainerInterface
+     * @var \League\Container\ContainerInterface
      */
     protected $container;
 
     /**
      * Set a container
      *
-     * @param \League\Dic\ContainerInterface $container
+     * @param \League\Container\ContainerInterface $container
      */
     public function setContainer(ContainerInterface $container)
     {
@@ -29,7 +29,7 @@ abstract class AbstractStrategy implements ContainerAwareInterface
     /**
      * Get the container
      *
-     * @return \League\Dic\ContainerInterface
+     * @return \League\Container\ContainerInterface
      */
     public function getContainer()
     {
