@@ -17,7 +17,7 @@
     ],
     "require": {
         "php" : ">=5.4.0",
-        "league/dic": "~1.0",
+        "league/container": "~1.0",
         "nikic/fast-route": "~0.3",
         "symfony/http-foundation": "~2.6"
     },
