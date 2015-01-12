@@ -1,7 +1,7 @@
 ---
 layout: default
 permalink: /controller-class-methods/
-title: Controller: Class Methods
+title: "Controller: Class Methods"
 ---
 
 # Controller: Class Methods
