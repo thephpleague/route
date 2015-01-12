@@ -10,3 +10,8 @@ Concepts:
     Wildcard Routes: '/wildcard-routes/'
     Request Verbs: '/request-verbs/'
     Strategies: '/strategies/'
+Strategies:
+    RequestResponseStrategy: '/request-response-strategy/'
+    UriStrategy: '/uri-strategy/'
+    MethodArgumentStrategy: '/method-argument-strategy/'
+    RestfulStrategy: '/restful-strategy/'
