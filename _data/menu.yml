@@ -4,3 +4,5 @@ Getting Started:
     Getting Started: '/getting-started/'
 Controller Types:
     Class Methods: '/controller-class-methods/'
+    Anonymous Functions: '/controller-anon-functions/'
+    Named Functions: '/controller-named-functions/'
