@@ -1,6 +1,6 @@
 ---
 layout: default
-permalink: installation/
+permalink: /installation/
 title: Installation
 ---
 
