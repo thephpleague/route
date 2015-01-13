@@ -21,7 +21,7 @@ interface HttpExceptionInterface
     /**
      * Returns a response built from the thrown exception
      *
-     * @return \League\Route\Http\Response
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function getJsonResponse();
 }
