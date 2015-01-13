@@ -72,9 +72,9 @@ class Dispatcher extends GroupCountBasedDispatcher
     /**
      * Handle dispatching of a found route
      *
-     * @param  string|\Closure                             $handler
-     * @param  integer|\League\Route\CustomStrategyInterface $strategy
-     * @param  array                                       $vars
+     * @param  string|\Closure                       $handler
+     * @param  \League\Route\CustomStrategyInterface $strategy
+     * @param  array                                 $vars
      * @return \League\Http\ResponseInterface
      * @throws RuntimeException
      */
