@@ -8,6 +8,8 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/route.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/route)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/route.svg?style=flat-square)](https://packagist.org/packages/league/route)
 
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/882acb6c-3001-4313-857d-6f7200f5ab90/big.png)](https://insight.sensiolabs.com/projects/882acb6c-3001-4313-857d-6f7200f5ab90)
+
 This package is compliant with [PSR-1], [PSR-2] and [PSR-4]. If you notice compliance oversights,
 please send a patch via pull request.
 
