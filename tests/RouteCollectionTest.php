@@ -53,13 +53,27 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     {
         $router = new RouteCollection;
 
-        $router->get('/route/{wildcard}', function () { return 'get'; });
-        $router->post('/route/{wildcard}', function () { return 'post'; });
-        $router->put('/route/{wildcard}', function () { return 'put'; });
-        $router->patch('/route/{wildcard}', function () { return 'patch'; });
-        $router->delete('/route/{wildcard}', function () { return 'delete'; });
-        $router->head('/route/{wildcard}', function () { return 'head'; });
-        $router->options('/route/{wildcard}', function () { return 'options'; });
+        $router->get('/route/{wildcard}', function () {
+            return 'get';
+        });
+        $router->post('/route/{wildcard}', function () {
+            return 'post';
+        });
+        $router->put('/route/{wildcard}', function () {
+            return 'put';
+        });
+        $router->patch('/route/{wildcard}', function () {
+            return 'patch';
+        });
+        $router->delete('/route/{wildcard}', function () {
+            return 'delete';
+        });
+        $router->head('/route/{wildcard}', function () {
+            return 'head';
+        });
+        $router->options('/route/{wildcard}', function () {
+            return 'options';
+        });
 
         $routes = (new \ReflectionClass($router))->getProperty('routes');
         $routes->setAccessible(true);
