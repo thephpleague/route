@@ -6,6 +6,7 @@ use FastRoute;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Dic\ContainerAwareInterface;
 use League\Dic\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class Dispatcher extends GroupCountBasedDispatcher
 {
@@ -27,8 +28,9 @@ class Dispatcher extends GroupCountBasedDispatcher
     /**
      * Constructor
      *
-     * @param array $routes
-     * @param array $data
+     * @param ContainerInterface $container
+     * @param array              $routes
+     * @param array              $data
      */
     public function __construct(ContainerInterface $container, array $routes, array $data)
     {
@@ -67,6 +69,18 @@ class Dispatcher extends GroupCountBasedDispatcher
         }
 
         return $response;
+    }
+
+    /**
+     * Match and dispatch a route from an existing request object
+     *
+     * @param Request $request
+     *
+     * @return \League\Http\ResponseInterface
+     */
+    public function dispatchRequest(Request $request)
+    {
+        return $this->dispatch($request->getMethod(), $request->getPathInfo());
     }
 
     /**
