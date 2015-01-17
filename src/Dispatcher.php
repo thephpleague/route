@@ -27,8 +27,9 @@ class Dispatcher extends GroupCountBasedDispatcher
     /**
      * Constructor
      *
-     * @param array $routes
-     * @param array $data
+     * @param \League\Container\ContainerInterface $container
+     * @param array                                $routes
+     * @param array                                $data
      */
     public function __construct(ContainerInterface $container, array $routes, array $data)
     {
