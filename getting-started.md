@@ -14,7 +14,7 @@ This strategy will provide you with a request and response object with which you
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-$router = new Leage\Route\RouteCollection;
+$router = new League\Route\RouteCollection;
 
 $router->addRoute('GET', '/acme/route', function (Request $request, Response $response) {
     // do something clever
