@@ -12,7 +12,7 @@ If you prefer to name your functions, you can.
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-function controller (Request $request, Response$response) {
+function controller (Request $request, Response $response) {
     // do something clever
     return $response
 }

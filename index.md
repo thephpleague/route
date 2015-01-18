@@ -16,7 +16,7 @@ title: Introduction
 
 ## What is Route?
 
-Route is a fast routing/dispatcher package enabling you to build well designed performant web apps. At it's core is Nikita Popov's [FastRoute](https://github.com/nikic/FastRoute) package allowing this package to concentrate on the dispatch of your controllers.
+Route is a fast routing/dispatcher package enabling you to build well designed performant web apps. At its core is Nikita Popov's [FastRoute](https://github.com/nikic/FastRoute) package allowing this package to concentrate on the dispatch of your controllers.
 
 [Route on Packagist](https://packagist.org/packages/league/route)
 

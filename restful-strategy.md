@@ -24,7 +24,7 @@ $route->get('/acme', function (Request $request) {
 
 // this route would be considered a "get one" resource
 $route->get('/acme/{id}', function (Request $request, array $args) {
-    // get any required data from $request and find enitity relating to $args['id']
+    // get any required data from $request and find entity relating to $args['id']
 
     return [
         // ... data to be converted to json
@@ -38,7 +38,7 @@ The problem with returning an array is that you are always assuming a `200 OK` H
 
 Route provides several pre-built JSON `Response` objects that are pre-configured and will handle the response for you.
 
-For example, when creating a resource, on sucess we would likely return a `201 Created` response. This can be done very easily.
+For example, when creating a resource, on success we would likely return a `201 Created` response. This can be done very easily.
 
 ~~~ php
 use League\Route\Http\JsonResponse as Response;
