@@ -2,10 +2,12 @@
 
 namespace League\Route;
 
+use Closure;
 use FastRoute;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerInterface;
+use RuntimeException;
 
 class Dispatcher extends GroupCountBasedDispatcher
 {
@@ -77,7 +79,7 @@ class Dispatcher extends GroupCountBasedDispatcher
      * @param  \League\Route\CustomStrategyInterface $strategy
      * @param  array                                 $vars
      * @return \League\Http\ResponseInterface
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     protected function handleFound($handler, $strategy, array $vars)
     {
@@ -88,7 +90,7 @@ class Dispatcher extends GroupCountBasedDispatcher
         $controller = null;
 
         // figure out what the controller is
-        if (($handler instanceof \Closure) || (is_string($handler) && is_callable($handler))) {
+        if (($handler instanceof Closure) || (is_string($handler) && is_callable($handler))) {
             $controller = $handler;
         }
 
@@ -98,7 +100,7 @@ class Dispatcher extends GroupCountBasedDispatcher
 
         // if controller method wasn't specified, throw exception.
         if (! $controller) {
-            throw new \RuntimeException('A class method must be provided as a controller. ClassName::methodName');
+            throw new RuntimeException('A class method must be provided as a controller. ClassName::methodName');
         }
 
         // dispatch via strategy

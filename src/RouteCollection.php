@@ -2,6 +2,7 @@
 
 namespace League\Route;
 
+use Closure;
 use FastRoute\DataGenerator;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
@@ -64,9 +65,9 @@ class RouteCollection extends RouteCollector
 
         // if the handler is an anonymous function, we need to store it for later use
         // by the dispatcher, otherwise we just throw the handler string at FastRoute
-        if ($handler instanceof \Closure) {
+        if ($handler instanceof Closure) {
             $callback = $handler;
-            $handler  = uniqid('orno::route::', true);
+            $handler  = uniqid('league::route::', true);
 
             $this->routes[$handler]['callback'] = $callback;
         }

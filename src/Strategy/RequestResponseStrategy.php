@@ -2,6 +2,7 @@
 
 namespace League\Route\Strategy;
 
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestResponseStrategy extends AbstractStrategy implements StrategyInterface
@@ -21,7 +22,7 @@ class RequestResponseStrategy extends AbstractStrategy implements StrategyInterf
             return $response;
         }
 
-        throw new \RuntimeException(
+        throw new RuntimeException(
             'When using the Request -> Response Strategy your controller must ' .
             'return an instance of [Symfony\Component\HttpFoundation\Response]'
         );
