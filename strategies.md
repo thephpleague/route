@@ -60,7 +60,7 @@ class CustomStrategy implements StrategyInterface
 ~~~php
 use Acme\Strategy\CustomStrategy;
 
-$router = new Orno\Route\RouteCollection;
+$router = new League\Route\RouteCollection;
 $router->setStrategy(new CustomStrategy);
 ~~~
 
