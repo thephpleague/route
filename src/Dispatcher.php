@@ -3,10 +3,15 @@
 namespace League\Route;
 
 use Closure;
-use FastRoute;
+use FastRoute\Dispatcher as FastRoute;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerInterface;
+use League\Route\Http\Exception\MethodNotAllowedException;
+use League\Route\Http\Exception\NotFoundException;
+use League\Route\Strategy\RestfulStrategy;
+use League\Route\Strategy\StrategyInterface;
+use League\Route\Strategy\StrategyTrait;
 use RuntimeException;
 
 class Dispatcher extends GroupCountBasedDispatcher
@@ -14,7 +19,7 @@ class Dispatcher extends GroupCountBasedDispatcher
     /**
      * Route strategy functionality
      */
-    use Strategy\StrategyTrait;
+    use StrategyTrait;
 
     /**
      * @var \League\Container\ContainerInterface
@@ -46,21 +51,21 @@ class Dispatcher extends GroupCountBasedDispatcher
      *
      * @param  string $method
      * @param  string $uri
-     * @return \League\Http\ResponseInterface
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function dispatch($method, $uri)
     {
         $match = parent::dispatch($method, $uri);
 
         switch ($match[0]) {
-            case FastRoute\Dispatcher::NOT_FOUND:
+            case FastRoute::NOT_FOUND:
                 $response = $this->handleNotFound();
                 break;
-            case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+            case FastRoute::METHOD_NOT_ALLOWED:
                 $allowed  = (array) $match[1];
                 $response = $this->handleNotAllowed($allowed);
                 break;
-            case FastRoute\Dispatcher::FOUND:
+            case FastRoute::FOUND:
             default:
                 $handler  = (isset($this->routes[$match[1]]['callback'])) ? $this->routes[$match[1]]['callback'] : $match[1];
                 $strategy = $this->routes[$match[1]]['strategy'];
@@ -75,13 +80,13 @@ class Dispatcher extends GroupCountBasedDispatcher
     /**
      * Handle dispatching of a found route
      *
-     * @param  string|\Closure                       $handler
-     * @param  \League\Route\CustomStrategyInterface $strategy
-     * @param  array                                 $vars
-     * @return \League\Http\ResponseInterface
+     * @param  string|\Closure                          $handler
+     * @param  \League\Route\Strategy\StrategyInterface $strategy
+     * @param  array                                    $vars
+     * @return \Symfony\Component\HttpFoundation\Response
      * @throws \RuntimeException
      */
-    protected function handleFound($handler, $strategy, array $vars)
+    protected function handleFound($handler, StrategyInterface $strategy, array $vars)
     {
         if (is_null($this->getStrategy())) {
             $this->setStrategy($strategy);
@@ -114,13 +119,13 @@ class Dispatcher extends GroupCountBasedDispatcher
     /**
      * Handle a not found route
      *
-     * @return \League\Http\ResponseInterface
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     protected function handleNotFound()
     {
-        $exception = new Http\Exception\NotFoundException;
+        $exception = new NotFoundException;
 
-        if ($this->getStrategy() instanceof Strategy\RestfulStrategy) {
+        if ($this->getStrategy() instanceof RestfulStrategy) {
             return $exception->getJsonResponse();
         }
 
@@ -131,13 +136,13 @@ class Dispatcher extends GroupCountBasedDispatcher
      * Handles a not allowed route
      *
      * @param  array $allowed
-     * @return \League\Http\ResponseInterface
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     protected function handleNotAllowed(array $allowed)
     {
-        $exception = new Http\Exception\MethodNotAllowedException($allowed);
+        $exception = new MethodNotAllowedException($allowed);
 
-        if ($this->getStrategy() instanceof Strategy\RestfulStrategy) {
+        if ($this->getStrategy() instanceof RestfulStrategy) {
             return $exception->getJsonResponse();
         }
 
