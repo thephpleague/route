@@ -7,7 +7,6 @@ use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdRouteParser;
-use League\Config\Repository as Config;
 use League\Container\Container;
 use League\Container\ContainerInterface;
 
