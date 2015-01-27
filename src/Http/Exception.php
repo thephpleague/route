@@ -2,9 +2,10 @@
 
 namespace League\Route\Http;
 
+use League\Route\Http\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class Exception extends \Exception implements Exception\HttpExceptionInterface
+class Exception extends \Exception implements HttpExceptionInterface
 {
     /**
      * @var integer
@@ -61,7 +62,7 @@ class Exception extends \Exception implements Exception\HttpExceptionInterface
     {
         $body = [
             'status_code' => $this->getStatusCode(),
-            'message'     => $this->getMessage()
+            'message'     => $this->getMessage(),
         ];
 
         return new JsonResponse($body, $this->getStatusCode(), $this->getHeaders());
