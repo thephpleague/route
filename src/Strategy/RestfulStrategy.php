@@ -29,7 +29,7 @@ class RestfulStrategy extends AbstractStrategy implements StrategyInterface
 
             throw new \RuntimeException(
                 'Your controller action must return a valid response for the Restful Strategy. ' .
-                'Acceptable responses are of type: [Array], [ArrayObject] and [League\Route\Http\JsonResponse]'
+                'Acceptable responses are of type: [Array], [ArrayObject] and [Symfony\Component\HttpFoundation\JsonResponse]'
             );
         } catch (HttpException $e) {
             return $e->getJsonResponse();
