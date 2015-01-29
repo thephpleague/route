@@ -62,7 +62,7 @@ class Exception extends \Exception implements HttpExceptionInterface
     {
         $body = [
             'status_code' => $this->getStatusCode(),
-            'message'     => $this->getMessage(),
+            'message'     => $this->getMessage()
         ];
 
         return new JsonResponse($body, $this->getStatusCode(), $this->getHeaders());
