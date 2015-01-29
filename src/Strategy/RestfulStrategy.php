@@ -2,7 +2,9 @@
 
 namespace League\Route\Strategy;
 
+use ArrayObject;
 use League\Route\Http\Exception as HttpException;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,11 +25,11 @@ class RestfulStrategy extends AbstractStrategy implements StrategyInterface
                 return $response;
             }
 
-            if (is_array($response) || $response instanceof \ArrayObject) {
+            if (is_array($response) || $response instanceof ArrayObject) {
                 return new JsonResponse($response);
             }
 
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Your controller action must return a valid response for the Restful Strategy. ' .
                 'Acceptable responses are of type: [Array], [ArrayObject] and [Symfony\Component\HttpFoundation\JsonResponse]'
             );

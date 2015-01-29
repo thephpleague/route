@@ -2,6 +2,7 @@
 
 namespace League\Route;
 
+use Closure;
 use FastRoute\DataGenerator;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
@@ -31,8 +32,8 @@ class RouteCollection extends RouteCollector
      * Constructor
      *
      * @param \League\Container\ContainerInterface $container
-     * @param \FastRoute\RouteParser      $parser
-     * @param \FastRoute\DataGenerator    $generator
+     * @param \FastRoute\RouteParser               $parser
+     * @param \FastRoute\DataGenerator             $generator
      */
     public function __construct(
         ContainerInterface $container = null,
@@ -50,9 +51,9 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route to the collection
      *
-     * @param  string                                 $method
-     * @param  string                                 $route
-     * @param  string|\Closure                        $handler
+     * @param  string                                   $method
+     * @param  string                                   $route
+     * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
@@ -63,9 +64,9 @@ class RouteCollection extends RouteCollector
 
         // if the handler is an anonymous function, we need to store it for later use
         // by the dispatcher, otherwise we just throw the handler string at FastRoute
-        if ($handler instanceof \Closure) {
+        if ($handler instanceof Closure) {
             $callback = $handler;
-            $handler  = uniqid('orno::route::', true);
+            $handler  = uniqid('league::route::', true);
 
             $this->routes[$handler]['callback'] = $callback;
         }
@@ -98,8 +99,8 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route that responds to GET HTTP method
      *
-     * @param  string                                 $route
-     * @param  string|\Closure                        $handler
+     * @param  string                                   $route
+     * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
@@ -111,8 +112,8 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route that responds to POST HTTP method
      *
-     * @param  string                                 $route
-     * @param  string|\Closure                        $handler
+     * @param  string                                   $route
+     * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
@@ -124,8 +125,8 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route that responds to PUT HTTP method
      *
-     * @param  string                                 $route
-     * @param  string|\Closure                        $handler
+     * @param  string                                   $route
+     * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
@@ -137,8 +138,8 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route that responds to PATCH HTTP method
      *
-     * @param  string                                 $route
-     * @param  string|\Closure                        $handler
+     * @param  string                                   $route
+     * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
@@ -150,8 +151,8 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route that responds to DELETE HTTP method
      *
-     * @param  string                                 $route
-     * @param  string|\Closure                        $handler
+     * @param  string                                   $route
+     * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
@@ -163,8 +164,8 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route that responds to HEAD HTTP method
      *
-     * @param  string                                 $route
-     * @param  string|\Closure                        $handler
+     * @param  string                                   $route
+     * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
@@ -176,8 +177,8 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route that responds to OPTIONS HTTP method
      *
-     * @param  string                                 $route
-     * @param  string|\Closure                        $handler
+     * @param  string                                   $route
+     * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
