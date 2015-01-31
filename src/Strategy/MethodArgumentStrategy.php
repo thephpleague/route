@@ -2,9 +2,7 @@
 
 namespace League\Route\Strategy;
 
-use League\Route\Http\Exception as HttpException;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use Closure;
 
 class MethodArgumentStrategy extends AbstractStrategy implements StrategyInterface
 {
@@ -13,15 +11,38 @@ class MethodArgumentStrategy extends AbstractStrategy implements StrategyInterfa
      */
     public function dispatch($controller, array $vars)
     {
-        if (is_array($controller)) {
-            $controller = [
-                $this->container->get($controller[0]),
-                $controller[1]
-            ];
+        $reflection = $this->getReflection($controller);
+
+        $invokeArguments = [];
+        foreach ($reflection->getParameters() as $param) {
+            if ($param->getClass() instanceof \ReflectionClass) {
+                $invokeArguments[] = $this->getContainer()->get($param->getClass()->getName());
+            }
         }
 
-        $response = $this->container->call($controller);
+        array_push($invokeArguments, $vars);
+        $response = $this->invokeController($controller, $invokeArguments);
+        
 
         return $this->determineResponse($response);
+    }
+
+    /**
+     * @param   mixed $controller
+     * @return  ReflectionFunctionAbstract
+     */
+    protected function getReflection($controller)
+    {
+        return ($controller instanceof Closure) ? $this->getReflectionFunction($controller) : $this->getReflectionClass($controller[0])->getMethod($controller[1]);
+    }
+
+    protected function getReflectionFunction(Closure $closure)
+    {
+        return new \ReflectionFunction($closure);
+    }
+
+    protected function getReflectionClass($alias)
+    {
+        return new \ReflectionClass($alias); 
     }
 }
