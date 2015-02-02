@@ -12,11 +12,10 @@ class RequestResponseStrategy extends AbstractStrategy implements StrategyInterf
      */
     public function dispatch($controller, array $vars)
     {
-        $response = $this->invokeController($controller, [
+        $response = $this->invokeController($controller, array_merge([
             $this->getContainer()->get('Symfony\Component\HttpFoundation\Request'),
             $this->getContainer()->get('Symfony\Component\HttpFoundation\Response'),
-            $vars
-        ]);
+        ], $vars));
 
         if ($response instanceof Response) {
             return $response;
