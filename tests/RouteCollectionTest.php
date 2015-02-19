@@ -151,4 +151,21 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('League\Route\Dispatcher', $router->getDispatcher());
         $this->assertInstanceOf('FastRoute\Dispatcher\GroupCountBased', $router->getDispatcher());
     }
+
+    /**
+     * Asserts that appropriately configured regex strings are added to patternMatchers.
+     *
+     * @return void
+     */
+    public function testNewPatternMatchesCanBeAddedAtRuntime()
+    {
+        $router = new RouteCollection;
+
+        $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');
+
+        $matchers = $this->getObjectAttribute($router, "patternMatchers");
+
+        $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
+        $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
+    }
 }

@@ -28,6 +28,12 @@ class RouteCollection extends RouteCollector
      */
     protected $routes = [];
 
+    protected $patternMatchers = [
+        '/{(.+?):number}/'        => '{$1:[0-9]+}',
+        '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
+        '/{(.+?):alphanum_dash}/' => '{$1:[a-zA-Z0-9-_]+}'
+    ];
+
     /**
      * Constructor
      *
@@ -188,6 +194,21 @@ class RouteCollection extends RouteCollector
     }
 
     /**
+     * Add a convenient pattern matcher to the internal array for use with all routes.
+     *
+     * @param string $keyWord
+     * @param string $regex
+     */
+    public function addPatternMatcher($keyWord, $regex)
+    {
+        // Since the user is passing in a human-readable word, we convert that to the appropriate regex
+        $pattern = '/{(.+?):' . $keyWord . '}/';
+        $regex = '{$1:' . $regex . '}';
+
+        $this->patternMatchers[$pattern] = $regex;
+    }
+
+    /**
      * Convenience method to convert pre-defined key words in to regex strings
      *
      * @param  string $route
@@ -195,12 +216,6 @@ class RouteCollection extends RouteCollector
      */
     protected function parseRouteString($route)
     {
-        $wildcards = [
-            '/{(.+?):number}/'        => '{$1:[0-9]+}',
-            '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
-            '/{(.+?):alphanum_dash}/' => '{$1:[a-zA-Z0-9-_]+}'
-        ];
-
-        return preg_replace(array_keys($wildcards), array_values($wildcards), $route);
+        return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $route);
     }
 }
