@@ -57,11 +57,11 @@ class Dispatcher extends GroupCountBasedDispatcher
     {
         $match = parent::dispatch($method, $uri);
         
-        if ($match[0] == FastRoute::NOT_FOUND) {
+        if ($match[0] === FastRoute::NOT_FOUND) {
             return $this->handleNotFound();
         }
         
-        if ($match[0] == FastRoute::METHOD_NOT_ALLOWED) {
+        if ($match[0] === FastRoute::METHOD_NOT_ALLOWED) {
             $allowed  = (array) $match[1];
             return $this->handleNotAllowed($allowed);
         }
