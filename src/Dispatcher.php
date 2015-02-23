@@ -56,25 +56,21 @@ class Dispatcher extends GroupCountBasedDispatcher
     public function dispatch($method, $uri)
     {
         $match = parent::dispatch($method, $uri);
-
-        switch ($match[0]) {
-            case FastRoute::NOT_FOUND:
-                $response = $this->handleNotFound();
-                break;
-            case FastRoute::METHOD_NOT_ALLOWED:
-                $allowed  = (array) $match[1];
-                $response = $this->handleNotAllowed($allowed);
-                break;
-            case FastRoute::FOUND:
-            default:
-                $handler  = (isset($this->routes[$match[1]]['callback'])) ? $this->routes[$match[1]]['callback'] : $match[1];
-                $strategy = $this->routes[$match[1]]['strategy'];
-                $vars     = (array) $match[2];
-                $response = $this->handleFound($handler, $strategy, $vars);
-                break;
+        
+        if ($match[0] == FastRoute::NOT_FOUND) {
+            return $this->handleNotFound();
+        }
+        
+        if ($match[0] == FastRoute::METHOD_NOT_ALLOWED) {
+            $allowed  = (array) $match[1];
+            return $this->handleNotAllowed($allowed);
         }
 
-        return $response;
+        $handler  = (isset($this->routes[$match[1]]['callback'])) ? $this->routes[$match[1]]['callback'] : $match[1];        
+        $strategy = $this->routes[$match[1]]['strategy'];
+        $vars     = (array) $match[2];
+        
+        return $this->handleFound($handler, $strategy, $vars);
     }
 
     /**
