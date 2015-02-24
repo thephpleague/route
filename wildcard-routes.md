@@ -52,3 +52,19 @@ $response->send();
 ~~~
 
 Dynamic parts can also be set as any regular expression such as `{id:[0-9]+}`.
+
+For convenience, you can also register your own aliases for a particular regular expression using the `addPatternMatcher`
+method on `RouteCollection`. For example:
+
+~~~ php
+
+$router = new League\Route\RouteCollection;
+$router->addPatternMatcher('wordStartsWithM', '(m|M)[a-zA-Z]+');
+
+$router->addRoute('GET', 'user/mTeam/{name:wordStartsWithM}', function (Request $request, Response $response, array $args) {
+    return $response;
+});
+~~~
+
+The above pattern matcher will create an internal regex string: `{$1:(m|M)[a-zA-Z]+}`, where `$1` will interpret to 'name',
+ the variable listed before the colon.
