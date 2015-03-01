@@ -96,6 +96,11 @@ class Dispatcher extends GroupCountBasedDispatcher
             $controller = explode('::', $handler);
         }
 
+        // Check if handler is a registered callable alias.
+        if (is_string($handler) && $this->container->isRegisteredCallable($handler)) {
+            $controller = $handler;
+        }
+
         // if controller method wasn't specified, throw exception.
         if (! $controller) {
             throw new \RuntimeException('A class method must be provided as a controller. ClassName::methodName');
