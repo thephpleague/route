@@ -72,7 +72,7 @@ class RouteCollection extends RouteCollector
     {
         // are we running a single strategy for the collection?
         $strategy = (! is_null($this->strategy)) ? $this->strategy : $strategy;
-        $strategy = (is_null($strategy)) ? new RequestResponseStrategy() : $strategy;
+        $strategy = $strategy ?: new RequestResponseStrategy();
 
         // if the handler is an anonymous function, we need to store it for later use
         // by the dispatcher, otherwise we just throw the handler string at FastRoute
