@@ -5,7 +5,7 @@ namespace League\Route\Strategy;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
-class RequestResponseStrategy extends AbstractStrategy implements StrategyInterface
+class RequestResponseStrategy extends AbstractStrategy
 {
     /**
      * {@inheritdoc}
@@ -15,7 +15,7 @@ class RequestResponseStrategy extends AbstractStrategy implements StrategyInterf
         $response = $this->invokeController($controller, [
             $this->getContainer()->get('Symfony\Component\HttpFoundation\Request'),
             $this->getContainer()->get('Symfony\Component\HttpFoundation\Response'),
-            $vars
+            $vars,
         ]);
 
         if ($response instanceof Response) {

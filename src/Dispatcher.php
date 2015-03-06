@@ -116,10 +116,11 @@ class Dispatcher extends GroupCountBasedDispatcher
      * Handle a not found route
      *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \League\Route\Http\Exception\NotFoundException
      */
     protected function handleNotFound()
     {
-        $exception = new NotFoundException;
+        $exception = new NotFoundException();
 
         if ($this->getStrategy() instanceof RestfulStrategy) {
             return $exception->getJsonResponse();
@@ -132,7 +133,9 @@ class Dispatcher extends GroupCountBasedDispatcher
      * Handles a not allowed route
      *
      * @param  array $allowed
+     *
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \League\Route\Http\Exception\MethodNotAllowedException
      */
     protected function handleNotAllowed(array $allowed)
     {

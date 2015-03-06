@@ -6,9 +6,8 @@ use ArrayObject;
 use League\Route\Http\Exception as HttpException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
-class RestfulStrategy extends AbstractStrategy implements StrategyInterface
+class RestfulStrategy extends AbstractStrategy
 {
     /**
      * {@inheritdoc}
@@ -18,7 +17,7 @@ class RestfulStrategy extends AbstractStrategy implements StrategyInterface
         try {
             $response = $this->invokeController($controller, [
                 $this->getContainer()->get('Symfony\Component\HttpFoundation\Request'),
-                $vars
+                $vars,
             ]);
 
             if ($response instanceof JsonResponse) {
