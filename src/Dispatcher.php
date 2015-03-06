@@ -120,7 +120,7 @@ class Dispatcher extends GroupCountBasedDispatcher
      */
     protected function handleNotFound()
     {
-        $exception = new NotFoundException();
+        $exception = new NotFoundException;
 
         if ($this->getStrategy() instanceof RestfulStrategy) {
             return $exception->getJsonResponse();

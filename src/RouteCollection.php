@@ -51,11 +51,11 @@ class RouteCollection extends RouteCollector
         RouteParser        $parser    = null,
         DataGenerator      $generator = null
     ) {
-        $this->container = ($container instanceof ContainerInterface) ? $container : new Container();
+        $this->container = ($container instanceof ContainerInterface) ? $container : new Container;
 
         // build parent route collector
-        $parser    = ($parser instanceof RouteParser) ? $parser : new StdRouteParser();
-        $generator = ($generator instanceof DataGenerator) ? $generator : new GroupCountBasedDataGenerator();
+        $parser    = ($parser instanceof RouteParser) ? $parser : new StdRouteParser;
+        $generator = ($generator instanceof DataGenerator) ? $generator : new GroupCountBasedDataGenerator;
         parent::__construct($parser, $generator);
     }
 
@@ -72,7 +72,7 @@ class RouteCollection extends RouteCollector
     {
         // are we running a single strategy for the collection?
         $strategy = (! is_null($this->strategy)) ? $this->strategy : $strategy;
-        $strategy = $strategy ?: new RequestResponseStrategy();
+        $strategy = $strategy ?: new RequestResponseStrategy;
 
         // if the handler is an anonymous function, we need to store it for later use
         // by the dispatcher, otherwise we just throw the handler string at FastRoute

@@ -15,7 +15,7 @@ class RequestResponseStrategy extends AbstractStrategy
         $response = $this->invokeController($controller, [
             $this->getContainer()->get('Symfony\Component\HttpFoundation\Request'),
             $this->getContainer()->get('Symfony\Component\HttpFoundation\Response'),
-            $vars,
+            $vars
         ]);
 
         if ($response instanceof Response) {

@@ -17,7 +17,7 @@ class RestfulStrategy extends AbstractStrategy
         try {
             $response = $this->invokeController($controller, [
                 $this->getContainer()->get('Symfony\Component\HttpFoundation\Request'),
-                $vars,
+                $vars
             ]);
 
             if ($response instanceof JsonResponse) {
