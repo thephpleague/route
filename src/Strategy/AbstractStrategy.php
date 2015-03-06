@@ -18,7 +18,7 @@ abstract class AbstractStrategy implements StrategyInterface, ContainerAwareInte
      */
     public function getContainer()
     {
-        return (is_null($this->container)) ? new Container() : $this->container;
+        return $this->container ?: $this->container = new Container();
     }
 
     /**
