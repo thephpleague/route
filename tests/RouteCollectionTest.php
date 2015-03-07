@@ -168,4 +168,22 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
         $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
     }
+    
+    /**
+     * Asserts named routes are put in namedRoute array
+     *
+     * @return void
+     */
+    public function testNamedRoutesAreProperlyHandled()
+    {
+        $router = new RouteCollection;
+        $router->addRoute('GET', 'noname', function() {
+        });
+        $router->addRoute('GET', '@name/named-route', function() {
+        });
+        $router->addRoute('GET', '@another-name/another-named-route', function() {
+        });
+        
+        $this->assertCount(2, $router->getNamedRoutes());
+    }
 }

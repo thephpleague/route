@@ -6,13 +6,13 @@ use Closure;
 use FastRoute\DataGenerator;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
-use FastRoute\RouteParser;
-use FastRoute\RouteParser\Std as StdRouteParser;
+use FastRoute\RouteParser as IRouteParser;
 use League\Container\Container;
 use League\Container\ContainerInterface;
 
 class RouteCollection extends RouteCollector
 {
+    
     /**
      * Route strategy functionality
      */
@@ -27,6 +27,11 @@ class RouteCollection extends RouteCollector
      * @var array
      */
     protected $routes = [];
+    
+    /**
+     * @var array
+     */
+    protected $namedRoutes = [];
 
     protected $patternMatchers = [
         '/{(.+?):number}/'        => '{$1:[0-9]+}',
@@ -43,13 +48,13 @@ class RouteCollection extends RouteCollector
      */
     public function __construct(
         ContainerInterface $container = null,
-        RouteParser        $parser    = null,
+        IRouteParser        $parser = null,
         DataGenerator      $generator = null
     ) {
         $this->container = ($container instanceof ContainerInterface) ? $container : new Container;
 
         // build parent route collector
-        $parser    = ($parser instanceof RouteParser) ? $parser : new StdRouteParser;
+        $parser    = ($parser instanceof IRouteParser) ? $parser : new RouteParser;
         $generator = ($generator instanceof DataGenerator) ? $generator : new GroupCountBasedDataGenerator;
         parent::__construct($parser, $generator);
     }
@@ -76,10 +81,17 @@ class RouteCollection extends RouteCollector
 
             $this->routes[$handler]['callback'] = $callback;
         }
-
+        
         $this->routes[$handler]['strategy'] = (is_null($strategy)) ? new Strategy\RequestResponseStrategy : $strategy;
 
         $route = $this->parseRouteString($route);
+        
+        //Check for a route alias starting with @
+        $matches = array();
+        if (preg_match(RouteParser::ALIAS_REGEX, $route, $matches)) {
+            $route = preg_replace(RouteParser::ALIAS_REGEX, '', $route);
+            $this->namedRoutes[$matches[0]] = $route;
+        }
 
         parent::addRoute($method, $route, $handler);
 
@@ -100,6 +112,16 @@ class RouteCollection extends RouteCollector
         }
 
         return $dispatcher;
+    }
+    
+    /**
+     * Returns the array of registered named routes (starting with @)
+     *
+     * @return array
+     */
+    public function getNamedRoutes()
+    {
+        return $this->namedRoutes;
     }
 
     /**
