@@ -168,4 +168,33 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
         $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
     }
+
+    public function testCallableControllers()
+    {
+        $router = new RouteCollection;
+
+        $router->get('/', new CallableController);
+
+        $routes = (new \ReflectionClass($router))->getProperty('routes');
+        $routes->setAccessible(true);
+        $routes = $routes->getValue($router);
+
+        $this->assertCount(1, $routes);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testNonCallbleObjectControllersError()
+    {
+        $router = new RouteCollection;
+
+        $router->get('/', new \stdClass);
+
+        $routes = (new \ReflectionClass($router))->getProperty('routes');
+        $routes->setAccessible(true);
+        $routes = $routes->getValue($router);
+
+        $this->assertCount(0, $routes);
+    }
 }
