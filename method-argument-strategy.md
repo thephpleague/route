@@ -14,7 +14,7 @@ $route->get('/some-route', function (SomeDependency $SomeDependency, SomeOtherDe
 });
 ~~~
 
-The router will interact the [League\Container](https://github.com/thephpleage/container), if the controller is a class method, it will check for a definition within the container, if there is no definition or the controller is some other type of `callable`, will attempt to automatically resolve the dependencies.
+The router will interact the [League\Container](https://github.com/thephpleague/container), if the controller is a class method, it will check for a definition within the container, if there is no definition or the controller is some other type of `callable`, will attempt to automatically resolve the dependencies.
 
 The response is handled in the same way as the [UriStrategy](/uri-strategy/).
 
