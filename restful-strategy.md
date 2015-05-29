@@ -14,7 +14,7 @@ It is expected that a `Response` object or data of a type that can be converted 
 use Symfony\Component\HttpFoundation\Request;
 
 // this route would be considered a "get all" resource
-$route->get('/acme', function (Request $request) {
+$router->get('/acme', function (Request $request) {
     // pull data from $request and do something clever
 
     return [
@@ -23,7 +23,7 @@ $route->get('/acme', function (Request $request) {
 });
 
 // this route would be considered a "get one" resource
-$route->get('/acme/{id}', function (Request $request, array $args) {
+$router->get('/acme/{id}', function (Request $request, array $args) {
     // get any required data from $request and find entity relating to $args['id']
 
     return [
@@ -43,7 +43,7 @@ For example, when creating a resource, on success we would likely return a `201 
 ~~~ php
 use League\Route\Http\JsonResponse as Response;
 
-$route->post('/acme', function (Request $request) {
+$router->post('/acme', function (Request $request) {
     // create a record from the $request body
 
     return new Response\Created([
@@ -74,7 +74,7 @@ Simply throw one of the HTTP exceptions from within your application layer and t
 ~~~ php
 use League\Route\Http\Exception\BadRequestException;
 
-$route->post('/acme', function (Request $request) {
+$router->post('/acme', function (Request $request) {
     // create a record from the $request body
 
     // if we fail to insert due to a bad request
