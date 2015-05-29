@@ -12,7 +12,7 @@ The `RequestResponseStrategy` is used by default and provides the controller wit
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-$route->get('/acme/route', function (Request $request, Response $response) {
+$router->get('/acme/route', function (Request $request, Response $response) {
     // retrieve data from $request, do what you need to do and build your $content
 
     $response->setContent($content);
@@ -26,7 +26,7 @@ $route->get('/acme/route', function (Request $request, Response $response) {
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-$route->put('/user/{id}', function (Request $request, Response $response, array $args) {
+$router->put('/user/{id}', function (Request $request, Response $response, array $args) {
     $userId = $args['id'];
     $requestBody = json_decode($request->getContent(), true);
 
