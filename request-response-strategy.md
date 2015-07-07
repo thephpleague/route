@@ -32,8 +32,8 @@ $route->put('/user/{id}', function (Request $request, Response $response, array 
 
     // possibly update a record in the database with the request body
 
-    $request->setContent('Updated User with ID: ' . $userId);
-    $request->setStatusCode(202);
+    $response->setContent('Updated User with ID: ' . $userId);
+    $response->setStatusCode(202);
 
     return $response;
 });
