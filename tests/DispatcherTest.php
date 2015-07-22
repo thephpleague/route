@@ -265,15 +265,15 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
         $container->expects($this->once())
                   ->method('call')
-                  ->with($this->equalTo([$controller, 'someMethod']))
+                  ->with($this->equalTo([$controller, 'someMethod']), $this->equalTo(['name' => 'world']))
                   ->will($this->returnValue('hello world'));
 
         $collection = new Route\RouteCollection($container);
         $collection->setStrategy(new MethodArgumentStrategy);
 
-        $collection->get('/route', 'SomeClass::someMethod');
+        $collection->get('/route/{name}', 'SomeClass::someMethod');
         $dispatcher = $collection->getDispatcher();
-        $response = $dispatcher->dispatch('GET', '/route');
+        $response = $dispatcher->dispatch('GET', '/route/world');
 
         $this->assertEquals('hello world', $response->getContent());
     }
