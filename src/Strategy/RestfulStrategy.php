@@ -6,7 +6,6 @@ use ArrayObject;
 use League\Route\Http\Exception as HttpException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class RestfulStrategy extends AbstractStrategy implements StrategyInterface
 {
