@@ -18,7 +18,7 @@ class MethodArgumentStrategy extends AbstractStrategy implements StrategyInterfa
             ];
         }
 
-        $response = $this->container->call($controller);
+        $response = $this->container->call($controller, $vars);
 
         return $this->determineResponse($response);
     }
