@@ -16,7 +16,7 @@ class RestfulStrategy extends AbstractStrategy implements StrategyInterface
     {
         try {
             $response = $this->invokeController($controller, [
-                $this->getContainer()->get('Symfony\Component\HttpFoundation\Request'),
+                $this->getRequest(),
                 $vars
             ]);
 

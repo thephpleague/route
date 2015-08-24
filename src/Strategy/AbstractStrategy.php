@@ -4,37 +4,14 @@ namespace League\Route\Strategy;
 
 use League\Container\Container;
 use League\Container\ContainerAwareInterface;
+use League\Container\ContainerAwareTrait;
 use League\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractStrategy implements ContainerAwareInterface
 {
-    /**
-     * @var \League\Container\ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * Set a container
-     *
-     * @param \League\Container\ContainerInterface $container
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-
-        return $this;
-    }
-
-    /**
-     * Get the container
-     *
-     * @return \League\Container\ContainerInterface
-     */
-    public function getContainer()
-    {
-        return (is_null($this->container)) ? new Container : $this->container;
-    }
+    use ContainerAwareTrait;
 
     /**
      * Invoke a controller action
@@ -74,5 +51,22 @@ abstract class AbstractStrategy implements ContainerAwareInterface
         }
 
         return $response;
+    }
+
+    /**
+     * Get Request either from the container or else create it from globals.
+     *
+     * @return \Symfony\Component\HttpFoundation\Request
+     */
+    protected function getRequest()
+    {
+        if (
+            $this->getContainer()->isRegistered('Symfony\Component\HttpFoundation\Request') ||
+            $this->getContainer()->isInServiceProvider('Symfony\Component\HttpFoundation\Request')
+        ) {
+            return $this->getContainer()->get('Symfony\Component\HttpFoundation\Request');
+        }
+
+        return Request::createFromGlobals();
     }
 }

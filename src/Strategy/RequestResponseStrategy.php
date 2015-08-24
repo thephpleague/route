@@ -3,7 +3,6 @@
 namespace League\Route\Strategy;
 
 use RuntimeException;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestResponseStrategy extends AbstractStrategy implements StrategyInterface
@@ -27,21 +26,5 @@ class RequestResponseStrategy extends AbstractStrategy implements StrategyInterf
             'When using the Request -> Response Strategy your controller must ' .
             'return an instance of [Symfony\Component\HttpFoundation\Response]'
         );
-    }
-
-    /**
-     * Get Request either from the container or else create it from globals
-     * @return \Symfony\Component\HttpFoundation\Request
-     */
-    protected function getRequest()
-    {
-        if (
-            $this->getContainer()->isRegistered('Symfony\Component\HttpFoundation\Request') ||
-            $this->getContainer()->isInServiceProvider('Symfony\Component\HttpFoundation\Request')
-        ) {
-            return $this->getContainer()->get('Symfony\Component\HttpFoundation\Request');
-        }
-
-        return Request::createFromGlobals();
     }
 }

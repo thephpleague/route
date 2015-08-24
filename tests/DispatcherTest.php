@@ -27,8 +27,13 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
                    ->will($this->throwException(new HttpException\ConflictException));
 
         $container = $this->getMock('League\Container\Container');
+        $request   = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
-        $container->expects($this->at(1))
+        $container->expects($this->at(0))->method('isRegistered')->will($this->returnValue(false));
+        $container->expects($this->at(1))->method('isInServiceProvider')->will($this->returnValue(true));
+        $container->expects($this->at(2))->method('get')->will($this->returnValue($request));
+
+        $container->expects($this->at(3))
                   ->method('get')
                   ->with($this->equalTo('SomeClass'))
                   ->will($this->returnValue($controller));
