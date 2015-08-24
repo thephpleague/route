@@ -3,6 +3,7 @@
 namespace League\Route\Strategy;
 
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestResponseStrategy extends AbstractStrategy implements StrategyInterface
@@ -34,11 +35,13 @@ class RequestResponseStrategy extends AbstractStrategy implements StrategyInterf
      */
     protected function getRequest()
     {
-        if ($this->getContainer()->isRegistered('Symfony\Component\HttpFoundation\Request') ||
-            $this->getContainer()->isInServiceProvider('Symfony\Component\HttpFoundation\Request') ) {
+        if (
+            $this->getContainer()->isRegistered('Symfony\Component\HttpFoundation\Request') ||
+            $this->getContainer()->isInServiceProvider('Symfony\Component\HttpFoundation\Request')
+        ) {
             return $this->getContainer()->get('Symfony\Component\HttpFoundation\Request');
-        } else {
-            return $this->getContainer()->get('Symfony\Component\HttpFoundation\Request')->createFromGlobals();
         }
+
+        return Request::createFromGlobals();
     }
 }
