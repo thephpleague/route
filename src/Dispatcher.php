@@ -91,7 +91,7 @@ class Dispatcher extends GroupCountBasedDispatcher
         $controller = null;
 
         // figure out what the controller is
-        if (($handler instanceof Closure) || (is_string($handler) && is_callable($handler))) {
+        if (($handler instanceof Closure) || is_callable($handler)) {
             $controller = $handler;
         }
 

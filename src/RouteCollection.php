@@ -70,11 +70,15 @@ class RouteCollection extends RouteCollector
 
         // if the handler is an anonymous function, we need to store it for later use
         // by the dispatcher, otherwise we just throw the handler string at FastRoute
-        if ($handler instanceof Closure) {
+        if ($handler instanceof Closure ||
+            (is_object($handler) && is_callable($handler))
+        ) {
             $callback = $handler;
             $handler  = uniqid('league::route::', true);
 
             $this->routes[$handler]['callback'] = $callback;
+        } elseif (is_object($handler)) {
+            throw new \RuntimeException("Object controllers must be callable.");
         }
 
         $this->routes[$handler]['strategy'] = (is_null($strategy)) ? new Strategy\RequestResponseStrategy : $strategy;
