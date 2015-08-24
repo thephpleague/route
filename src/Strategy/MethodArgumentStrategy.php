@@ -4,21 +4,16 @@ namespace League\Route\Strategy;
 
 use League\Route\Http\Exception as HttpException;
 
-class MethodArgumentStrategy extends AbstractStrategy implements StrategyInterface
+class MethodArgumentStrategy extends AbstractStrategy
 {
     /**
      * {@inheritdoc}
      */
     public function dispatch($controller, array $vars)
     {
-        if (is_array($controller)) {
-            $controller = [
-                $this->container->get($controller[0]),
-                $controller[1]
-            ];
-        }
+        $controller = $this->determineController($controller);
 
-        $response = $this->container->call($controller);
+        $response = $this->getContainer()->call($controller);
 
         return $this->determineResponse($response);
     }

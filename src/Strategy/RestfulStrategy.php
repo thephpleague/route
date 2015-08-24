@@ -7,7 +7,7 @@ use League\Route\Http\Exception as HttpException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class RestfulStrategy extends AbstractStrategy implements StrategyInterface
+class RestfulStrategy extends AbstractStrategy
 {
     /**
      * {@inheritdoc}

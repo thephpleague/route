@@ -10,6 +10,8 @@ use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use League\Container\Container;
 use League\Container\ContainerInterface;
+use League\Route\Strategy\RequestResponseStrategy;
+use League\Route\Strategy\StrategyInterface;
 
 class RouteCollection extends RouteCollector
 {
@@ -28,10 +30,13 @@ class RouteCollection extends RouteCollector
      */
     protected $routes = [];
 
+    /**
+     * @var array
+     */
     protected $patternMatchers = [
         '/{(.+?):number}/'        => '{$1:[0-9]+}',
         '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
-        '/{(.+?):alphanum_dash}/' => '{$1:[a-zA-Z0-9-_]+}'
+        '/{(.+?):alphanum_dash}/' => '{$1:[a-zA-Z0-9-_]+}',
     ];
 
     /**
@@ -63,10 +68,11 @@ class RouteCollection extends RouteCollector
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function addRoute($method, $route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function addRoute($method, $route, $handler, StrategyInterface $strategy = null)
     {
         // are we running a single strategy for the collection?
         $strategy = (! is_null($this->strategy)) ? $this->strategy : $strategy;
+        $strategy = $strategy ?: new RequestResponseStrategy;
 
         // if the handler is an anonymous function, we need to store it for later use
         // by the dispatcher, otherwise we just throw the handler string at FastRoute
@@ -77,7 +83,7 @@ class RouteCollection extends RouteCollector
             $this->routes[$handler]['callback'] = $callback;
         }
 
-        $this->routes[$handler]['strategy'] = (is_null($strategy)) ? new Strategy\RequestResponseStrategy : $strategy;
+        $this->routes[$handler]['strategy'] = $strategy;
 
         $route = $this->parseRouteString($route);
 
@@ -110,7 +116,7 @@ class RouteCollection extends RouteCollector
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function get($route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function get($route, $handler, StrategyInterface $strategy = null)
     {
         return $this->addRoute('GET', $route, $handler, $strategy);
     }
@@ -123,7 +129,7 @@ class RouteCollection extends RouteCollector
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function post($route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function post($route, $handler, StrategyInterface $strategy = null)
     {
         return $this->addRoute('POST', $route, $handler, $strategy);
     }
@@ -136,7 +142,7 @@ class RouteCollection extends RouteCollector
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function put($route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function put($route, $handler, StrategyInterface $strategy = null)
     {
         return $this->addRoute('PUT', $route, $handler, $strategy);
     }
@@ -149,7 +155,7 @@ class RouteCollection extends RouteCollector
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function patch($route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function patch($route, $handler, StrategyInterface $strategy = null)
     {
         return $this->addRoute('PATCH', $route, $handler, $strategy);
     }
@@ -162,7 +168,7 @@ class RouteCollection extends RouteCollector
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function delete($route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function delete($route, $handler, StrategyInterface $strategy = null)
     {
         return $this->addRoute('DELETE', $route, $handler, $strategy);
     }
@@ -175,7 +181,7 @@ class RouteCollection extends RouteCollector
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function head($route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function head($route, $handler, StrategyInterface $strategy = null)
     {
         return $this->addRoute('HEAD', $route, $handler, $strategy);
     }
@@ -188,7 +194,7 @@ class RouteCollection extends RouteCollector
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function options($route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function options($route, $handler, StrategyInterface $strategy = null)
     {
         return $this->addRoute('OPTIONS', $route, $handler, $strategy);
     }

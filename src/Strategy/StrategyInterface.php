@@ -13,9 +13,9 @@ interface StrategyInterface
      * controller actually is:
      *     - string   (controller is a named function)
      *     - array    (controller is a class method [0 => ClassName, 1 => MethodName])
-     *     - \Closure (controller is an anonymous function)
+     *     - callable (controller is an anonymous function)
      *
-     * @param  string|array|\Closure $controller
+     * @param  array|callable|string $controller
      * @param  array                 $vars - named wildcard segments of the matched route
      * @return mixed
      */

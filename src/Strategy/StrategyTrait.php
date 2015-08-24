@@ -14,7 +14,6 @@ trait StrategyTrait
      * level setting of strategies, such as on specific routes
      *
      * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return void
      */
     public function setStrategy(StrategyInterface $strategy)
     {
@@ -24,7 +23,7 @@ trait StrategyTrait
     /**
      * Gets global strategy
      *
-     * @return integer
+     * @return \League\Route\Strategy\StrategyInterface
      */
     public function getStrategy()
     {

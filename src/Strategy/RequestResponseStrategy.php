@@ -5,7 +5,7 @@ namespace League\Route\Strategy;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
-class RequestResponseStrategy extends AbstractStrategy implements StrategyInterface
+class RequestResponseStrategy extends AbstractStrategy
 {
     /**
      * {@inheritdoc}
