@@ -2,6 +2,16 @@
 
 All Notable changes to `League\Route` will be documented in this file
 
+## 1.2.0 - 2015-08-24
+
+### Added
+- Can now use any callable as a controller.
+- Request object is now built by the strategy when one is not available from the container.
+
+### Fixed
+- General tidying and removal of unused code.
+- URI variables now correctly passed to controller in `MethodArgumentStrategy`.
+
 ## 1.1.0 - 2015-02-24
 
 ### Added
