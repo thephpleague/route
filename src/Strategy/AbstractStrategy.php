@@ -41,7 +41,7 @@ abstract class AbstractStrategy implements ContainerAwareInterface
      *
      * @param  string|array|\Closure $controller
      * @param  array                 $vars
-     * @return \League\Http\ResponseInterface
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     protected function invokeController($controller, array $vars = [])
     {
@@ -59,7 +59,7 @@ abstract class AbstractStrategy implements ContainerAwareInterface
      * Attempt to build a response
      *
      * @param  mixed $response
-     * @return \League\Http\ResponseInterface
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     protected function determineResponse($response)
     {
