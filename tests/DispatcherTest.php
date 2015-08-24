@@ -2,6 +2,7 @@
 
 namespace League\Route\Test;
 
+use League\Container\Container;
 use League\Route;
 use League\Route\Http\Exception as HttpException;
 use League\Route\Strategy\MethodArgumentStrategy;
@@ -321,6 +322,96 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
         $dispatcher = $collection->getDispatcher();
         $response = $dispatcher->dispatch('GET', '/route');
+    }
+
+    /**
+     * Assert that the request object is created from globals if it was not
+     * already registered to the container
+     *
+     * @return void
+     */
+    public function testRequestResponseStrategyRouteCreateFromGlobalsRequest()
+    {
+
+        $collection = new Route\RouteCollection();
+        $collection->setStrategy(new RequestResponseStrategy);
+
+        $_GET = ['test' => 1];
+
+        $collection->get('/route', function ($request, $response) {
+            $this->assertEquals(1, $request->query->get('test'));
+            return $response;
+        });
+
+        $dispatcher = $collection->getDispatcher();
+        $response = $dispatcher->dispatch('GET', '/route');
+
+    }
+
+    /**
+     * Assert that the request object is taken from the container if it was already registered
+     *
+     * @return void
+     */
+    public function testRequestResponseStrategyRouteRequestFromContainer()
+    {
+
+        $container = new Container();
+        $container->add('Symfony\Component\HttpFoundation\Request')->withArguments([['get' => 2], ['post' => 3]]);
+        $collection = new Route\RouteCollection($container);
+        $collection->setStrategy(new RequestResponseStrategy);
+
+        $collection->get('/route', function ($request, $response) {
+            $this->assertEquals(2, $request->query->get('get'));
+            $this->assertEquals(3, $request->request->get('post'));
+            return $response;
+        });
+
+        $dispatcher = $collection->getDispatcher();
+        $response = $dispatcher->dispatch('GET', '/route');
+
+    }
+
+    /**
+     * Assert that the request object is taken from the service provider
+     *
+     * @return void
+     */
+    public function testRequestResponseStrategyRouteRequestFromServiceProvider()
+    {
+
+        $container = new Container();
+
+        //Build mock provider
+        $provider = $this->getMock('League\Container\ServiceProvider');
+
+        $provider->expects($this->any())
+                  ->method('provides')
+                  ->will($this->returnCallback(function() {
+                      $args = func_get_args();
+                      return $args[0] === 'Symfony\Component\HttpFoundation\Request';
+                  }));
+
+        $provider->expects($this->once())
+                  ->method('register')
+                  ->will($this->returnCallback(function() use ($container) {
+                      $container->add('Symfony\Component\HttpFoundation\Request', null, true)->withArguments([['get' => 4], ['post' => 5]]);
+                  }));
+
+        $container->addServiceProvider($provider);
+
+        $collection = new Route\RouteCollection($container);
+        $collection->setStrategy(new RequestResponseStrategy);
+
+        $collection->get('/route', function ($request, $response) {
+            $this->assertEquals(4, $request->query->get('get'));
+            $this->assertEquals(5, $request->request->get('post'));
+            return $response;
+        });
+
+        $dispatcher = $collection->getDispatcher();
+        $response = $dispatcher->dispatch('GET', '/route');
+
     }
 
     /**
