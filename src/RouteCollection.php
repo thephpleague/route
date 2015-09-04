@@ -8,8 +8,8 @@ use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdRouteParser;
+use Interop\Container\ContainerInterface;
 use League\Container\Container;
-use League\Container\ContainerInterface;
 
 class RouteCollection extends RouteCollector
 {
@@ -70,9 +70,7 @@ class RouteCollection extends RouteCollector
 
         // if the handler is an anonymous function, we need to store it for later use
         // by the dispatcher, otherwise we just throw the handler string at FastRoute
-        if ($handler instanceof Closure ||
-            (is_object($handler) && is_callable($handler))
-        ) {
+        if ($handler instanceof Closure || (is_object($handler) && is_callable($handler))) {
             $callback = $handler;
             $handler  = uniqid('league::route::', true);
 
@@ -200,8 +198,9 @@ class RouteCollection extends RouteCollector
     /**
      * Add a convenient pattern matcher to the internal array for use with all routes.
      *
-     * @param string $keyWord
-     * @param string $regex
+     * @param  string $keyWord
+     * @param  string $regex
+     * @return void
      */
     public function addPatternMatcher($keyWord, $regex)
     {

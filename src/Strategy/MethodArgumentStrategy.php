@@ -13,13 +13,22 @@ class MethodArgumentStrategy extends AbstractStrategy implements StrategyInterfa
     {
         if (is_array($controller)) {
             $controller = [
-                $this->container->get($controller[0]),
+                $this->getContainer()->get($controller[0]),
                 $controller[1]
             ];
         }
 
-        $response = $this->container->call($controller, $vars);
+        if (method_exists($this->getContainer()), 'call')) {
+            $response = $this->getContainer()->call($controller, $vars);
 
-        return $this->determineResponse($response);
+            return $this->determineResponse($response);
+        }
+
+        throw new RuntimeException(
+            sprintf(
+                'To use the method argument strategy, the container must implement the (::call) method. (%s) does not.',
+                get_class($this->getContainer())
+            )
+        );
     }
 }

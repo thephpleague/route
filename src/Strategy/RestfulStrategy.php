@@ -15,10 +15,7 @@ class RestfulStrategy extends AbstractStrategy implements StrategyInterface
     public function dispatch($controller, array $vars)
     {
         try {
-            $response = $this->invokeController($controller, [
-                $this->getRequest(),
-                $vars
-            ]);
+            $response = $this->invokeController($controller, [$this->getRequest(), $vars]);
 
             if ($response instanceof JsonResponse) {
                 return $response;

@@ -2,23 +2,32 @@
 
 namespace League\Route\Strategy;
 
-use League\Container\Container;
-use League\Container\ContainerAwareInterface;
-use League\Container\ContainerAwareTrait;
-use League\Container\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Exception;
+use Interop\Container\ContainerInterface;
+use League\Container\ImmutableContainerAwareInterface;
+use League\Container\ImmutableContainerAwareTrait;
+use League\Route\Http\RequestAwareInterface;
+use League\Route\Http\RequestAwareTrait;
+use League\Route\Http\ResponseAwareInterface;
+use League\Route\Http\ResponseAwareTrait;
+use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
-abstract class AbstractStrategy implements ContainerAwareInterface
+abstract class AbstractStrategy implements
+    ImmutableContainerAwareInterface,
+    RequestAwareInterface,
+    ResponseAwareInterface
 {
-    use ContainerAwareTrait;
+    use ImmutableContainerAwareTrait;
+    use RequestAwareTrait;
+    use ResponseAwareTrait;
 
     /**
-     * Invoke a controller action
+     * Invoke a controller action.
      *
      * @param  string|array|\Closure $controller
      * @param  array                 $vars
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function invokeController($controller, array $vars = [])
     {
@@ -33,40 +42,29 @@ abstract class AbstractStrategy implements ContainerAwareInterface
     }
 
     /**
-     * Attempt to build a response
+     * Attempt to build a response.
      *
      * @param  mixed $response
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \RuntimeException if a response cannot be built
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function determineResponse($response)
     {
-        if ($response instanceof Response) {
+        if ($response instanceof ResponseInterface) {
             return $response;
         }
 
         try {
-            $response = new Response($response);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Unable to build Response from controller return value', 0, $e);
+            $body     = $response;
+            $response = $this->getResponse();
+
+            if ($response->getBody()->isWritable()) {
+                $response->getBody()->write($body);
+            }
+        } catch (Exception $e) {
+            throw new RuntimeException('Unable to build Response from controller return value', 0, $e);
         }
 
         return $response;
-    }
-
-    /**
-     * Get Request either from the container or else create it from globals.
-     *
-     * @return \Symfony\Component\HttpFoundation\Request
-     */
-    protected function getRequest()
-    {
-        if (
-            $this->getContainer()->isRegistered('Symfony\Component\HttpFoundation\Request') ||
-            $this->getContainer()->isInServiceProvider('Symfony\Component\HttpFoundation\Request')
-        ) {
-            return $this->getContainer()->get('Symfony\Component\HttpFoundation\Request');
-        }
-
-        return Request::createFromGlobals();
     }
 }

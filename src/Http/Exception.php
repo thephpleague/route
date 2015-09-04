@@ -3,22 +3,27 @@
 namespace League\Route\Http;
 
 use League\Route\Http\Exception\HttpExceptionInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Psr\Http\Message\ResponseInterface;
 
 class Exception extends \Exception implements HttpExceptionInterface
 {
-    /**
-     * @var integer
-     */
-    protected $status;
-
     /**
      * @var array
      */
     protected $headers = [];
 
     /**
-     * Constructor
+     * @var string
+     */
+    protected $message;
+
+    /**
+     * @var integer
+     */
+    protected $status;
+
+    /**
+     * Constructor.
      *
      * @param integer    $status
      * @param string     $message
@@ -33,8 +38,9 @@ class Exception extends \Exception implements HttpExceptionInterface
         array $headers       = [],
         $code                = 0
     ) {
-        $this->status  = $status;
         $this->headers = $headers;
+        $this->message = $message;
+        $this->status  = $status;
 
         parent::__construct($message, $code, $previous);
     }
@@ -42,29 +48,21 @@ class Exception extends \Exception implements HttpExceptionInterface
     /**
      * {@inheritdoc}
      */
-    public function getStatusCode()
+    public function buildJsonResponse(ResponseInterface $response)
     {
-        return $this->status;
-    }
+        $this->headers['content-type'] = 'application/json';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
+        foreach ($this->headers as $key => $value) {
+            $response = $response->withAddedHeader($key, $value);
+        }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getJsonResponse()
-    {
-        $body = [
-            'status_code' => $this->getStatusCode(),
-            'message'     => $this->getMessage()
-        ];
+        if ($response->getBody()->isWritable()) {
+            $response->getBody()->write(json_encode([
+                'status_code'   => $this->status,
+                'reason_phrase' => $this->message
+            ]));
+        }
 
-        return new JsonResponse($body, $this->getStatusCode(), $this->getHeaders());
+        return $response->withStatus($this->status, $this->message);
     }
 }
