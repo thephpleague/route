@@ -9,6 +9,7 @@ use League\Route\Strategy\MethodArgumentStrategy;
 use League\Route\Strategy\RestfulStrategy;
 use League\Route\Strategy\RequestResponseStrategy;
 use League\Route\Strategy\UriStrategy;
+use Symfony\Component\HttpFoundation\Request;
 
 class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
@@ -363,6 +364,30 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
         $container = new Container();
         $container->add('Symfony\Component\HttpFoundation\Request')->withArguments([['get' => 2], ['post' => 3]]);
+        $collection = new Route\RouteCollection($container);
+        $collection->setStrategy(new RequestResponseStrategy);
+
+        $collection->get('/route', function ($request, $response) {
+            $this->assertEquals(2, $request->query->get('get'));
+            $this->assertEquals(3, $request->request->get('post'));
+            return $response;
+        });
+
+        $dispatcher = $collection->getDispatcher();
+        $response = $dispatcher->dispatch('GET', '/route');
+
+    }
+
+    /**
+     * Assert that the request object is taken from the container if it was already registered as a singleton
+     *
+     * @return void
+     */
+    public function testRequestResponseStrategyRouteSingletonRequestFromContainer()
+    {
+
+        $container = new Container();
+        $container->add('Symfony\Component\HttpFoundation\Request', new Request(['get' => 2], ['post' => 3]));
         $collection = new Route\RouteCollection($container);
         $collection->setStrategy(new RequestResponseStrategy);
 
