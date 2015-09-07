@@ -2,6 +2,11 @@
 
 All Notable changes to `League\Route` will be documented in this file
 
+## 1.2.1 - 2015-09-07
+
+### Added
+- Allow singleton request object to be used rather than building new request.
+
 ## 1.2.0 - 2015-08-24
 
 ### Added
