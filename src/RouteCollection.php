@@ -57,7 +57,7 @@ class RouteCollection extends RouteCollector
     /**
      * Add a route to the collection
      *
-     * @param  string                                   $method
+     * @param  string|string[]                          $method
      * @param  string                                   $route
      * @param  string|\Closure                          $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
