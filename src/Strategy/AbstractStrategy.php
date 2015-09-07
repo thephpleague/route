@@ -62,6 +62,7 @@ abstract class AbstractStrategy implements ContainerAwareInterface
     {
         if (
             $this->getContainer()->isRegistered('Symfony\Component\HttpFoundation\Request') ||
+            $this->getContainer()->isSingleton('Symfony\Component\HttpFoundation\Request') ||
             $this->getContainer()->isInServiceProvider('Symfony\Component\HttpFoundation\Request')
         ) {
             return $this->getContainer()->get('Symfony\Component\HttpFoundation\Request');
