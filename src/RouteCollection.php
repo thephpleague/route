@@ -28,6 +28,9 @@ class RouteCollection extends RouteCollector
      */
     protected $routes = [];
 
+    /**
+     * @var array
+     */
     protected $patternMatchers = [
         '/{(.+?):number}/'        => '{$1:[0-9]+}',
         '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
@@ -37,9 +40,9 @@ class RouteCollection extends RouteCollector
     /**
      * Constructor
      *
-     * @param \League\Container\ContainerInterface $container
-     * @param \FastRoute\RouteParser               $parser
-     * @param \FastRoute\DataGenerator             $generator
+     * @param \Interop\Container\ContainerInterface $container
+     * @param \FastRoute\RouteParser                $parser
+     * @param \FastRoute\DataGenerator              $generator
      */
     public function __construct(
         ContainerInterface $container = null,
@@ -55,18 +58,18 @@ class RouteCollection extends RouteCollector
     }
 
     /**
-     * Add a route to the collection
+     * Add a route to the map.
      *
      * @param  string                                   $method
      * @param  string                                   $route
-     * @param  string|\Closure                          $handler
+     * @param  callable                                 $handler
      * @param  \League\Route\Strategy\StrategyInterface $strategy
      * @return \League\Route\RouteCollection
      */
-    public function addRoute($method, $route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function addRoute($method, $route, callable $handler, Strategy\StrategyInterface $strategy = null)
     {
         // are we running a single strategy for the collection?
-        $strategy = (! is_null($this->strategy)) ? $this->strategy : $strategy;
+        $strategy = (is_null($this->strategy)) ? $strategy : $this->strategy;
 
         // if the handler is an anonymous function, we need to store it for later use
         // by the dispatcher, otherwise we just throw the handler string at FastRoute

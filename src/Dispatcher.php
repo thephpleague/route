@@ -70,46 +70,23 @@ class Dispatcher extends GroupCountBasedDispatcher
         $strategy = $this->routes[$match[1]]['strategy'];
         $vars     = (array) $match[2];
 
-        return $this->handleFound($handler, $strategy, $vars);
+        return $this->handleFound($route, $vars);
     }
 
     /**
-     * Handle dispatching of a found route
+     * Handle dispatching of a found route.
      *
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @param  array                                    $vars
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \RuntimeException
+     * @param  \League\Route\Route $route
+     * @param  array               $vars
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function handleFound($handler, StrategyInterface $strategy, array $vars)
+    protected function handleFound(Route $route, array $vars)
     {
-        if (is_null($this->getStrategy())) {
-            $this->setStrategy($strategy);
-        }
+        $response = $route->dispatch($vars);
 
-        $controller = null;
+        // verify response
 
-        // figure out what the controller is
-        if (($handler instanceof Closure) || is_callable($handler)) {
-            $controller = $handler;
-        }
-
-        if (is_string($handler) && strpos($handler, '::') !== false) {
-            $controller = explode('::', $handler);
-        }
-
-        // if controller method wasn't specified, throw exception.
-        if (! $controller) {
-            throw new RuntimeException('A class method must be provided as a controller. ClassName::methodName');
-        }
-
-        // dispatch via strategy
-        if ($strategy instanceof ContainerAwareInterface) {
-            $strategy->setContainer($this->container);
-        }
-
-        return $strategy->dispatch($controller, $vars);
+        return $response;
     }
 
     /**

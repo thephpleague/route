@@ -14,11 +14,13 @@ trait StrategyTrait
      * level setting of strategies, such as on specific routes
      *
      * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return void
+     * @return $this
      */
     public function setStrategy(StrategyInterface $strategy)
     {
         $this->strategy = $strategy;
+
+        return $this;
     }
 
     /**
