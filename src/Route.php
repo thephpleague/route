@@ -61,7 +61,7 @@ class Route implements ImmutableContainerAwareInterface
         }
 
         if (is_array($callable) && isset($callable[0])) {
-            $controller = [
+            $callable = [
                 (is_object($callable[0])) ? $callable[0] : $this->getContainer()->get($callable[0]),
                 $callable[1]
             ];
@@ -77,7 +77,7 @@ class Route implements ImmutableContainerAwareInterface
             $strategy->setResponse($response);
         }
 
-        return $strategy->dispatch($controller, $vars);
+        return $strategy->dispatch($callable, $vars);
     }
 
     /**
