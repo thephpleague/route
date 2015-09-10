@@ -4,20 +4,21 @@ namespace League\Route\Http;
 
 use Psr\Http\Message\ResponseInterface;
 
-interface RequestAwareInterface
+interface ResponseAwareInterface
 {
     /**
-     * Set a PSR-7 Request implementation.
+     * Set a PSR-7 Response implementation.
      *
      * @param  \Psr\Http\Message\ResponseInterface $request
+     *
      * @return $this
      */
-    public function setRequest(ResponseInterface $request);
+    public function setResponse(ResponseInterface $request);
 
     /**
      * Return the request object.
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getRequest();
+    public function getResponse();
 }

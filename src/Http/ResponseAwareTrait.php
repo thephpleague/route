@@ -16,6 +16,7 @@ trait ResponseAwareInterface
      * Set a PSR-7 response implementation.
      *
      * @param  \Psr\Http\Message\ResponseInterface $response
+     *
      * @return $this
      */
     public function setResponse(ResponseInterface $request)
@@ -29,6 +30,7 @@ trait ResponseAwareInterface
      * Return the request object.
      *
      * @throws \RuntimeException if a response object cannot be determined
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function getResponse()

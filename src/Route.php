@@ -44,11 +44,13 @@ class Route implements ImmutableContainerAwareInterface
     /**
      * Dispatch the route via the attached strategy.
      *
-     * @param array $vars
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface      $response
+     * @param array                                    $vars
      *
      * @return mixed
      */
-    public function dispatch(array $vars)
+    public function dispatch(ServerRequestInterface $request, ResponseInterface $response, array $vars)
     {
         $callable = $this->getCallable();
 
@@ -57,13 +59,16 @@ class Route implements ImmutableContainerAwareInterface
         }
 
         if (is_array($callable) && isset($callable[0])) {
-            $callable = [
+            $controller = [
                 (is_object($callable[0])) ? $callable[0] : $this->getContainer()->get($callable[0]),
                 $callable[1]
-            ]
+            ];
         }
 
-        return $this->getStrategy()->dispatch($callable, $vars);
+        return $this->getStrategy()
+                    ->setRequest($request)
+                    ->setResponse($response)
+                    ->dispatch($controller, $vars);
     }
 
     /**

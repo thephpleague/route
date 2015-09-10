@@ -9,15 +9,8 @@ class MethodArgumentStrategy extends AbstractStrategy implements StrategyInterfa
     /**
      * {@inheritdoc}
      */
-    public function dispatch($controller, array $vars)
+    public function dispatch(callable $controller, array $vars)
     {
-        if (is_array($controller)) {
-            $controller = [
-                $this->getContainer()->get($controller[0]),
-                $controller[1]
-            ];
-        }
-
         if (method_exists($this->getContainer()), 'call')) {
             $response = $this->getContainer()->call($controller, $vars);
 

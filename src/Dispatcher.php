@@ -8,6 +8,8 @@ use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Strategy\RestfulStrategy;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
 class Dispatcher extends GroupCountBasedDispatcher
@@ -20,9 +22,9 @@ class Dispatcher extends GroupCountBasedDispatcher
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function dispatch(ServerRequestInterface $request, ResponseInterface $response)
+    public function handle(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $match = parent::dispatch(
+        $match = $this->dispatch(
             $request->getMethod(),
             $request->getUri()->getPath()
         );
@@ -55,11 +57,7 @@ class Dispatcher extends GroupCountBasedDispatcher
         ResponseInterface      $response,
         array                  $vars
     ) {
-        $response = call_user_func_array($route, [$request, $response, $vars]);
-
-        // verify response
-
-        return $response;
+        return call_user_func_array($route, [$request, $response, $vars]);
     }
 
     /**

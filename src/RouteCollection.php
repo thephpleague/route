@@ -94,11 +94,21 @@ class RouteCollection extends RouteCollector
      */
     public function dispatch(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $dispatcher = $this->getDispatcher();
+
+        return $dispatcher->handle($request, $response);
+    }
+
+    /**
+     * Return a fully configured dispatcher.
+     *
+     * @return \League\Route\Dispatcher
+     */
+    public function getDispatcher()
+    {
         $this->prepRoutes($request);
 
-        $dispatcher = new Dispatcher($this->container, $this->getData());
-
-        return $dispatcher->dispatch($request, $response);
+        return new Dispatcher($this->container, $this->getData());
     }
 
     /**

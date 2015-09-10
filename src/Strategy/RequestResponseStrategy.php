@@ -10,17 +10,14 @@ class RequestResponseStrategy extends AbstractStrategy implements StrategyInterf
     /**
      * {@inheritdoc}
      */
-    public function dispatch($controller, array $vars)
+    public function dispatch(callable $controller, array $vars)
     {
-        $response = $this->invokeController($controller, [$this->getRequest(), $this->getResponse(), $vars]);
+        $resonse = call_user_func_array($controller, [
+            $this->getRequest(),
+            $this->getResponse(),
+            $vars
+        ]);
 
-        if ($response instanceof ResponseInterface) {
-            return $response;
-        }
-
-        throw new RuntimeException(
-            'When using the Request -> Response Strategy your controller must ' .
-            'return an instance of (Psr\Http\Message\ResponseInterface)'
-        );
+        return $this->determineResponse($response);
     }
 }
