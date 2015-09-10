@@ -19,7 +19,7 @@ class Route implements ImmutableContainerAwareInterface
     /**
      * @var string
      */
-    protected $domain;
+    protected $host;
 
     /**
      * @var string[]
@@ -44,7 +44,8 @@ class Route implements ImmutableContainerAwareInterface
     /**
      * Dispatch the route via the attached strategy.
      *
-     * @param  array $vars
+     * @param array $vars
+     *
      * @return mixed
      */
     public function dispatch(array $vars)
@@ -78,7 +79,8 @@ class Route implements ImmutableContainerAwareInterface
     /**
      * Set the callable.
      *
-     * @param  string|callable $callable
+     * @param string|callable $callable
+     *
      * @return \League\Route\Route
      */
     public function setCallable($callable)
@@ -89,24 +91,25 @@ class Route implements ImmutableContainerAwareInterface
     }
 
     /**
-     * Get the domain.
+     * Get the host.
      *
      * @return string
      */
-    public function getDomain()
+    public function getHost()
     {
-        return $this->domain;
+        return $this->host;
     }
 
     /**
-     * Set the domain.
+     * Set the host.
      *
-     * @param  string $domain
+     * @param string $host
+     *
      * @return \League\Route\Route
      */
-    public function setDomain($domain)
+    public function setHost($host)
     {
-        $this->domain = $domain;
+        $this->host = $host;
 
         return $this;
     }
@@ -124,7 +127,8 @@ class Route implements ImmutableContainerAwareInterface
     /**
      * Get the methods.
      *
-     * @param  string[] $methods
+     * @param string[] $methods
+     *
      * @return \League\Route\Route
      */
     public function setMethods(array $methods)
@@ -147,7 +151,8 @@ class Route implements ImmutableContainerAwareInterface
     /**
      * Set the name.
      *
-     * @param  string name
+     * @param string name
+     *
      * @return \League\Route\Route
      */
     public function setName($name)
@@ -170,7 +175,8 @@ class Route implements ImmutableContainerAwareInterface
     /**
      * Set the path.
      *
-     * @param  string $path
+     * @param string $path
+     *
      * @return \League\Route\Route
      */
     public function setPath($path)
@@ -193,7 +199,8 @@ class Route implements ImmutableContainerAwareInterface
     /**
      * Set the scheme.
      *
-     * @param  string $scheme
+     * @param string $scheme
+     *
      * @return \League\Route\Route
      */
     public function setScheme($scheme)
