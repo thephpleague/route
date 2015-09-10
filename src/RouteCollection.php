@@ -94,7 +94,7 @@ class RouteCollection extends RouteCollector
      */
     public function dispatch(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $dispatcher = $this->getDispatcher();
+        $dispatcher = $this->getDispatcher($request);
 
         return $dispatcher->handle($request, $response);
     }
