@@ -90,7 +90,7 @@ class Dispatcher extends GroupCountBasedDispatcher
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function handleNotAllowed(array $allowed)
+    protected function handleNotAllowed(ResponseInterface $response, array $allowed)
     {
         $exception = new MethodNotAllowedException($allowed);
 
