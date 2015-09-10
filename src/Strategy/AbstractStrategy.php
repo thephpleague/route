@@ -3,9 +3,12 @@
 namespace League\Route\Strategy;
 
 use Exception;
-use Interop\Container\ContainerInterface;
 use League\Container\ImmutableContainerAwareInterface;
 use League\Container\ImmutableContainerAwareTrait;
+use League\Route\Http\RequestAwareInterface;
+use League\Route\Http\RequestAwareTrait;
+use League\Route\Http\ResponseAwareInterface;
+use League\Route\Http\ResponseAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
