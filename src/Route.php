@@ -8,6 +8,8 @@ use League\Route\Http\RequestAwareInterface;
 use League\Route\Http\ResponseAwareInterface;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
 {
@@ -61,11 +63,16 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
             $callable = explode('::', $callable);
         }
 
-        if (is_array($callable) && isset($callable[0])) {
-            $callable = [
-                (is_object($callable[0])) ? $callable[0] : $this->getContainer()->get($callable[0]),
-                $callable[1]
-            ];
+        if (is_array($callable) && isset($callable[0]) && is_object($callable[0])) {
+            $callable = [$callable[0], $callable[1]];
+        }
+
+        if (is_array($callable) && isset($callable[0]) && is_string($callable[0])) {
+            $class = ($this->getContainer()->has($callable[0]))
+                   ? $this->getContainer()->get($callable[0])
+                   : new $callable[0];
+
+            $callable = [$class, $callable[1]];
         }
 
         $strategy = $this->getStrategy();
