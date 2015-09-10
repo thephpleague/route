@@ -5,84 +5,57 @@ namespace League\Route;
 use Closure;
 use FastRoute\Dispatcher as FastRoute;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
-use League\Container\ContainerAwareInterface;
-use League\Container\ContainerInterface;
 use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Strategy\RestfulStrategy;
-use League\Route\Strategy\StrategyInterface;
-use League\Route\Strategy\StrategyTrait;
 use RuntimeException;
 
 class Dispatcher extends GroupCountBasedDispatcher
 {
     /**
-     * Route strategy functionality
-     */
-    use StrategyTrait;
-
-    /**
-     * @var \League\Container\ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * @var array
-     */
-    protected $routes;
-
-    /**
-     * Constructor
+     * Match and dispatch a route matching the given http method and uri.
      *
-     * @param \League\Container\ContainerInterface $container
-     * @param array                                $routes
-     * @param array                                $data
-     */
-    public function __construct(ContainerInterface $container, array $routes, array $data)
-    {
-        $this->container = $container;
-        $this->routes    = $routes;
-
-        parent::__construct($data);
-    }
-
-    /**
-     * Match and dispatch a route matching the given http method and uri
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface      $response
      *
-     * @param  string $method
-     * @param  string $uri
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function dispatch($method, $uri)
+    public function dispatch(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $match = parent::dispatch($method, $uri);
+        $match = parent::dispatch(
+            $request->getMethod(),
+            $request->getUri()->getPath()
+        );
 
         if ($match[0] === FastRoute::NOT_FOUND) {
-            return $this->handleNotFound();
+            return $this->handleNotFound($response);
         }
 
         if ($match[0] === FastRoute::METHOD_NOT_ALLOWED) {
-            $allowed  = (array) $match[1];
-            return $this->handleNotAllowed($allowed);
+            $allowed = (array) $match[1];
+            return $this->handleNotAllowed($response, $allowed);
         }
 
-        $handler  = (isset($this->routes[$match[1]]['callback'])) ? $this->routes[$match[1]]['callback'] : $match[1];
-        $strategy = $this->routes[$match[1]]['strategy'];
-        $vars     = (array) $match[2];
-
-        return $this->handleFound($route, $vars);
+        return $this->handleFound($match[1], $request, $response, (array) $match[2]);
     }
 
     /**
      * Handle dispatching of a found route.
      *
-     * @param  \League\Route\Route $route
-     * @param  array               $vars
+     * @param callable                                 $route
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface      $response
+     * @param array                                    $vars
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function handleFound(Route $route, array $vars)
-    {
-        $response = $route->dispatch($vars);
+    protected function handleFound(
+        callable               $route,
+        ServerRequestInterface $request,
+        ResponseInterface      $response,
+        array                  $vars
+    ) {
+        $response = call_user_func_array($route, [$request, $response, $vars]);
 
         // verify response
 
@@ -90,16 +63,20 @@ class Dispatcher extends GroupCountBasedDispatcher
     }
 
     /**
-     * Handle a not found route
+     * Handle a not found route.
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param \Psr\Http\Message\ResponseInterface $response
+     *
+     * @throws \League\Route\Http\Exception\HttpException if a response cannot be built
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function handleNotFound()
+    protected function handleNotFound(ResponseInterface $response)
     {
         $exception = new NotFoundException;
 
         if ($this->getStrategy() instanceof RestfulStrategy) {
-            return $exception->getJsonResponse();
+            return $exception->buildJsonResponse($response);
         }
 
         throw $exception;
@@ -108,15 +85,19 @@ class Dispatcher extends GroupCountBasedDispatcher
     /**
      * Handles a not allowed route
      *
-     * @param  array $allowed
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param array                               $allowed
+     *
+     * @throws \League\Route\Http\Exception\MethodNotAllowedException if a response cannot be built
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function handleNotAllowed(array $allowed)
     {
         $exception = new MethodNotAllowedException($allowed);
 
         if ($this->getStrategy() instanceof RestfulStrategy) {
-            return $exception->getJsonResponse();
+            return $exception->buildJsonResponse();
         }
 
         throw $exception;
