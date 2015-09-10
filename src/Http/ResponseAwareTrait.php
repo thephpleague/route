@@ -19,7 +19,7 @@ trait ResponseAwareTrait
      *
      * @return $this
      */
-    public function setResponse(ResponseInterface $request)
+    public function setResponse(ResponseInterface $response)
     {
         $this->response = $response;
 
