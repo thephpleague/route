@@ -12,7 +12,6 @@ use League\Container\Container;
 use League\Route\Strategy\RequestResponseStrategy;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
-use League\Route\Strategy\StrategyInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
