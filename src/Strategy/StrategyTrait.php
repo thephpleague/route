@@ -10,10 +10,10 @@ trait StrategyTrait
     protected $strategy;
 
     /**
-     * Tells the implementor which strategy to use, this should override any higher
-     * level setting of strategies, such as on specific routes
+     * Set the strategy.
      *
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
+     * @param \League\Route\Strategy\StrategyInterface $strategy
+     *
      * @return $this
      */
     public function setStrategy(StrategyInterface $strategy)
@@ -24,9 +24,9 @@ trait StrategyTrait
     }
 
     /**
-     * Gets global strategy
+     * Gets the strategy.
      *
-     * @return integer
+     * @return \League\Route\Strategy\StrategyInterface
      */
     public function getStrategy()
     {
