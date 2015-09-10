@@ -5,7 +5,7 @@ namespace League\Route\Http;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
-trait RequestAwareInterface
+trait RequestAwareTrait
 {
     /**
      * @var \Psr\Http\Message\ServerRequestInterface
