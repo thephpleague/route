@@ -4,8 +4,8 @@ namespace League\Route;
 
 use League\Container\ImmutableContainerAwareInterface;
 use League\Container\ImmutableContainerAwareTrait;
-use League\Route\RequestAwareInterface;
-use League\Route\ResponseAwareInterface;
+use League\Route\Http\RequestAwareInterface;
+use League\Route\Http\ResponseAwareInterface;
 use League\Route\Strategy\StrategyTrait;
 
 class Route implements ImmutableContainerAwareInterface
@@ -67,7 +67,7 @@ class Route implements ImmutableContainerAwareInterface
             ];
         }
 
-        $trategy = $this->getStrategy();
+        $strategy = $this->getStrategy();
 
         if ($strategy instanceof RequestAwareInterface) {
             $strategy->setRequest($request);
