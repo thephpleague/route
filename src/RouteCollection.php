@@ -102,13 +102,15 @@ class RouteCollection extends RouteCollector
     /**
      * Return a fully configured dispatcher.
      *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     *
      * @return \League\Route\Dispatcher
      */
-    public function getDispatcher()
+    public function getDispatcher(ServerRequestInterface $request)
     {
         $this->prepRoutes($request);
 
-        return new Dispatcher($this->container, $this->getData());
+        return new Dispatcher($this->getData());
     }
 
     /**
@@ -141,14 +143,14 @@ class RouteCollection extends RouteCollector
             }
 
             if (! is_null($route->getName())) {
-                $this->namesRoutes[$route->getName()] = $route;
+                $this->namedRoutes[$route->getName()] = $route;
             }
 
             unset($this->routes[$key]);
 
             $this->addRoute(
                 $route->getMethods(),
-                $this->parseRouteString($this->getPath()),
+                $this->parseRouteString($route->getPath()),
                 [$route, 'dispatch']
             );
         }
