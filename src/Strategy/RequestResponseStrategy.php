@@ -12,7 +12,7 @@ class RequestResponseStrategy extends AbstractStrategy implements StrategyInterf
      */
     public function dispatch(callable $controller, array $vars)
     {
-        $resonse = call_user_func_array($controller, [
+        $response = call_user_func_array($controller, [
             $this->getRequest(),
             $this->getResponse(),
             $vars
