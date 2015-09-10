@@ -2,9 +2,6 @@
 
 namespace League\Route\Strategy;
 
-use RuntimeException;
-use Psr\Http\Message\ResponseInterface;
-
 class RequestResponseStrategy extends AbstractStrategy implements StrategyInterface
 {
     /**
