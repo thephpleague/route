@@ -5,7 +5,7 @@ namespace League\Route\Http;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
-trait ResponseAwareInterface
+trait ResponseAwareTrait
 {
     /**
      * @var \Psr\Http\Message\ResponseInterface
@@ -18,7 +18,7 @@ trait ResponseAwareInterface
      * @param  \Psr\Http\Message\ResponseInterface $response
      * @return $this
      */
-    public function setResponse(ResponseInterface $request)
+    public function setResponse(ResponseInterface $response)
     {
         $this->response = $response;
 
