@@ -183,7 +183,7 @@ class Route implements ImmutableContainerAwareInterface
      */
     public function getPath()
     {
-        return $path;
+        return $this->path;
     }
 
     /**
