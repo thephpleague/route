@@ -48,6 +48,22 @@ class Exception extends \Exception implements HttpExceptionInterface
     /**
      * {@inheritdoc}
      */
+    public function getStatusCode()
+    {
+        return $this->status;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function buildJsonResponse(ResponseInterface $response)
     {
         $this->headers['content-type'] = 'application/json';
