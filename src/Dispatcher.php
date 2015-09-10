@@ -67,7 +67,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements StrategyAwareInter
      *
      * @param \Psr\Http\Message\ResponseInterface $response
      *
-     * @throws \League\Route\Http\Exception\HttpException if a response cannot be built
+     * @throws \League\Route\Http\Exception\NotFoundException if a response cannot be built
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
