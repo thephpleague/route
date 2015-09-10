@@ -9,17 +9,16 @@ use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use Interop\Container\ContainerInterface;
 use League\Container\Container;
+use League\Route\Strategy\RequestResponseStrategy;
+use League\Route\Strategy\StrategyAwareInterface;
+use League\Route\Strategy\StrategyAwareTrait;
 use League\Route\Strategy\StrategyInterface;
-use League\Route\Strategy\StrategyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RouteCollection extends RouteCollector
+class RouteCollection extends RouteCollector implements StrategyAwareInterface
 {
-    /**
-     * Route strategy functionality
-     */
-    use StrategyTrait;
+    use StrategyAwareTrait;
 
     /**
      * @var \Interop\Container\ContainerInterface
@@ -110,7 +109,11 @@ class RouteCollection extends RouteCollector
     {
         $this->prepRoutes($request);
 
-        return new Dispatcher($this->getData());
+        if (is_null($this->getStrategy())) {
+            $this->setStrategy(new RequestResponseStrategy);
+        }
+
+        return (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
     }
 
     /**
@@ -139,7 +142,7 @@ class RouteCollection extends RouteCollector
             $route->setContainer($this->container);
 
             if (! is_null($route->getStrategy())) {
-                $route->setStrategy($this->strategy);
+                $route->setStrategy($this->getStrategy());
             }
 
             if (! is_null($route->getName())) {

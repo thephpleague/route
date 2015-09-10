@@ -6,12 +6,13 @@ use League\Container\ImmutableContainerAwareInterface;
 use League\Container\ImmutableContainerAwareTrait;
 use League\Route\Http\RequestAwareInterface;
 use League\Route\Http\ResponseAwareInterface;
-use League\Route\Strategy\StrategyTrait;
+use League\Route\Strategy\StrategyAwareInterface;
+use League\Route\Strategy\StrategyAwareTrait;
 
-class Route implements ImmutableContainerAwareInterface
+class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
 {
     use ImmutableContainerAwareTrait;
-    use StrategyTrait;
+    use StrategyAwareTrait;
 
     /**
      * @var string|callable

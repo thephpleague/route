@@ -2,18 +2,20 @@
 
 namespace League\Route;
 
-use Closure;
 use FastRoute\Dispatcher as FastRoute;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
-use League\Route\Strategy\RestfulStrategy;
+use League\Route\Strategy\JsonStrategy;
+use League\Route\Strategy\StrategyAwareInterface;
+use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 
-class Dispatcher extends GroupCountBasedDispatcher
+class Dispatcher extends GroupCountBasedDispatcher implements StrategyAwareInterface
 {
+    use StrategyAwareTrait;
+
     /**
      * Match and dispatch a route matching the given http method and uri.
      *
@@ -73,7 +75,7 @@ class Dispatcher extends GroupCountBasedDispatcher
     {
         $exception = new NotFoundException;
 
-        if ($this->getStrategy() instanceof RestfulStrategy) {
+        if ($this->getStrategy() instanceof JsonStrategy) {
             return $exception->buildJsonResponse($response);
         }
 
@@ -94,8 +96,8 @@ class Dispatcher extends GroupCountBasedDispatcher
     {
         $exception = new MethodNotAllowedException($allowed);
 
-        if ($this->getStrategy() instanceof RestfulStrategy) {
-            return $exception->buildJsonResponse();
+        if ($this->getStrategy() instanceof JsonStrategy) {
+            return $exception->buildJsonResponse($response);
         }
 
         throw $exception;
