@@ -4,7 +4,7 @@ namespace League\Route\Strategy;
 
 use League\Route\Http\Exception as HttpException;
 
-class MethodArgumentStrategy extends AbstractStrategy implements StrategyInterface
+class ParamStrategy extends AbstractStrategy implements StrategyInterface
 {
     /**
      * {@inheritdoc}
