@@ -5,7 +5,6 @@ namespace League\Route\Strategy;
 use ArrayObject;
 use League\Route\Http\Exception as HttpException;
 use Psr\Http\Message\ResponseInterface;
-use RuntimeException;
 
 class JsonStrategy extends AbstractStrategy implements StrategyInterface
 {
