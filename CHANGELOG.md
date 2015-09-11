@@ -2,7 +2,7 @@
 
 All Notable changes to `League\Route` will be documented in this file
 
-## 1.2.2 - 2015-09-11
+## 1.2.3 - 2015-09-11
 
 ### Fixed
 - Continued fix to ensure that all callables can be used as controllers.
