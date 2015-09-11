@@ -44,7 +44,7 @@ abstract class AbstractStrategy implements
                 $response->getBody()->write($body);
             }
         } catch (Exception $e) {
-            throw new RuntimeException('Unable to build Response from controller return value', 0, $e);
+            throw new RuntimeException('Unable to build a response object from controller return value', 0, $e);
         }
 
         return $response;
