@@ -106,11 +106,11 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface
      */
     public function getDispatcher(ServerRequestInterface $request)
     {
-        $this->prepRoutes($request);
-
         if (is_null($this->getStrategy())) {
             $this->setStrategy(new RequestResponseStrategy);
         }
+
+        $this->prepRoutes($request);
 
         return (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
     }
@@ -140,7 +140,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface
 
             $route->setContainer($this->container);
 
-            if (! is_null($route->getStrategy())) {
+            if (is_null($route->getStrategy())) {
                 $route->setStrategy($this->getStrategy());
             }
 
