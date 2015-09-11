@@ -18,8 +18,8 @@ abstract class AbstractStrategy implements
     ResponseAwareInterface
 {
     use ImmutableContainerAwareTrait;
-    use RequestAwareInterface;
-    use ResponseAwareInterface;
+    use RequestAwareTrait;
+    use ResponseAwareTrait;
 
     /**
      * Attempt to build a response.
