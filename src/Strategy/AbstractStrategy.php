@@ -24,7 +24,7 @@ abstract class AbstractStrategy implements ContainerAwareInterface
     {
         if (is_array($controller)) {
             $controller = [
-                $this->getContainer()->get($controller[0]),
+                (is_object($controller[0])) ? $controller[0] : $this->getContainer()->get($controller[0]),
                 $controller[1]
             ];
         }
