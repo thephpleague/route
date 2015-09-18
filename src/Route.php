@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
 {
     use ImmutableContainerAwareTrait;
+    use RouteConditionTrait;
     use StrategyAwareTrait;
 
     /**
@@ -22,9 +23,9 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
     protected $callable;
 
     /**
-     * @var string
+     * @var \League\Route\RouteGroup
      */
-    protected $host;
+    protected $group;
 
     /**
      * @var string[]
@@ -34,17 +35,7 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
     /**
      * @var string
      */
-    protected $name;
-
-    /**
-     * @var string
-     */
     protected $path;
-
-    /**
-     * @var string
-     */
-    protected $scheme;
 
     /**
      * Dispatch the route via the attached strategy.
@@ -85,7 +76,7 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
             $strategy->setResponse($response);
         }
 
-        return $strategy->dispatch($callable, $vars);
+        return $strategy->dispatch($callable, $vars, $this);
     }
 
     /**
@@ -113,73 +104,25 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
     }
 
     /**
-     * Get the host.
+     * Get the parent group.
      *
-     * @return string
+     * @return \League\Route\RouteGroup
      */
-    public function getHost()
+    public function getParentGroup()
     {
-        return $this->host;
+        return $this->group;
     }
 
     /**
-     * Set the host.
+     * Set the parent group.
      *
-     * @param string $host
+     * @param \League\Route\RouteGroup $group
      *
      * @return \League\Route\Route
      */
-    public function setHost($host)
+    public function setParentGroup(RouteGroup $group)
     {
-        $this->host = $host;
-
-        return $this;
-    }
-
-    /**
-     * Get the methods.
-     *
-     * @return string[]
-     */
-    public function getMethods()
-    {
-        return $this->methods;
-    }
-
-    /**
-     * Get the methods.
-     *
-     * @param string[] $methods
-     *
-     * @return \League\Route\Route
-     */
-    public function setMethods(array $methods)
-    {
-        $this->methods = $methods;
-
-        return $this;
-    }
-
-    /**
-     * Get the name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Set the name.
-     *
-     * @param string name
-     *
-     * @return \League\Route\Route
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
+        $this->group = $group;
 
         return $this;
     }
@@ -209,25 +152,25 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
     }
 
     /**
-     * Get the scheme.
+     * Get the methods.
      *
-     * @return string
+     * @return string[]
      */
-    public function getScheme()
+    public function getMethods()
     {
-        return $this->scheme;
+        return $this->methods;
     }
 
     /**
-     * Set the scheme.
+     * Get the methods.
      *
-     * @param string $scheme
+     * @param string[] $methods
      *
      * @return \League\Route\Route
      */
-    public function setScheme($scheme)
+    public function setMethods(array $methods)
     {
-        $this->scheme = $scheme;
+        $this->methods = $methods;
 
         return $this;
     }

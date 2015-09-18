@@ -15,8 +15,9 @@ use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RouteCollection extends RouteCollector implements StrategyAwareInterface
+class RouteCollection extends RouteCollector implements StrategyAwareInterface, RouteCollectionInterface
 {
+    use RouteCollectionMapTrait;
     use StrategyAwareTrait;
 
     /**
@@ -65,16 +66,11 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface
     }
 
     /**
-     * Add a route to the map.
-     *
-     * @param array|string $method
-     * @param string       $path
-     * @param callable     $handler
-     *
-     * @return \League\Route\Route
+     * {@inheritdoc}
      */
     public function map($method, $path, callable $handler)
     {
+        $path  = str_pad($path, 1, '/', STR_PAD_LEFT);
         $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
 
         $this->routes[] = $route;
@@ -156,97 +152,6 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface
                 [$route, 'dispatch']
             );
         }
-    }
-
-    /**
-     * Add a route that responds to GET HTTP method.
-     *
-     * @param string          $route
-     * @param string|callable $handler
-     *
-     * @return \League\Route\Route
-     */
-    public function get($route, $handler)
-    {
-        return $this->map('GET', $route, $handler);
-    }
-
-    /**
-     * Add a route that responds to POST HTTP method.
-     *
-     * @param string          $route
-     * @param string|callable $handler
-     *
-     * @return \League\Route\Route
-     */
-    public function post($route, $handler)
-    {
-        return $this->map('POST', $route, $handler);
-    }
-
-    /**
-     * Add a route that responds to PUT HTTP method.
-     *
-     * @param string          $route
-     * @param string|callable $handler
-     *
-     * @return \League\Route\Route
-     */
-    public function put($route, $handler)
-    {
-        return $this->map('PUT', $route, $handler);
-    }
-
-    /**
-     * Add a route that responds to PATCH HTTP method.
-     *
-     * @param string          $route
-     * @param string|callable $handler
-     *
-     * @return \League\Route\Route
-     */
-    public function patch($route, $handler)
-    {
-        return $this->map('PATCH', $route, $handler);
-    }
-
-    /**
-     * Add a route that responds to DELETE HTTP method.
-     *
-     * @param string          $route
-     * @param string|callable $handler
-     *
-     * @return \League\Route\Route
-     */
-    public function delete($route, $handler)
-    {
-        return $this->map('DELETE', $route, $handler);
-    }
-
-    /**
-     * Add a route that responds to HEAD HTTP method.
-     *
-     * @param string          $route
-     * @param string|callable $handler
-     *
-     * @return \League\Route\Route
-     */
-    public function head($route, $handler)
-    {
-        return $this->map('HEAD', $route, $handler);
-    }
-
-    /**
-     * Add a route that responds to OPTIONS HTTP method.
-     *
-     * @param string          $route
-     * @param string|callable $handler
-     *
-     * @return \League\Route\Route
-     */
-    public function options($route, $handler)
-    {
-        return $this->map('OPTIONS', $route, $handler);
     }
 
     /**
