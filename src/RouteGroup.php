@@ -27,7 +27,7 @@ class RouteGroup implements RouteCollectionInterface
      * @param callable                      $callback
      * @param \League\Route\RouteCollection $collection
      */
-    public function __construct($prefix, callable $callback, RouteCollectionMapInterface $collection)
+    public function __construct($prefix, callable $callback, RouteCollectionInterface $collection)
     {
         $this->prefix     = str_pad($prefix, 1, '/', STR_PAD_LEFT);
         $this->collection = $collection;
