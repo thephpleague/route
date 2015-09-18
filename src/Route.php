@@ -44,7 +44,7 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
      * @param \Psr\Http\Message\ResponseInterface      $response
      * @param array                                    $vars
      *
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function dispatch(ServerRequestInterface $request, ResponseInterface $response, array $vars)
     {

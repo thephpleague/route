@@ -2,7 +2,6 @@
 
 namespace League\Route;
 
-use Closure;
 use League\Route\RouteCollection;
 
 class RouteGroup implements RouteCollectionInterface
