@@ -11,7 +11,7 @@ class RouteGroup implements RouteCollectionInterface
     use RouteConditionTrait;
 
     /**
-     * @var \League\Route\RouteCollection
+     * @var \League\Route\RouteCollectionInterface
      */
     protected $collection;
 
