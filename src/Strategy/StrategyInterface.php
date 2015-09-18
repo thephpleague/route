@@ -14,7 +14,7 @@ interface StrategyInterface
      * @param  callable $controller
      * @param  array    $vars - named wildcard segments of the matched route
      *
-     * OPTIONAL @param \League\Route\Route $route 
+     * OPTIONAL param \League\Route\Route $route 
      *
      * @return \Psr\Http\Message\ResponseInterface
      */

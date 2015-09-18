@@ -18,7 +18,7 @@ trait RouteCollectionMapTrait
     /**
      * Add a route that responds to GET HTTP method.
      *
-     * @param string   $route
+     * @param string   $path
      * @param callable $handler
      *
      * @return \League\Route\Route
@@ -31,7 +31,7 @@ trait RouteCollectionMapTrait
     /**
      * Add a route that responds to POST HTTP method.
      *
-     * @param string   $route
+     * @param string   $path
      * @param callable $handler
      *
      * @return \League\Route\Route
@@ -44,7 +44,7 @@ trait RouteCollectionMapTrait
     /**
      * Add a route that responds to PUT HTTP method.
      *
-     * @param string   $route
+     * @param string   $path
      * @param callable $handler
      *
      * @return \League\Route\Route
@@ -57,7 +57,7 @@ trait RouteCollectionMapTrait
     /**
      * Add a route that responds to PATCH HTTP method.
      *
-     * @param string   $route
+     * @param string   $path
      * @param callable $handler
      *
      * @return \League\Route\Route
@@ -70,7 +70,7 @@ trait RouteCollectionMapTrait
     /**
      * Add a route that responds to DELETE HTTP method.
      *
-     * @param string   $route
+     * @param string   $path
      * @param callable $handler
      *
      * @return \League\Route\Route
@@ -83,7 +83,7 @@ trait RouteCollectionMapTrait
     /**
      * Add a route that responds to HEAD HTTP method.
      *
-     * @param string   $route
+     * @param string   $path
      * @param callable $handler
      *
      * @return \League\Route\Route
@@ -96,7 +96,7 @@ trait RouteCollectionMapTrait
     /**
      * Add a route that responds to OPTIONS HTTP method.
      *
-     * @param string   $route
+     * @param string   $path
      * @param callable $handler
      *
      * @return \League\Route\Route

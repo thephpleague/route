@@ -18,7 +18,7 @@ interface RouteCollectionInterface
     /**
      * Add a route that responds to GET HTTP method.
      *
-     * @param string   $route
+     * @param string   $path
      * @param callable $handler
      *
      * @return \League\Route\Route
