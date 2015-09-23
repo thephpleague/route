@@ -31,16 +31,18 @@ class RouteGroup implements RouteCollectionInterface
         $this->prefix     = str_pad($prefix, 1, '/', STR_PAD_LEFT);
         $this->collection = $collection;
 
-        $callback($this);
+        call_user_func_array($callback, [$this]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function map($method, $path, callable $handler)
+    public function map($method, $path, $handler)
     {
         $path  = $this->prefix . str_pad($path, 1, '/', STR_PAD_LEFT);
         $route = $this->collection->map($method, $path, $handler);
+
+        $route->setParentGroup($this);
 
         if ($host = $this->getHost()) {
             $route->setHost($host);
