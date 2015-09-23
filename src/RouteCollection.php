@@ -68,7 +68,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     /**
      * {@inheritdoc}
      */
-    public function map($method, $path, callable $handler)
+    public function map($method, $path, $handler)
     {
         $path  = str_pad($path, 1, '/', STR_PAD_LEFT);
         $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
