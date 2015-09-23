@@ -6,6 +6,7 @@ use ArrayObject;
 use League\Route\Http\Exception as HttpException;
 use League\Route\Route;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 class JsonStrategy extends AbstractStrategy implements StrategyInterface
 {
@@ -35,5 +36,7 @@ class JsonStrategy extends AbstractStrategy implements StrategyInterface
         } catch (HttpException $e) {
             return $e->buildJsonResponse($this->getResponse());
         }
+
+        throw new RuntimeException('Unable to build a json response from controller return value.');
     }
 }
