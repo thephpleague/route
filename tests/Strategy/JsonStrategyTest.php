@@ -32,7 +32,7 @@ class JsonStrategyTest extends \PHPUnit_Framework_TestCase
     {
         $originalReq = $this->getMock('Psr\Http\Message\ServerRequestInterface');
         $originalRes = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $exception   = $this->getMockBuilder('League\Route\Http\Exception')->disableOriginalConstructor()->getMock();
+        $exception   = $this->getMockBuilder('League\Route\Http\Exception', ['buildJsonresponse'])->disableOriginalConstructor()->getMock();
 
         $exception->expects($this->once())->method('buildJsonResponse')->with($this->equalTo($originalRes))->will($this->returnValue($originalRes));
 
