@@ -14,6 +14,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route = new Route;
 
         $strategy = $this->getMock('League\Route\Strategy\StrategyInterface');
+        $group    = $this->getMockBuilder('League\Route\RouteGroup')->disableOriginalConstructor()->getMock();
 
         $callable = function () {};
         $host     = 'example.com';
@@ -42,6 +43,9 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $route->setStrategy($strategy);
         $this->assertSame($strategy, $route->getStrategy());
+
+        $route->setparentGroup($group);
+        $this->assertSame($group, $route->getParentGroup());
     }
 
     /**

@@ -4,6 +4,7 @@ namespace League\Route\Strategy;
 
 use League\Route\Http\Exception as HttpException;
 use League\Route\Route;
+use RuntimeException;
 
 class ParamStrategy extends AbstractStrategy implements StrategyInterface
 {
