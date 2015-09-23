@@ -4,6 +4,7 @@ namespace League\Route\Strategy;
 
 use ArrayObject;
 use League\Route\Http\Exception as HttpException;
+use League\Route\Route;
 use Psr\Http\Message\ResponseInterface;
 
 class JsonStrategy extends AbstractStrategy implements StrategyInterface
@@ -11,7 +12,7 @@ class JsonStrategy extends AbstractStrategy implements StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function dispatch(callable $controller, array $vars)
+    public function dispatch(callable $controller, array $vars, Route $route = null)
     {
         try {
             $response = call_user_func_array($controller, [

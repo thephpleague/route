@@ -2,6 +2,8 @@
 
 namespace League\Route\Strategy;
 
+use League\Route\Route;
+
 interface StrategyInterface
 {
     /**
@@ -11,12 +13,11 @@ interface StrategyInterface
      *
      * This method is passed an optional third argument of thhe route object itself.
      *
-     * @param  callable $controller
-     * @param  array    $vars - named wildcard segments of the matched route
-     *
-     * OPTIONAL param \League\Route\Route $route 
+     * @param callable                 $controller
+     * @param array                    $vars - named wildcard segments of the matched route
+     * @param \League\Route\Route|null $route
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function dispatch(callable $controller, array $vars);
+    public function dispatch(callable $controller, array $vars, Route $route = null);
 }
