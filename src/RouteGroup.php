@@ -35,7 +35,7 @@ class RouteGroup implements RouteCollectionInterface
     {
         $this->callback   = $callback;
         $this->collection = $collection;
-        $this->prefix     = str_pad($prefix, 1, '/', STR_PAD_LEFT);
+        $this->prefix     = sprintf('/%s', ltrim($prefix, '/'));
     }
 
     /**
@@ -53,7 +53,7 @@ class RouteGroup implements RouteCollectionInterface
      */
     public function map($method, $path, $handler)
     {
-        $path  = $this->prefix . str_pad($path, 1, '/', STR_PAD_LEFT);
+        $path  = $this->prefix . sprintf('/%s', ltrim($path, '/'));
         $route = $this->collection->map($method, $path, $handler);
 
         $route->setParentGroup($this);

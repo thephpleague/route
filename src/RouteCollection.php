@@ -76,7 +76,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     public function map($method, $path, $handler)
     {
-        $path = str_pad($path, 1, '/', STR_PAD_LEFT);
+        $path = sprintf('/%s', ltrim($path, '/'));
 
         $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
 
@@ -145,7 +145,6 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     protected function prepRoutes(ServerRequestInterface $request)
     {
-        $this->processGroups();
         $this->buildNameIndex();
 
         $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
@@ -182,6 +181,8 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     protected function buildNameIndex()
     {
+        $this->processGroups();
+
         foreach ($this->routes as $key => $route) {
             if (! is_null($route->getName())) {
                 unset($this->routes[$key]);
