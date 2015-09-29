@@ -77,9 +77,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     {
         $path = str_pad($path, 1, '/', STR_PAD_LEFT);
 
-        $route = (new Route)->setMethods((array) $method)
-                            ->setPath($this->parseRoutePath($path))
-                            ->setCallable($handler);
+        $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
 
         $this->routes[] = $route;
 
@@ -173,7 +171,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
 
             $this->addRoute(
                 $route->getMethods(),
-                $this->parseRouteString($route->getPath()),
+                $this->parseRoutePath($route->getPath()),
                 [$route, 'dispatch']
             );
         }
