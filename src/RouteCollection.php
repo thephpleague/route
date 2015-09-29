@@ -36,6 +36,11 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     protected $namedRoutes = [];
 
     /**
+     * @var \League\Route\RouteGroup[]
+     */
+    protected $groups = [];
+
+    /**
      * @var array
      */
     protected $patternMatchers = [
@@ -70,8 +75,11 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     public function map($method, $path, $handler)
     {
-        $path  = str_pad($path, 1, '/', STR_PAD_LEFT);
-        $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
+        $path = str_pad($path, 1, '/', STR_PAD_LEFT);
+
+        $route = (new Route)->setMethods((array) $method)
+                            ->setPath($this->parseRoutePath($path))
+                            ->setCallable($handler);
 
         $this->routes[] = $route;
 
@@ -88,7 +96,11 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     public function group($prefix, callable $group)
     {
-        return new RouteGroup($prefix, $group, $this);
+        $group = new RouteGroup($prefix, $group, $this);
+
+        $this->groups[] = $group;
+
+        return $group;
     }
 
     /**
@@ -165,6 +177,10 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
                 [$route, 'dispatch']
             );
         }
+
+        foreach ($this->groups as $group) {
+            $group();
+        }
     }
 
     /**
@@ -186,12 +202,12 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     /**
      * Convenience method to convert pre-defined key words in to regex strings.
      *
-     * @param string $route
+     * @param string $path
      *
      * @return string
      */
-    protected function parseRouteString($route)
+    protected function parseRoutePath($path)
     {
-        return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $route);
+        return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $path);
     }
 }

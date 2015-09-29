@@ -83,7 +83,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements StrategyAwareInter
     }
 
     /**
-     * Handles a not allowed route
+     * Handles a not allowed route.
      *
      * @param \Psr\Http\Message\ResponseInterface $response
      * @param array                               $allowed

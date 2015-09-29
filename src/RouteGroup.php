@@ -10,6 +10,11 @@ class RouteGroup implements RouteCollectionInterface
     use RouteConditionTrait;
 
     /**
+     * @var callable
+     */
+    protected $callback;
+
+    /**
      * @var \League\Route\RouteCollectionInterface
      */
     protected $collection;
@@ -28,10 +33,19 @@ class RouteGroup implements RouteCollectionInterface
      */
     public function __construct($prefix, callable $callback, RouteCollectionInterface $collection)
     {
-        $this->prefix     = str_pad($prefix, 1, '/', STR_PAD_LEFT);
+        $this->callback   = $callback;
         $this->collection = $collection;
+        $this->prefix     = str_pad($prefix, 1, '/', STR_PAD_LEFT);
+    }
 
-        call_user_func_array($callback, [$this]);
+    /**
+     * Process the group and ensure routes are added to the collection.
+     *
+     * @return void
+     */
+    public function __invoke()
+    {
+        call_user_func_array($this->callback, [$this]);
     }
 
     /**
