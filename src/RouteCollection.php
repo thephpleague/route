@@ -144,6 +144,10 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     protected function prepRoutes(ServerRequestInterface $request)
     {
+        foreach ($this->groups as $group) {
+            $group();
+        }
+
         foreach ($this->routes as $key => $route) {
             // check for scheme condition
             if (! is_null($route->getScheme()) && $route->getScheme() !== $request->getUri()->getScheme()) {
@@ -174,10 +178,6 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
                 $this->parseRoutePath($route->getPath()),
                 [$route, 'dispatch']
             );
-        }
-
-        foreach ($this->groups as $group) {
-            $group();
         }
     }
 
