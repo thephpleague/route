@@ -8,6 +8,7 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdRouteParser;
 use Interop\Container\ContainerInterface;
+use InvalidArgumentException;
 use League\Container\Container;
 use League\Route\Strategy\RequestResponseStrategy;
 use League\Route\Strategy\StrategyAwareInterface;
@@ -144,20 +145,19 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     protected function prepRoutes(ServerRequestInterface $request)
     {
-        foreach ($this->groups as $group) {
-            $group();
-        }
+        $this->processGroups();
+        $this->buildNameIndex();
 
-        foreach ($this->routes as $key => $route) {
+        $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
+
+        foreach ($routes as $key => $route) {
             // check for scheme condition
             if (! is_null($route->getScheme()) && $route->getScheme() !== $request->getUri()->getScheme()) {
-                unset($this->routes[$key]);
                 continue;
             }
 
             // check for domain condition
             if (! is_null($route->getHost()) && $route->getHost() !== $request->getUri()->getHost()) {
-                unset($this->routes[$key]);
                 continue;
             }
 
@@ -167,18 +167,51 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
                 $route->setStrategy($this->getStrategy());
             }
 
-            if (! is_null($route->getName())) {
-                $this->namedRoutes[$route->getName()] = $route;
-            }
-
-            unset($this->routes[$key]);
-
             $this->addRoute(
                 $route->getMethods(),
                 $this->parseRoutePath($route->getPath()),
                 [$route, 'dispatch']
             );
         }
+    }
+
+    /**
+     * Build an index of named routes.
+     *
+     * @return void
+     */
+    protected function buildNameIndex()
+    {
+        foreach ($this->routes as $key => $route) {
+            if (! is_null($route->getName())) {
+                unset($this->routes[$key]);
+                $this->namedRoutes[$route->getName()] = $route;
+            }
+        }
+    }
+
+    /**
+     * Process all groups.
+     *
+     * @return void
+     */
+    protected function processGroups()
+    {
+        foreach ($this->groups as $key => $group) {
+            unset($this->groups[$key]);
+            $group();
+        }
+    }
+
+    public function getNamedRoute($name)
+    {
+        $this->buildNameIndex();
+
+        if (array_key_exists($name, $this->namedRoutes)) {
+            return $this->namedRoutes[$name];
+        }
+
+        throw new InvalidArgumentException(sprintf('No route of the name (%s) exists', $name));
     }
 
     /**
