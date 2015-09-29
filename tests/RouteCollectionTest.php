@@ -55,6 +55,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 
         foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
             $route = $router->getNamedRoute($method);
+
             $this->assertInstanceOf('League\Route\Route', $route);
 
             $this->assertSame("/prefix/${method}/something", $route->getPath());
@@ -63,5 +64,20 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
             $this->assertSame('http', $route->getScheme());
             $this->assertSame($group, $route->getParentGroup());
         }
+    }
+
+    /**
+     * Asserts that appropriately configured regex strings are added to patternMatchers.
+     */
+    public function testNewPatternMatchesCanBeAddedAtRuntime()
+    {
+        $router = new RouteCollection;
+
+        $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');
+
+        $matchers = $this->getObjectAttribute($router, 'patternMatchers');
+
+        $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
+        $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
     }
 }
