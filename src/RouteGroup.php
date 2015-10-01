@@ -2,8 +2,6 @@
 
 namespace League\Route;
 
-use League\Route\RouteCollection;
-
 class RouteGroup implements RouteCollectionInterface
 {
     use RouteCollectionMapTrait;
