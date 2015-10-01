@@ -67,6 +67,16 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Asserts that an exception is thown when a named route cannot be found.
+     */
+    public function testExceptionIsThrownWhenNamedRouteIsNotFound()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        (new RouteCollection)->getNamedRoute('something');
+    }
+
+    /**
      * Asserts that appropriately configured regex strings are added to patternMatchers.
      */
     public function testNewPatternMatchesCanBeAddedAtRuntime()
@@ -79,5 +89,33 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
         $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
+    }
+
+    /**
+     * Asserts that the collection will prep all routes and return a dispatcher.
+     */
+    public function testCollectionPrepsRoutesAndReturnsADispatcher()
+    {
+        $router = new RouteCollection;
+
+        $uri = $this->getMock('Psr\Http\Message\UriInterface');
+        $uri->expects($this->any())->method('getHost')->will($this->returnValue('example.com'));
+        $uri->expects($this->any())->method('getScheme')->will($this->returnValue('http'));
+
+        $request = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $request->expects($this->any())->method('getUri')->will($this->returnValue($uri));
+
+        $router->get('get/something', 'handler')->setName('get')->setScheme('http')->setHost('example.com');
+        $router->post('/post/something', 'handler')->setName('post')->setScheme('https');
+        $router->put('put/something', 'handler')->setName('put')->setHost('sub.example.com');
+        $router->patch('/patch/something', 'handler')->setName('patch');
+        $router->delete('delete/something', 'handler')->setName('delete');
+        $router->head('/head/something', 'handler')->setName('head');
+        $router->options('options/something', 'handler')->setName('options');
+
+        $dispatcher = $router->getDispatcher($request);
+
+        $this->assertInstanceOf('League\Route\Dispatcher', $dispatcher);
+        $this->assertCount(5, $router->getData()[0]);
     }
 }
