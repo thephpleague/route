@@ -51,7 +51,7 @@ class RouteGroup implements RouteCollectionInterface
      */
     public function map($method, $path, $handler)
     {
-        $path  = $this->prefix . sprintf('/%s', ltrim($path, '/'));
+        $path  = ($path === '/') ? $this->prefix : $this->prefix . sprintf('/%s', ltrim($path, '/'));
         $route = $this->collection->map($method, $path, $handler);
 
         $route->setParentGroup($this);
