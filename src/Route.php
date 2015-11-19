@@ -10,6 +10,7 @@ use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 
 class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
 {
@@ -44,6 +45,8 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
      * @param \Psr\Http\Message\ResponseInterface      $response
      * @param array                                    $vars
      *
+     * @throws \RuntimeException
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function dispatch(ServerRequestInterface $request, ResponseInterface $response, array $vars)
@@ -64,6 +67,16 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
                    : new $callable[0];
 
             $callable = [$class, $callable[1]];
+        }
+
+        if (! is_callable($callable)) {
+            throw new RuntimeException(
+                sprintf(
+                    'Invalid class method provided for: %s::%s',
+                    get_class($class),
+                    $callable[1]
+                )
+            );
         }
 
         $strategy = $this->getStrategy();
