@@ -192,4 +192,27 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($response, $actual);
     }
+
+    /**
+     * Ensure an exception is thrown when providing an invalid class method.
+     */
+    public function testRouteThrowsExceptionWhenClassMethodIsNotCallable()
+    {
+        $this->setExpectedException(
+            'RuntimeException', 'Invalid class method provided for: League\Route\Test\Asset\TestController::invalid'
+        );
+
+        $route = new Route;
+
+        $container = $this->getMock('Interop\Container\ContainerInterface');
+        $request   = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response  = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $callable  = 'League\Route\Test\Asset\TestController::invalid';
+        $instance  = new Asset\TestController;
+
+        $route->setContainer($container);
+        $route->setCallable($callable);
+
+        $route->dispatch($request, $response, []);
+    }
 }
