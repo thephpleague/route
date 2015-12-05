@@ -81,4 +81,46 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
             return $expected;
         }, []);
     }
+
+    /**
+     * Asserts that strategy attempts to fetch request from container when it hasn't been set before.
+     */
+    public function testDispatchFetchesResponseFromContainer()
+    {
+        $request = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+
+        $container = $this->getMock('Interop\Container\ContainerInterface');
+
+        $container
+            ->expects($this->any())
+            ->method('has')
+            ->with('Psr\Http\Message\ServerRequestInterface')
+            ->willReturn(true)
+        ;
+
+        $container
+            ->expects($this->any())
+            ->method('get')
+            ->with('Psr\Http\Message\ServerRequestInterface')
+            ->willReturn($request)
+        ;
+
+        $isSameRequest = false;
+
+        $strategy = new RequestResponseStrategy();
+
+        $strategy->setResponse($response);
+        $strategy->setContainer($container);
+
+        $strategy->dispatch(function ($actualRequest, $actualResponse) use ($request, &$isSameRequest) {
+            if ($actualRequest === $request) {
+                $isSameRequest = true;
+            }
+
+            return $actualResponse;
+        }, []);
+
+        $this->assertTrue($isSameRequest);
+    }
 }
