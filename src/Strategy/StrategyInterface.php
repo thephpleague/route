@@ -11,7 +11,7 @@ interface StrategyInterface
      * returned by \League\Route\Dispatcher::dispatch, it does not require a response, however,
      * beware that there is no output buffering by default in the router
      *
-     * This method is passed an optional third argument of thhe route object itself.
+     * This method is passed an optional third argument of the route object itself.
      *
      * @param callable                 $controller
      * @param array                    $vars - named wildcard segments of the matched route
