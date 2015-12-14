@@ -127,7 +127,7 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
     /**
      * Asserts that strategy attempts to fetch response from container when it hasn't been set before.
      */
-    public function testDispatchFetchesResponseFromContainerReally()
+    public function testDispatchFetchesResponseFromContainer()
     {
         $request = $this->getMock('Psr\Http\Message\ServerRequestInterface');
         $response = $this->getMock('Psr\Http\Message\ResponseInterface');
