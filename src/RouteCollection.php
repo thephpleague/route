@@ -27,12 +27,12 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     protected $container;
 
     /**
-     * @var array
+     * @var \League\Route\Route[]
      */
     protected $routes = [];
 
     /**
-     * @var array
+     * @var \League\Route\Route[]
      */
     protected $namedRoutes = [];
 
