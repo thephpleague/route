@@ -56,7 +56,7 @@ trait RouteConditionTrait
     /**
      * Set the name.
      *
-     * @param string name
+     * @param string $name
      *
      * @return \League\Route\Route
      */
