@@ -320,4 +320,21 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
             $this->responseTester($e);
         }
     }
+
+    /**
+     * Asserts that a Unavaliable For Legal Reasons HTTP Exception is build correctly when thrown.
+     *
+     * @return void
+     */
+    public function testUnavailableForLegalReasonsHttpExceptionIsBuiltCorrectly()
+    {
+        try {
+            throw new Exception\UnavailableForLegalReasonsException;
+        } catch (Exception $e) {
+            $this->assertSame(451, $e->getStatusCode());
+            $this->assertSame('Unavailable For Legal Reasons', $e->getMessage());
+
+            $this->responseTester($e);
+        }
+    }
 }
