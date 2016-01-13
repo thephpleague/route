@@ -322,7 +322,7 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Asserts that a Unavaliable For Legal Reasons HTTP Exception is build correctly when thrown.
+     * Asserts that a Unavaliable For Legal Reasons HTTP Exception is built correctly when thrown.
      *
      * @return void
      */
