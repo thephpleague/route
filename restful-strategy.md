@@ -6,7 +6,7 @@ title: RestfulStrategy
 
 # RestfulStrategy
 
-The `RestfulStrategy` is aimed at making life a little but easier when building RESTful APIs. When using this strategy a `Request` object will be passed in to your callable along with an optional array of named wildcard route values.
+The `RestfulStrategy` is aimed at making life a little bit easier when building RESTful APIs. When using this strategy a `Request` object will be passed in to your callable along with an optional array of named wildcard route values.
 
 It is expected that a `Response` object or data of a type that can be converted to JSON is returned.
 
