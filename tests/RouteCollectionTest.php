@@ -87,8 +87,8 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 
         $matchers = $this->getObjectAttribute($router, 'patternMatchers');
 
-        $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
-        $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
+        $this->assertArrayHasKey('/{(.+?):mockMatcher(\+|{[0-9,]+})?}/', $matchers);
+        $this->assertEquals('{$1:[a-zA-Z]$2}', $matchers['/{(.+?):mockMatcher(\+|{[0-9,]+})?}/']);
     }
 
     /**

@@ -45,10 +45,10 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      * @var array
      */
     protected $patternMatchers = [
-        '/{(.+?):number}/'        => '{$1:[0-9]+}',
-        '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
-        '/{(.+?):alphanum_dash}/' => '{$1:[a-zA-Z0-9-_]+}',
-        '/{(.+?):slug}/'          => '{$1:[a-z0-9-]+}'
+        '/{(.+?):number(\+|{[0-9,]+})?}/'        => '{$1:[0-9]$2}',
+        '/{(.+?):word(\+|{[0-9,]+})?}/'          => '{$1:[a-zA-Z]$2}',
+        '/{(.+?):alphanum_dash(\+|{[0-9,]+})?}/' => '{$1:[a-zA-Z0-9-_]$2}',
+        '/{(.+?):slug(\+|{[0-9,]+})?}/'          => '{$1:[a-z0-9-]$2}'
     ];
 
     /**
@@ -225,8 +225,8 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     public function addPatternMatcher($alias, $regex)
     {
-        $pattern = '/{(.+?):' . $alias . '}/';
-        $regex   = '{$1:' . $regex . '}';
+        $pattern = '/{(.+?):' . $alias . '(\+|{[0-9,]+})?}/';
+        $regex   = '{$1:' . $regex . '$2}';
 
         $this->patternMatchers[$pattern] = $regex;
     }
