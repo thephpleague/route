@@ -19,10 +19,10 @@
         }
     ],
     "require": {
-        "league/container": "^2.0.2",
-        "nikic/fast-route": "^0.6",
         "php": ">=5.4.0",
-        "psr/http-message": "~1.0"
+        "league/container": "^2.0",
+        "nikic/fast-route": "^0.7",
+        "psr/http-message": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit" : "^4.0"
