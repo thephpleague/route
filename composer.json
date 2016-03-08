@@ -3,7 +3,10 @@
     "description": "A fast routing and dispatch package built on top of FastRoute.",
     "keywords": [
         "league",
-        "route"
+        "route",
+        "dispatcher",
+        "psr-7",
+        "psr7"
     ],
     "homepage": "https://github.com/thephpleague/route",
     "license": "MIT",
@@ -11,18 +14,18 @@
         {
             "name": "Phil Bennett",
             "email": "philipobenito@gmail.com",
-            "homepage": "http://philipobenito.github.io",
+            "homepage": "http://www.philipobenito.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php" : ">=5.4.0",
-        "league/container": "~1.0",
-        "nikic/fast-route": "~0.3",
-        "symfony/http-foundation": "~2.6"
+        "php": ">=5.4.0",
+        "league/container": "^2.0",
+        "nikic/fast-route": "^0.7",
+        "psr/http-message": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit" : "4.*"
+        "phpunit/phpunit" : "^4.0"
     },
     "replace": {
         "orno/route": "~1.0",
@@ -36,11 +39,13 @@
     "autoload-dev": {
         "psr-4": {
             "League\\Route\\Test\\": "tests"
-        }
+        },
+        "files": ["tests/Asset/functions.php"]
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0-dev"
+            "dev-master": "2.x-dev",
+            "1.x": "1.x-dev"
         }
     }
 }

@@ -2,6 +2,20 @@
 
 All Notable changes to `League\Route` will be documented in this file
 
+## 2.0.0 - 2016-02
+
+### Added
+- All routing and dispatching now built around PSR-7.
+- Can now group routes with prefix and match conditions.
+- Routes now stored against a specific `Route` object that describes the route.
+- New `dispatch` method on `RouteCollection` that is a compliant PSR-7 middleware.
+- Additional route matching conditions for scheme and host.
+
+## Changed
+- API rewrite to simplify.
+- API naming improvements.
+- Strategies now less opinionated about return from controller.
+
 ## 1.2.0 - 2015-08-24
 
 ### Added

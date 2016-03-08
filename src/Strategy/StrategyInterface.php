@@ -2,6 +2,8 @@
 
 namespace League\Route\Strategy;
 
+use League\Route\Route;
+
 interface StrategyInterface
 {
     /**
@@ -9,15 +11,13 @@ interface StrategyInterface
      * returned by \League\Route\Dispatcher::dispatch, it does not require a response, however,
      * beware that there is no output buffering by default in the router
      *
-     * $controller can be one of three types but based on the type you can infer what the
-     * controller actually is:
-     *     - string   (controller is a named function)
-     *     - array    (controller is a class method [0 => ClassName, 1 => MethodName])
-     *     - \Closure (controller is an anonymous function)
+     * This method is passed an optional third argument of the route object itself.
      *
-     * @param  string|array|\Closure $controller
-     * @param  array                 $vars - named wildcard segments of the matched route
-     * @return mixed
+     * @param callable                 $controller
+     * @param array                    $vars - named wildcard segments of the matched route
+     * @param \League\Route\Route|null $route
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function dispatch($controller, array $vars);
+    public function dispatch(callable $controller, array $vars, Route $route = null);
 }

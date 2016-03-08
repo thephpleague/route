@@ -2,6 +2,8 @@
 
 namespace League\Route\Http\Exception;
 
+use Psr\Http\Message\ResponseInterface;
+
 interface HttpExceptionInterface
 {
     /**
@@ -19,9 +21,10 @@ interface HttpExceptionInterface
     public function getHeaders();
 
     /**
-     * Returns a response built from the thrown exception
+     * Accepts a response object and builds it in to a json representation of the exception.
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @param  \Psr\Http\Message\ResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getJsonResponse();
+    public function buildJsonResponse(ResponseInterface $response);
 }

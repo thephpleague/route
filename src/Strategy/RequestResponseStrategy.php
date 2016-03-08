@@ -2,29 +2,21 @@
 
 namespace League\Route\Strategy;
 
-use RuntimeException;
-use Symfony\Component\HttpFoundation\Response;
+use League\Route\Route;
 
 class RequestResponseStrategy extends AbstractStrategy implements StrategyInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function dispatch($controller, array $vars)
+    public function dispatch(callable $controller, array $vars, Route $route = null)
     {
-        $response = $this->invokeController($controller, [
+        $response = call_user_func_array($controller, [
             $this->getRequest(),
-            $this->getContainer()->get('Symfony\Component\HttpFoundation\Response'),
+            $this->getResponse(),
             $vars
         ]);
 
-        if ($response instanceof Response) {
-            return $response;
-        }
-
-        throw new RuntimeException(
-            'When using the Request -> Response Strategy your controller must ' .
-            'return an instance of [Symfony\Component\HttpFoundation\Response]'
-        );
+        return $this->determineResponse($response);
     }
 }

@@ -3,159 +3,81 @@
 namespace League\Route\Test;
 
 use League\Route\RouteCollection;
-use League\Route\Strategy\RestfulStrategy;
-use League\Route\Strategy\RequestResponseStrategy;
-use League\Route\Strategy\UriStrategy;
 
 class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Asserts that routes are set via convenience methods
-     *
-     * @return void
+     * Asserts that the collection maps and stores a route object.
      */
-    public function testSetsRoutesViaConvenienceMethods()
+    public function testCollectionMapsAndStoresRoute()
     {
         $router = new RouteCollection;
 
-        $restfulStrategy = new RestfulStrategy;
-        $reqResStrategy = new RequestResponseStrategy;
-        $uriStrategy = new uriStrategy;
+        $router->get('get/something', 'handler')->setName('get');
+        $router->post('/post/something', 'handler')->setName('post');
+        $router->put('put/something', 'handler')->setName('put');
+        $router->patch('/patch/something', 'handler')->setName('patch');
+        $router->delete('delete/something', 'handler')->setName('delete');
+        $router->head('/head/something', 'handler')->setName('head');
+        $router->options('options/something', 'handler')->setName('options');
 
-        $router->get('/route/{wildcard}', 'handler_get', $restfulStrategy);
-        $router->post('/route/{wildcard}', 'handler_post', $uriStrategy);
-        $router->put('/route/{wildcard}', 'handler_put', $reqResStrategy);
-        $router->patch('/route/{wildcard}', 'handler_patch');
-        $router->delete('/route/{wildcard}', 'handler_delete');
-        $router->head('/route/{wildcard}', 'handler_head');
-        $router->options('/route/{wildcard}', 'handler_options');
+        foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
+            $route = $router->getNamedRoute($method);
+            $this->assertInstanceOf('League\Route\Route', $route);
 
-        $routes = (new \ReflectionClass($router))->getProperty('routes');
-        $routes->setAccessible(true);
-        $routes = $routes->getValue($router);
-
-        $this->assertCount(7, $routes);
-        $this->assertSame($routes['handler_get'], ['strategy' => $restfulStrategy]);
-        $this->assertSame($routes['handler_post'], ['strategy' => $uriStrategy]);
-        $this->assertSame($routes['handler_put'], ['strategy' => $reqResStrategy]);
-        $this->assertEquals($routes['handler_patch'], ['strategy' => $reqResStrategy]);
-        $this->assertEquals($routes['handler_delete'], ['strategy' => $reqResStrategy]);
-        $this->assertEquals($routes['handler_head'], ['strategy' => $reqResStrategy]);
-        $this->assertEquals($routes['handler_options'], ['strategy' => $reqResStrategy]);
-    }
-
-    /**
-     * Asserts that routes are set via convenience methods with Closures
-     *
-     * @return void
-     */
-    public function testSetsRoutesViaConvenienceMethodsWithClosures()
-    {
-        $router = new RouteCollection;
-
-        $router->get('/route/{wildcard}', function () {
-            return 'get';
-        });
-        $router->post('/route/{wildcard}', function () {
-            return 'post';
-        });
-        $router->put('/route/{wildcard}', function () {
-            return 'put';
-        });
-        $router->patch('/route/{wildcard}', function () {
-            return 'patch';
-        });
-        $router->delete('/route/{wildcard}', function () {
-            return 'delete';
-        });
-        $router->head('/route/{wildcard}', function () {
-            return 'head';
-        });
-        $router->options('/route/{wildcard}', function () {
-            return 'options';
-        });
-
-        $routes = (new \ReflectionClass($router))->getProperty('routes');
-        $routes->setAccessible(true);
-        $routes = $routes->getValue($router);
-
-        $this->assertCount(7, $routes);
-
-        foreach ($routes as $route) {
-            $this->assertArrayHasKey('callback', $route);
-            $this->assertArrayHasKey('strategy', $route);
+            $this->assertSame("/${method}/something", $route->getPath());
+            $this->assertSame('handler', $route->getCallable());
         }
     }
 
     /**
-     * Asserts that global strategy is used when set
-     *
-     * @return void
+     * Asserts that the group method builds a group and returns it for any fluent manipulation.
      */
-    public function testGlobalStrategyIsUsedWhenSet()
+    public function testCollectionSetsAndReturnsGroup()
     {
         $router = new RouteCollection;
 
-        $restfulStrategy = new RestfulStrategy;
-        $reqResStrategy = new RequestResponseStrategy;
-        $uriStrategy = new uriStrategy;
+        $group = $router->group('/prefix', function ($collection) {
+            $this->assertInstanceOf('League\Route\RouteGroup', $collection);
 
-        $router->setStrategy($uriStrategy);
+            $collection->get('get/something', 'handler')->setName('get');
+            $collection->post('/post/something', 'handler')->setName('post');
+            $collection->put('put/something', 'handler')->setName('put');
+            $collection->patch('/patch/something', 'handler')->setName('patch');
+            $collection->delete('delete/something', 'handler')->setName('delete');
+            $collection->head('/head/something', 'handler')->setName('head');
+            $collection->options('options/something', 'handler')->setName('options');
+        })->setHost('example.com')->setScheme('http');
 
-        $router->get('/route/{wildcard}', 'handler_get', $restfulStrategy);
-        $router->post('/route/{wildcard}', 'handler_post', $uriStrategy);
-        $router->put('/route/{wildcard}', 'handler_put', $reqResStrategy);
-        $router->patch('/route/{wildcard}', 'handler_patch');
-        $router->delete('/route/{wildcard}', 'handler_delete');
-        $router->head('/route/{wildcard}', 'handler_head');
-        $router->options('/route/{wildcard}', 'handler_options');
+        $this->assertInstanceOf('League\Route\RouteGroup', $group);
 
-        $routes = (new \ReflectionClass($router))->getProperty('routes');
-        $routes->setAccessible(true);
-        $routes = $routes->getValue($router);
+        $group();
 
-        $this->assertCount(7, $routes);
-        $this->assertSame($routes['handler_get'], ['strategy' => $uriStrategy]);
-        $this->assertSame($routes['handler_post'], ['strategy' => $uriStrategy]);
-        $this->assertSame($routes['handler_put'], ['strategy' => $uriStrategy]);
-        $this->assertSame($routes['handler_patch'], ['strategy' => $uriStrategy]);
-        $this->assertSame($routes['handler_delete'], ['strategy' => $uriStrategy]);
-        $this->assertSame($routes['handler_head'], ['strategy' => $uriStrategy]);
-        $this->assertSame($routes['handler_options'], ['strategy' => $uriStrategy]);
+        foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
+            $route = $router->getNamedRoute($method);
+
+            $this->assertInstanceOf('League\Route\Route', $route);
+
+            $this->assertSame("/prefix/${method}/something", $route->getPath());
+            $this->assertSame('handler', $route->getCallable());
+            $this->assertSame('example.com', $route->getHost());
+            $this->assertSame('http', $route->getScheme());
+            $this->assertSame($group, $route->getParentGroup());
+        }
     }
 
     /**
-     * Asserts that `getDispatcher` method returns correct instance
-     *
-     * @return void
+     * Asserts that an exception is thown when a named route cannot be found.
      */
-    public function testCollectionReturnsDispatcher()
+    public function testExceptionIsThrownWhenNamedRouteIsNotFound()
     {
-        $router = new RouteCollection;
+        $this->setExpectedException('InvalidArgumentException');
 
-        $this->assertInstanceOf('League\Route\Dispatcher', $router->getDispatcher());
-        $this->assertInstanceOf('FastRoute\Dispatcher\GroupCountBased', $router->getDispatcher());
-    }
-
-    /**
-     * Asserts that `getDispatcher` method returns correct instance with global strategy
-     *
-     * @return void
-     */
-    public function testCollectionReturnsDispatcherWithGlobalStrategy()
-    {
-        $router = new RouteCollection;
-
-        $router->setStrategy(new RequestResponseStrategy);
-
-        $this->assertInstanceOf('League\Route\Dispatcher', $router->getDispatcher());
-        $this->assertInstanceOf('FastRoute\Dispatcher\GroupCountBased', $router->getDispatcher());
+        (new RouteCollection)->getNamedRoute('something');
     }
 
     /**
      * Asserts that appropriately configured regex strings are added to patternMatchers.
-     *
-     * @return void
      */
     public function testNewPatternMatchesCanBeAddedAtRuntime()
     {
@@ -163,38 +85,37 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 
         $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');
 
-        $matchers = $this->getObjectAttribute($router, "patternMatchers");
+        $matchers = $this->getObjectAttribute($router, 'patternMatchers');
 
         $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
         $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
     }
 
-    public function testCallableControllers()
-    {
-        $router = new RouteCollection;
-
-        $router->get('/', new CallableController);
-
-        $routes = (new \ReflectionClass($router))->getProperty('routes');
-        $routes->setAccessible(true);
-        $routes = $routes->getValue($router);
-
-        $this->assertCount(1, $routes);
-    }
-
     /**
-     * @expectedException \RuntimeException
+     * Asserts that the collection will prep all routes and return a dispatcher.
      */
-    public function testNonCallbleObjectControllersError()
+    public function testCollectionPrepsRoutesAndReturnsADispatcher()
     {
         $router = new RouteCollection;
 
-        $router->get('/', new \stdClass);
+        $uri = $this->getMock('Psr\Http\Message\UriInterface');
+        $uri->expects($this->any())->method('getHost')->will($this->returnValue('example.com'));
+        $uri->expects($this->any())->method('getScheme')->will($this->returnValue('http'));
 
-        $routes = (new \ReflectionClass($router))->getProperty('routes');
-        $routes->setAccessible(true);
-        $routes = $routes->getValue($router);
+        $request = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $request->expects($this->any())->method('getUri')->will($this->returnValue($uri));
 
-        $this->assertCount(0, $routes);
+        $router->get('get/something', 'handler')->setName('get')->setScheme('http')->setHost('example.com');
+        $router->post('/post/something', 'handler')->setName('post')->setScheme('https');
+        $router->put('put/something', 'handler')->setName('put')->setHost('sub.example.com');
+        $router->patch('/patch/something', 'handler')->setName('patch');
+        $router->delete('delete/something', 'handler')->setName('delete');
+        $router->head('/head/something', 'handler')->setName('head');
+        $router->options('options/something', 'handler')->setName('options');
+
+        $dispatcher = $router->getDispatcher($request);
+
+        $this->assertInstanceOf('League\Route\Dispatcher', $dispatcher);
+        $this->assertCount(5, $router->getData()[0]);
     }
 }

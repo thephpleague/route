@@ -2,44 +2,61 @@
 
 namespace League\Route;
 
-use Closure;
 use FastRoute\DataGenerator;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdRouteParser;
+use Interop\Container\ContainerInterface;
+use InvalidArgumentException;
 use League\Container\Container;
-use League\Container\ContainerInterface;
+use League\Route\Strategy\RequestResponseStrategy;
+use League\Route\Strategy\StrategyAwareInterface;
+use League\Route\Strategy\StrategyAwareTrait;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-class RouteCollection extends RouteCollector
+class RouteCollection extends RouteCollector implements StrategyAwareInterface, RouteCollectionInterface
 {
-    /**
-     * Route strategy functionality
-     */
-    use Strategy\StrategyTrait;
+    use RouteCollectionMapTrait;
+    use StrategyAwareTrait;
 
     /**
-     * @var \League\Container\ContainerInterface
+     * @var \Interop\Container\ContainerInterface
      */
     protected $container;
 
     /**
-     * @var array
+     * @var \League\Route\Route[]
      */
     protected $routes = [];
 
+    /**
+     * @var \League\Route\Route[]
+     */
+    protected $namedRoutes = [];
+
+    /**
+     * @var \League\Route\RouteGroup[]
+     */
+    protected $groups = [];
+
+    /**
+     * @var array
+     */
     protected $patternMatchers = [
         '/{(.+?):number}/'        => '{$1:[0-9]+}',
         '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
-        '/{(.+?):alphanum_dash}/' => '{$1:[a-zA-Z0-9-_]+}'
+        '/{(.+?):alphanum_dash}/' => '{$1:[a-zA-Z0-9-_]+}',
+        '/{(.+?):slug}/'          => '{$1:[a-z0-9-]+}'
     ];
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param \League\Container\ContainerInterface $container
-     * @param \FastRoute\RouteParser               $parser
-     * @param \FastRoute\DataGenerator             $generator
+     * @param \Interop\Container\ContainerInterface $container
+     * @param \FastRoute\RouteParser                $parser
+     * @param \FastRoute\DataGenerator              $generator
      */
     public function __construct(
         ContainerInterface $container = null,
@@ -55,171 +72,181 @@ class RouteCollection extends RouteCollector
     }
 
     /**
-     * Add a route to the collection
-     *
-     * @param  string                                   $method
-     * @param  string                                   $route
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return \League\Route\RouteCollection
+     * {@inheritdoc}
      */
-    public function addRoute($method, $route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function map($method, $path, $handler)
     {
-        // are we running a single strategy for the collection?
-        $strategy = (! is_null($this->strategy)) ? $this->strategy : $strategy;
+        $path = sprintf('/%s', ltrim($path, '/'));
 
-        // if the handler is an anonymous function, we need to store it for later use
-        // by the dispatcher, otherwise we just throw the handler string at FastRoute
-        if ($handler instanceof Closure ||
-            (is_object($handler) && is_callable($handler))
-        ) {
-            $callback = $handler;
-            $handler  = uniqid('league::route::', true);
+        $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
 
-            $this->routes[$handler]['callback'] = $callback;
-        } elseif (is_object($handler)) {
-            throw new \RuntimeException("Object controllers must be callable.");
-        }
+        $this->routes[] = $route;
 
-        $this->routes[$handler]['strategy'] = (is_null($strategy)) ? new Strategy\RequestResponseStrategy : $strategy;
-
-        $route = $this->parseRouteString($route);
-
-        parent::addRoute($method, $route, $handler);
-
-        return $this;
+        return $route;
     }
 
     /**
-     * Builds a dispatcher based on the routes attached to this collection
+     * Add a group of routes to the collection.
+     *
+     * @param string   $prefix
+     * @param callable $group
+     *
+     * @return \League\Route\RouteGroup
+     */
+    public function group($prefix, callable $group)
+    {
+        $group = new RouteGroup($prefix, $group, $this);
+
+        $this->groups[] = $group;
+
+        return $group;
+    }
+
+    /**
+     * Dispatch the route based on the request.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface      $response
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function dispatch(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $dispatcher = $this->getDispatcher($request);
+
+        return $dispatcher->handle($request, $response);
+    }
+
+    /**
+     * Return a fully configured dispatcher.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      *
      * @return \League\Route\Dispatcher
      */
-    public function getDispatcher()
+    public function getDispatcher(ServerRequestInterface $request)
     {
-        $dispatcher = new Dispatcher($this->container, $this->routes, $this->getData());
-
-        if (! is_null($this->strategy)) {
-            $dispatcher->setStrategy($this->strategy);
+        if (is_null($this->getStrategy())) {
+            $this->setStrategy(new RequestResponseStrategy);
         }
 
-        return $dispatcher;
+        $this->prepRoutes($request);
+
+        return (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
     }
 
     /**
-     * Add a route that responds to GET HTTP method
+     * Prepare all routes, build name index and filter out none matching
+     * routes before being passed off to the parser.
      *
-     * @param  string                                   $route
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return \League\Route\RouteCollection
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * @return void
      */
-    public function get($route, $handler, Strategy\StrategyInterface $strategy = null)
+    protected function prepRoutes(ServerRequestInterface $request)
     {
-        return $this->addRoute('GET', $route, $handler, $strategy);
+        $this->buildNameIndex();
+
+        $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
+
+        foreach ($routes as $key => $route) {
+            // check for scheme condition
+            if (! is_null($route->getScheme()) && $route->getScheme() !== $request->getUri()->getScheme()) {
+                continue;
+            }
+
+            // check for domain condition
+            if (! is_null($route->getHost()) && $route->getHost() !== $request->getUri()->getHost()) {
+                continue;
+            }
+
+            $route->setContainer($this->container);
+
+            if (is_null($route->getStrategy())) {
+                $route->setStrategy($this->getStrategy());
+            }
+
+            $this->addRoute(
+                $route->getMethods(),
+                $this->parseRoutePath($route->getPath()),
+                [$route, 'dispatch']
+            );
+        }
     }
 
     /**
-     * Add a route that responds to POST HTTP method
+     * Build an index of named routes.
      *
-     * @param  string                                   $route
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return \League\Route\RouteCollection
+     * @return void
      */
-    public function post($route, $handler, Strategy\StrategyInterface $strategy = null)
+    protected function buildNameIndex()
     {
-        return $this->addRoute('POST', $route, $handler, $strategy);
+        $this->processGroups();
+
+        foreach ($this->routes as $key => $route) {
+            if (! is_null($route->getName())) {
+                unset($this->routes[$key]);
+                $this->namedRoutes[$route->getName()] = $route;
+            }
+        }
     }
 
     /**
-     * Add a route that responds to PUT HTTP method
+     * Process all groups.
      *
-     * @param  string                                   $route
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return \League\Route\RouteCollection
+     * @return void
      */
-    public function put($route, $handler, Strategy\StrategyInterface $strategy = null)
+    protected function processGroups()
     {
-        return $this->addRoute('PUT', $route, $handler, $strategy);
+        foreach ($this->groups as $key => $group) {
+            unset($this->groups[$key]);
+            $group();
+        }
     }
 
     /**
-     * Add a route that responds to PATCH HTTP method
+     * Get named route.
      *
-     * @param  string                                   $route
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return \League\Route\RouteCollection
+     * @param string $name
+     *
+     * @return \League\Route\Route
      */
-    public function patch($route, $handler, Strategy\StrategyInterface $strategy = null)
+    public function getNamedRoute($name)
     {
-        return $this->addRoute('PATCH', $route, $handler, $strategy);
-    }
+        $this->buildNameIndex();
 
-    /**
-     * Add a route that responds to DELETE HTTP method
-     *
-     * @param  string                                   $route
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return \League\Route\RouteCollection
-     */
-    public function delete($route, $handler, Strategy\StrategyInterface $strategy = null)
-    {
-        return $this->addRoute('DELETE', $route, $handler, $strategy);
-    }
+        if (array_key_exists($name, $this->namedRoutes)) {
+            return $this->namedRoutes[$name];
+        }
 
-    /**
-     * Add a route that responds to HEAD HTTP method
-     *
-     * @param  string                                   $route
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return \League\Route\RouteCollection
-     */
-    public function head($route, $handler, Strategy\StrategyInterface $strategy = null)
-    {
-        return $this->addRoute('HEAD', $route, $handler, $strategy);
-    }
-
-    /**
-     * Add a route that responds to OPTIONS HTTP method
-     *
-     * @param  string                                   $route
-     * @param  string|\Closure                          $handler
-     * @param  \League\Route\Strategy\StrategyInterface $strategy
-     * @return \League\Route\RouteCollection
-     */
-    public function options($route, $handler, Strategy\StrategyInterface $strategy = null)
-    {
-        return $this->addRoute('OPTIONS', $route, $handler, $strategy);
+        throw new InvalidArgumentException(sprintf('No route of the name (%s) exists', $name));
     }
 
     /**
      * Add a convenient pattern matcher to the internal array for use with all routes.
      *
-     * @param string $keyWord
+     * @param string $alias
      * @param string $regex
+     *
+     * @return void
      */
-    public function addPatternMatcher($keyWord, $regex)
+    public function addPatternMatcher($alias, $regex)
     {
-        // Since the user is passing in a human-readable word, we convert that to the appropriate regex
-        $pattern = '/{(.+?):' . $keyWord . '}/';
-        $regex = '{$1:' . $regex . '}';
+        $pattern = '/{(.+?):' . $alias . '}/';
+        $regex   = '{$1:' . $regex . '}';
 
         $this->patternMatchers[$pattern] = $regex;
     }
 
     /**
-     * Convenience method to convert pre-defined key words in to regex strings
+     * Convenience method to convert pre-defined key words in to regex strings.
      *
-     * @param  string $route
+     * @param string $path
+     *
      * @return string
      */
-    protected function parseRouteString($route)
+    protected function parseRoutePath($path)
     {
-        return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $route);
+        return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $path);
     }
 }

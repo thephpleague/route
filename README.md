@@ -10,12 +10,13 @@
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/882acb6c-3001-4313-857d-6f7200f5ab90/big.png)](https://insight.sensiolabs.com/projects/882acb6c-3001-4313-857d-6f7200f5ab90)
 
-This package is compliant with [PSR-1], [PSR-2] and [PSR-4]. If you notice compliance oversights,
+This package is compliant with [PSR-1], [PSR-2], [PSR-4] and [PSR-7]. If you notice compliance oversights,
 please send a patch via pull request.
 
 [PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
 [PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
 [PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
+[PSR-7]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-7-http-message.md
 
 ## Install
 
@@ -32,17 +33,13 @@ The following versions of PHP are supported by this version.
 * PHP 5.4
 * PHP 5.5
 * PHP 5.6
-* HHVM
+* PHP 7
 
 ## Documentation
 
 Route has [full documentation](http://route.thephpleague.com), powered by [Jekyll](http://jekyllrb.com/).
 
 Contribute to this documentation in the [gh-pages branch](https://github.com/thephpleague/route/tree/gh-pages/).
-
-## Todo
-
-- Add knowledge of variadic uri wildcard arguments to `MethodArgumentStrategy`. (Blocked by changes to Container).
 
 ## Testing
 
@@ -56,8 +53,8 @@ Please see [CONTRIBUTING](https://github.com/thephpleague/route/blob/master/CONT
 
 ## Credits
 
-- [Nikita Popov](https://github.com/nikic)
 - [Phil Bennett](https://github.com/philipobenito)
+- [Nikita Popov](https://github.com/nikic) (FastRoute)
 - [All Contributors](https://github.com/thephpleague/route/contributors)
 
 All `Orno\Route` contributions can be found [here](https://github.com/orno/route/graphs/contributors).

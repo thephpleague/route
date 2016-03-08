@@ -4,8 +4,33 @@ namespace League\Route\Test\Http;
 
 use League\Route\Http\Exception;
 
-class ExceptionTest extends \PHPUnit_Framework_Testcase
+class ExceptionTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * Abstraction test for building of response.
+     *
+     * @param \League\Route\Http\Exception $e
+     */
+    protected function responseTester(Exception $e)
+    {
+        $json = json_encode([
+            'status_code'   => $e->getStatusCode(),
+            'reason_phrase' => $e->getMessage()
+        ]);
+
+        $body = $this->getMock('Psr\Http\Message\StreamInterface');
+        $body->expects($this->once())->method('isWritable')->will($this->returnValue(true));
+        $body->expects($this->once())->method('write')->with($json);
+
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $response->expects($this->any())->method('withAddedHeader')->will($this->returnSelf());
+        $response->expects($this->exactly(2))->method('getBody')->will($this->returnValue($body));
+        $response->expects($this->once())->method('withStatus')->with($e->getStatusCode(), $e->getMessage())->will($this->returnSelf());
+
+        $response = $e->buildJsonResponse($response);
+
+        $this->assertInstanceOf('Psr\Http\Message\ResponseInterface', $response);
+    }
     /**
      * Asserts that a HTTP Exception is built correctly when thrown
      *
@@ -20,16 +45,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame('Bad Request', $e->getMessage());
             $this->assertArrayHasKey('header', $e->getHeaders());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":400,"message":"Bad Request"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(400, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -46,16 +62,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(400, $e->getStatusCode());
             $this->assertSame('Bad Request', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":400,"message":"Bad Request"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(400, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -72,16 +79,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(409, $e->getStatusCode());
             $this->assertSame('Conflict', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":409,"message":"Conflict"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(409, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -98,16 +96,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(417, $e->getStatusCode());
             $this->assertSame('Expectation Failed', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":417,"message":"Expectation Failed"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(417, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -124,16 +113,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(403, $e->getStatusCode());
             $this->assertSame('Forbidden', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":403,"message":"Forbidden"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(403, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -150,16 +130,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(410, $e->getStatusCode());
             $this->assertSame('Gone', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":410,"message":"Gone"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(410, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -176,16 +147,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(418, $e->getStatusCode());
             $this->assertSame('I\'m a teapot', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":418,"message":"I\'m a teapot"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(418, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -202,16 +164,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(411, $e->getStatusCode());
             $this->assertSame('Length Required', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":411,"message":"Length Required"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(411, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -228,18 +181,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(405, $e->getStatusCode());
             $this->assertSame('Method Not Allowed', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":405,"message":"Method Not Allowed"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(405, $response->getStatusCode());
-            $this->assertTrue($response->headers->has('Allow'));
-            $this->assertSame('GET, POST', $response->headers->get('Allow'));
+            $this->responseTester($e);
         }
     }
 
@@ -256,16 +198,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(406, $e->getStatusCode());
             $this->assertSame('Not Acceptable', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":406,"message":"Not Acceptable"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(406, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -282,16 +215,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(404, $e->getStatusCode());
             $this->assertSame('Not Found', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":404,"message":"Not Found"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(404, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -308,16 +232,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(412, $e->getStatusCode());
             $this->assertSame('Precondition Failed', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":412,"message":"Precondition Failed"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(412, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -334,16 +249,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(428, $e->getStatusCode());
             $this->assertSame('Precondition Required', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":428,"message":"Precondition Required"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(428, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -360,16 +266,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(429, $e->getStatusCode());
             $this->assertSame('Too Many Requests', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":429,"message":"Too Many Requests"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(429, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -386,16 +283,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(401, $e->getStatusCode());
             $this->assertSame('Unauthorized', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":401,"message":"Unauthorized"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(401, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -412,16 +300,7 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(422, $e->getStatusCode());
             $this->assertSame('Unprocessable Entity', $e->getMessage());
 
-            $response = $e->getJsonResponse();
-
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
-
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":422,"message":"Unprocessable Entity"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(422, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 
@@ -438,16 +317,24 @@ class ExceptionTest extends \PHPUnit_Framework_Testcase
             $this->assertSame(415, $e->getStatusCode());
             $this->assertSame('Unsupported Media', $e->getMessage());
 
-            $response = $e->getJsonResponse();
+            $this->responseTester($e);
+        }
+    }
 
-            $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
+    /**
+     * Asserts that a Unavaliable For Legal Reasons HTTP Exception is built correctly when thrown.
+     *
+     * @return void
+     */
+    public function testUnavailableForLegalReasonsHttpExceptionIsBuiltCorrectly()
+    {
+        try {
+            throw new Exception\UnavailableForLegalReasonsException;
+        } catch (Exception $e) {
+            $this->assertSame(451, $e->getStatusCode());
+            $this->assertSame('Unavailable For Legal Reasons', $e->getMessage());
 
-            $this->assertJsonStringEqualsJsonString(
-                '{"status_code":415,"message":"Unsupported Media"}',
-                $response->getContent()
-            );
-
-            $this->assertSame(415, $response->getStatusCode());
+            $this->responseTester($e);
         }
     }
 }
