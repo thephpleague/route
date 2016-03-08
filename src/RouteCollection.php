@@ -204,6 +204,13 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
         }
     }
 
+    /**
+     * Get named route.
+     *
+     * @param string $name
+     *
+     * @return \League\Route\Route
+     */
     public function getNamedRoute($name)
     {
         $this->buildNameIndex();
