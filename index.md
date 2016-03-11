@@ -22,6 +22,8 @@ Route is a fast routing/dispatcher package enabling you to build well designed p
 
 ## Goals
 
+- To provide a "friendlier" API on top of [FastRoute](https://github.com/nikic/FastRoute).
+- To provide convenience in building web applications and APIs.
 
 ## Questions?
 

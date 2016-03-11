@@ -11,6 +11,8 @@ Installation
 
 You need **PHP >= 5.4.0** to use `League\Route` but the latest stable version of PHP is recommended.
 
+You will also require an implementation of PSR-7 HTTP Message. Throughout the documentation we will be using [Zend\Diactoros](https://github.com/zendframework/zend-diactoros), however, there are many implementations to choose from on [Packagist](https://packagist.org/providers/psr/http-message-implementation).
+
 ## Composer
 
 Route is available on [Packagist](https://packagist.org/packages/league/route) and can be installed using [Composer](https://getcomposer.org/):
@@ -21,7 +23,7 @@ composer require league/route
 
 Most modern frameworks will include Composer out of the box, but ensure the following file is included:
 
-~~~ php
+~~~php
 <?php
 
 // include the Composer autoloader
@@ -32,7 +34,7 @@ require 'vendor/autoload.php';
 
 You can also use Route without using Composer by registering an autoloader function:
 
-~~~ php
+~~~php
 spl_autoload_register(function ($class) {
     $prefix = 'League\\Route\\';
     $base_dir = __DIR__ . '/src/';

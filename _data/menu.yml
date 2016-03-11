@@ -1,17 +1,16 @@
 Getting Started:
     Introduction: '/'
     Installation: '/installation/'
-    Getting Started: '/getting-started/'
-Controller Types:
-    Class Methods: '/controller-class-methods/'
-    Anonymous Functions: '/controller-anon-functions/'
-    Named Functions: '/controller-named-functions/'
+    Hello World: '/hello-world/'
 Concepts:
     Wildcard Routes: '/wildcard-routes/'
     Request Verbs: '/request-verbs/'
+    Route Conditions: '/route-conditions/'
+    Route Groups: '/route-groups/'
+    Controllers: '/controllers/'
     Strategies: '/strategies/'
 Strategies:
     Request Response Strategy: '/request-response-strategy/'
-    Uri Strategy: '/uri-strategy/'
-    Method Argument Strategy: '/method-argument-strategy/'
-    Restful Strategy: '/restful-strategy/'
+    Parameter Strategy: '/param-strategy/'
+    JSON Strategy: '/json-strategy/'
+    Custom Strategies: '/custom-strategies/'

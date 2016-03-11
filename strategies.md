@@ -6,35 +6,36 @@ title: Strategies
 
 # Strategies
 
-Route strategies are a way of encouraging good design based on the type of application you are building. Available strategies are as follows.
+Route strategies are a way of defining specific behaviour and controller signatures for a route.
 
 - `League\Route\Strategy\RequestResponseStrategy`
-- `League\Route\Strategy\RestfulStrategy`
-- `League\Route\Strategy\UriStrategy`
-- `League\Route\Strategy\MethodArgumentStrategy`
+- `League\Route\Strategy\ParamStrategy`
+- `League\Route\Strategy\JsonStrategy`
 
-Strategies can be set individually per route by passing in one of the above constants as the last argument of your route definition.
+Strategies can be set individually per route by setting it on the route.
 
 ~~~php
+<?php
+
 use League\Route\Strategy\RequestResponseStrategy;
-use League\Route\Strategy\RestfulStrategy;
-use League\Route\Strategy\UriStrategy;
-use League\Route\Strategy\MethodArgumentStrategy;
+use League\Route\Strategy\ParamStrategy;
+use League\Route\Strategy\JsonStrategy;
 
-$router = new League\Route\RouteCollection;
+$route = new League\Route\RouteCollection;
 
-$router->addRoute('GET', '/acme/route', 'Acme\Controller::action', new RequestResponseStrategy);
-$router->get('/acme/route', 'Acme\Controller::action', new UriStrategy);
-$router->put('/acme/route', 'Acme\Controller::action', new RestfulStrategy);
+$route->map('GET', '/acme/route', 'Acme\Controller::action')->setStrategy(new RequestResponseStrategy);
+$route->get('/acme/route', 'Acme\Controller::action')->setStrategy(new ParamStrategy);
+$route->put('/acme/route', 'Acme\Controller::action')->setStrategy(new JsonStrategy);
 ~~~
 
 Or a global strategy can be set to be used by all routes in a specific collection.
 
 ~~~php
-use League\Route\Strategy\RestfulStrategy;
+use League\Route\Strategy\JsonStrategy;
 
-$router = new League\Route\RouteCollection;
-$router->setStrategy(new RestfulStrategy);
+$route = new League\Route\RouteCollection;
+
+$route->setStrategy(new JsonStrategy);
 ~~~
 
 ## Custom Strategies
@@ -60,8 +61,9 @@ class CustomStrategy implements StrategyInterface
 ~~~php
 use Acme\Strategy\CustomStrategy;
 
-$router = new League\Route\RouteCollection;
-$router->setStrategy(new CustomStrategy);
+$route = new League\Route\RouteCollection;
+
+$route->setStrategy(new CustomStrategy);
 ~~~
 
 Now when the route is dispatched, the `dispatch` method of the custom strategy will be invoked and passed arguments needed to invoke a controller.

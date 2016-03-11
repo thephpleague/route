@@ -6,36 +6,38 @@ title: RequestResponseStrategy
 
 # RequestResponseStrategy
 
-The `RequestResponseStrategy` is used by default and provides the controller with both the `Request` and `Response` objects. The idea here being that you can pull any information you need from the `Request`, manipulate the `Response` and return it for the dispatcher to send to the browser. The dispatcher will throw a `RuntimeException` if the controller it is invoking does not return an instance of the `Response` object.
+The `RequestResponseStrategy` is used by default and provides the controller with a PSR-7 `ServerRequestInterface` implementation and `ResponseInterface` implementation. The idea here being that you can pull any information you need from the request, manipulate the response, and return it for the dispatcher to send to the browser.
 
-~~~ php
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+~~~php
+<?php
 
-$router->get('/acme/route', function (Request $request, Response $response) {
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+$router->get('/acme/route', function (ServerRequestInterface $request, ResponseInterface $response) {
     // retrieve data from $request, do what you need to do and build your $content
 
-    $response->setContent($content);
-    $response->setStatusCode(200);
+    $response->getBody()->write($content);
 
-    return $response;
+    return $response->withStatus(200);
 });
 ~~~
 
-~~~ php
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+~~~php
+<?php
 
-$router->put('/user/{id}', function (Request $request, Response $response, array $args) {
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+$router->put('/user/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) {
     $userId = $args['id'];
-    $requestBody = json_decode($request->getContent(), true);
+    $requestBody = json_decode($request->getBody(), true);
 
     // possibly update a record in the database with the request body
 
-    $response->setContent('Updated User with ID: ' . $userId);
-    $response->setStatusCode(202);
+    $response->getBody()->write('Updated User with ID: ' . $userId);
 
-    return $response;
+    return $response->withStatus(202);
 });
 ~~~
 

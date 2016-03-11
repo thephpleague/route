@@ -8,7 +8,7 @@ title: MethodArgumentStrategy
 
 The Method Argument Strategy allows you to have your controller dependencies injected directly as arguments.
 
-~~~ php
+~~~php
 $router->get('/some-route', function (SomeDependency $SomeDependency, SomeOtherDependency $someOtherDependency) {
     // ...
 });
