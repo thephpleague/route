@@ -13,4 +13,3 @@ Strategies:
     Request Response Strategy: '/request-response-strategy/'
     Parameter Strategy: '/param-strategy/'
     JSON Strategy: '/json-strategy/'
-    Custom Strategies: '/custom-strategies/'
