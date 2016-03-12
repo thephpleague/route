@@ -28,7 +28,7 @@ GET /admin/acme/route2
 GET /admin/acme/route3
 ~~~
 
-Route [conditions](/conditions/) can be applied to a group and will be matched across all routes contained in that group, specific routes within the group can override this functionality as displayed below.
+Route [conditions](/route-conditions/) can be applied to a group and will be matched across all routes contained in that group, specific routes within the group can override this functionality as displayed below.
 
 ~~~php
 <?php
