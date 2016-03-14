@@ -27,7 +27,7 @@ use Psr\Http\Message\ServerRequestInterface;
 $container = new League\Container\Container;
 
 $container->share('response', Zend\Diactoros\Response::class);
-$container->share('request', Zend\Diactoros\ServerRequest::class, function () {
+$container->share('request', function () {
     return Zend\Diactoros\ServerRequestFactory::fromGlobals(
         $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
     );
