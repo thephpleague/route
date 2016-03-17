@@ -9,7 +9,7 @@ interface StrategyInterface
     /**
      * Dispatch the controller, the return value of this method will bubble out and be
      * returned by \League\Route\Dispatcher::dispatch, it does not require a response, however,
-     * beware that there is no output buffering by default in the router
+     * beware that there is no output buffering by default in the router.
      *
      * This method is passed an optional third argument of the route object itself.
      *
