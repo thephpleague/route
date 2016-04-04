@@ -2,8 +2,12 @@
 
 namespace League\Route;
 
-class RouteGroup implements RouteCollectionInterface
+use League\Route\Middleware\MiddlewareAwareInterface;
+use League\Route\Middleware\MiddlewareAwareTrait;
+
+class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface
 {
+    use MiddlewareAwareTrait;
     use RouteCollectionMapTrait;
     use RouteConditionTrait;
 
@@ -55,6 +59,7 @@ class RouteGroup implements RouteCollectionInterface
         $route = $this->collection->map($method, $path, $handler);
 
         $route->setParentGroup($this);
+        $route->setMiddlewareRunner($this->getMiddlewareRunner());
 
         if ($host = $this->getHost()) {
             $route->setHost($host);
@@ -62,6 +67,14 @@ class RouteGroup implements RouteCollectionInterface
 
         if ($scheme = $this->getScheme()) {
             $route->setScheme($scheme);
+        }
+
+        foreach ($this->getMiddlewareBeforeQueue() as $middleware) {
+            $route->before($middleware);
+        }
+
+        foreach ($this->getMiddlewareAfterQueue() as $middleware) {
+            $route->after($middleware);
         }
 
         return $route;

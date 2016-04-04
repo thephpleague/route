@@ -10,14 +10,19 @@ use FastRoute\RouteParser\Std as StdRouteParser;
 use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use League\Container\Container;
+use League\Route\Middleware\MiddlewareAwareInterface;
+use League\Route\Middleware\MiddlewareAwareTrait;
 use League\Route\Strategy\RequestResponseStrategy;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RouteCollection extends RouteCollector implements StrategyAwareInterface, RouteCollectionInterface
+class RouteCollection
+    extends RouteCollector
+    implements MiddlewareAwareInterface, RouteCollectionInterface, StrategyAwareInterface
 {
+    use MiddlewareAwareTrait;
     use RouteCollectionMapTrait;
     use StrategyAwareTrait;
 
@@ -77,11 +82,14 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     public function map($method, $path, $handler)
     {
-        $path = sprintf('/%s', ltrim($path, '/'));
+        $path             = sprintf('/%s', ltrim($path, '/'));
+        $route            = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
+        $this->routes[]   = $route;
+        $middlewareRunner = $this->getMiddlewareRunner();
 
-        $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
-
-        $this->routes[] = $route;
+        if (! is_null($middlewareRunner)) {
+            $route->setMiddlewareRunner($middlewareRunner);
+        }
 
         return $route;
     }
@@ -96,9 +104,13 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     public function group($prefix, callable $group)
     {
-        $group = new RouteGroup($prefix, $group, $this);
+        $group            = new RouteGroup($prefix, $group, $this);
+        $this->groups[]   = $group;
+        $middlewareRunner = $this->getMiddlewareRunner();
 
-        $this->groups[] = $group;
+        if (! is_null($middlewareRunner)) {
+            $group->setMiddlewareRunner($middlewareRunner);
+        }
 
         return $group;
     }
@@ -249,5 +261,25 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     protected function parseRoutePath($path)
     {
         return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function before(callable $middleware)
+    {
+        $this->getMiddlewareRunner()->before($middleware);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function after(callable $middleware)
+    {
+        $this->getMiddlewareRunner()->after($middleware);
+
+        return $this;
     }
 }

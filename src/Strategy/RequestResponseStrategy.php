@@ -3,6 +3,8 @@
 namespace League\Route\Strategy;
 
 use League\Route\Route;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class RequestResponseStrategy extends AbstractStrategy implements StrategyInterface
 {
@@ -11,12 +13,17 @@ class RequestResponseStrategy extends AbstractStrategy implements StrategyInterf
      */
     public function dispatch(callable $controller, array $vars, Route $route = null)
     {
-        $response = call_user_func_array($controller, [
-            $this->getRequest(),
-            $this->getResponse(),
-            $vars
-        ]);
+        $middleware = function (
+            ServerRequestInterface $request, ResponseInterface $response, callable $next
+        ) use (
+            $controller, $vars
+        ) {
+            $result   = call_user_func_array($controller, [$request, $response, $vars]);
+            $response = $this->determineResponse($result);
 
-        return $this->determineResponse($response);
+            return $next($request, $response);
+        };
+
+        return $route->getMiddlewareRunner()->run($middleware, $this->getRequest(), $this->getResponse());
     }
 }

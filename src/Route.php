@@ -6,15 +6,18 @@ use League\Container\ImmutableContainerAwareInterface;
 use League\Container\ImmutableContainerAwareTrait;
 use League\Route\Http\RequestAwareInterface;
 use League\Route\Http\ResponseAwareInterface;
+use League\Route\Middleware\MiddlewareAwareInterface;
+use League\Route\Middleware\MiddlewareAwareTrait;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
-class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
+class Route implements ImmutableContainerAwareInterface, MiddlewareAwareInterface, StrategyAwareInterface
 {
     use ImmutableContainerAwareTrait;
+    use MiddlewareAwareTrait;
     use RouteConditionTrait;
     use StrategyAwareTrait;
 
@@ -87,6 +90,14 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
 
         if ($strategy instanceof ResponseAwareInterface) {
             $strategy->setResponse($response);
+        }
+
+        foreach ($this->getMiddlewareBeforeQueue() as $middleware) {
+            $this->getMiddlewareRunner()->before($middleware);
+        }
+
+        foreach ($this->getMiddlewareAfterQueue() as $middleware) {
+            $this->getMiddlewareRunner()->after($middleware);
         }
 
         return $strategy->dispatch($callable, $vars, $this);
