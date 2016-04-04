@@ -16,7 +16,7 @@ interface MiddlewareAwareInterface
     /**
      * Get the middleware runner.
      *
-     * @return \League\Route\Middleware\Runner;
+     * @return \League\Route\Middleware\Runner
      */
     public function getMiddlewareRunner();
 
