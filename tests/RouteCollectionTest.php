@@ -36,6 +36,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     public function testCollectionSetsAndReturnsGroup()
     {
         $router = new RouteCollection;
+        $callable = function () {};
 
         $group = $router->group('/prefix', function ($collection) {
             $this->assertInstanceOf('League\Route\RouteGroup', $collection);
@@ -47,7 +48,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
             $collection->delete('delete/something', 'handler')->setName('delete');
             $collection->head('/head/something', 'handler')->setName('head');
             $collection->options('options/something', 'handler')->setName('options');
-        })->setHost('example.com')->setScheme('http');
+        })->setHost('example.com')->setScheme('http')->before($callable)->after($callable);
 
         $this->assertInstanceOf('League\Route\RouteGroup', $group);
 
@@ -117,5 +118,24 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('League\Route\Dispatcher', $dispatcher);
         $this->assertCount(5, $router->getData()[0]);
+    }
+
+    /**
+     * Asserts that registering a middleware proxies to the runner.
+     */
+    public function testMiddlewareMethodsProxyToRunner()
+    {
+        $callable = function () {};
+        $runner   = $this->getMock('League\Route\Middleware\Runner');
+
+        $runner->expects($this->once())->method('before')->with($this->equalTo($callable));
+        $runner->expects($this->once())->method('after')->with($this->equalTo($callable));
+
+        $router = new RouteCollection;
+
+        $router->setMiddlewareRunner($runner);
+
+        $router->before($callable);
+        $router->after($callable);
     }
 }

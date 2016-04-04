@@ -80,12 +80,21 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $strategy = $this->getMock('League\Route\Strategy\StrategyInterface');
         $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
         $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $runner   = $this->getMock('League\Route\Middleware\Runner');
         $callable = new Asset\InvokableController;
+
+        $runner->expects($this->once())->method('before')->with($this->equalTo($callable));
+        $runner->expects($this->once())->method('after')->with($this->equalTo($callable));
 
         $strategy->expects($this->once())->method('dispatch')->with($callable, [])->will($this->returnValue($response));
 
+        $route->setMiddlewareRunner($runner);
+
         $route->setStrategy($strategy);
         $route->setCallable($callable);
+
+        $route->before($callable);
+        $route->after($callable);
 
         $actual = $route->dispatch($request, $response, []);
 

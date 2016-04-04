@@ -13,6 +13,11 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
     {
         $originalReq = $this->getMock('Psr\Http\Message\ServerRequestInterface');
         $originalRes = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $route       = $this->getMock('League\Route\Route');
+        $runner      = $this->getMock('League\Route\Middleware\Runner');
+
+        $runner->expects($this->once())->method('run')->will($this->returnValue($originalRes));
+        $route->expects($this->once())->method('getMiddlewareRunner')->will($this->returnValue($runner));
 
         $strategy = (new RequestResponseStrategy)->setRequest($originalReq)->setResponse($originalRes);
 
@@ -21,7 +26,7 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
             $this->assertSame($response, $originalRes);
 
             return $response;
-        }, []);
+        }, [], $route);
 
         $this->assertInstanceOf('Psr\Http\Message\ResponseInterface', $response);
     }
@@ -33,6 +38,8 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
     {
         $originalReq = $this->getMock('Psr\Http\Message\ServerRequestInterface');
         $originalRes = $this->getMock('Psr\Http\Message\ResponseInterface');
+
+        $route = new \League\Route\Route;
 
         $body = $this->getMock('Psr\Http\Message\StreamInterface');
 
@@ -49,7 +56,7 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
             $this->assertSame($response, $originalRes);
 
             return $expected;
-        }, []);
+        }, [], $route);
 
         $this->assertInstanceOf('Psr\Http\Message\ResponseInterface', $response);
     }
@@ -63,6 +70,10 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
 
         $originalReq = $this->getMock('Psr\Http\Message\ServerRequestInterface');
         $originalRes = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $route       = $this->getMock('League\Route\Route');
+        $runner      = $this->getMock('League\Route\Middleware\Runner');
+
+        $route = new \League\Route\Route;
 
         $body = $this->getMock('Psr\Http\Message\StreamInterface');
 
@@ -79,7 +90,7 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
             $this->assertSame($response, $originalRes);
 
             return $expected;
-        }, []);
+        }, [], $route);
     }
 
     /**
@@ -89,6 +100,11 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
     {
         $request = $this->getMock('Psr\Http\Message\ServerRequestInterface');
         $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+
+        $route  = $this->getMock('League\Route\Route');
+        $runner = $this->getMock('League\Route\Middleware\Runner');
+
+        $route = new \League\Route\Route;
 
         $container = $this->getMock('Interop\Container\ContainerInterface');
 
@@ -119,7 +135,7 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
             }
 
             return $actualResponse;
-        }, []);
+        }, [], $route);
 
         $this->assertTrue($isSameRequest);
     }
@@ -133,6 +149,8 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
         $response = $this->getMock('Psr\Http\Message\ResponseInterface');
 
         $container = $this->getMock('Interop\Container\ContainerInterface');
+
+        $route = new \League\Route\Route;
 
         $container
             ->expects($this->any())
@@ -161,7 +179,7 @@ class RequestResponseStrategyTest extends \PHPUnit_Framework_TestCase
             }
 
             return $actualResponse;
-        }, []);
+        }, [], $route);
 
         $this->assertTrue($isSameResponse);
     }
