@@ -85,11 +85,8 @@ class RouteCollection
         $path             = sprintf('/%s', ltrim($path, '/'));
         $route            = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
         $this->routes[]   = $route;
-        $middlewareRunner = $this->getMiddlewareRunner();
 
-        if (! is_null($middlewareRunner)) {
-            $route->setMiddlewareRunner($middlewareRunner);
-        }
+        $route->setMiddlewareRunner($this->getMiddlewareRunner());
 
         return $route;
     }
@@ -106,11 +103,8 @@ class RouteCollection
     {
         $group            = new RouteGroup($prefix, $group, $this);
         $this->groups[]   = $group;
-        $middlewareRunner = $this->getMiddlewareRunner();
 
-        if (! is_null($middlewareRunner)) {
-            $group->setMiddlewareRunner($middlewareRunner);
-        }
+        $group->setMiddlewareRunner($this->getMiddlewareRunner());
 
         return $group;
     }
