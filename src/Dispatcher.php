@@ -50,7 +50,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements StrategyAwareInter
      * @param callable $route
      * @param array    $vars
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \League\Route\Middleware\ExecutionChain
      */
     protected function handleFound(callable $route, array $vars)
     {
@@ -86,7 +86,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements StrategyAwareInter
      */
     protected function handleNotAllowed(array $allowed)
     {
-        $middleware = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $middleware = function (ServerRequestInterface $request, ResponseInterface $response) use ($allowed) {
             $exception = new MethodNotAllowedException($allowed);
 
             if ($this->getStrategy() instanceof JsonStrategy) {
