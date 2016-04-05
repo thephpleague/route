@@ -2,6 +2,7 @@
 
 namespace League\Route\Strategy;
 
+use Exception;
 use League\Route\Http\Exception as HttpException;
 use League\Route\Middleware\ExecutionChain;
 use League\Route\Route;
@@ -33,7 +34,7 @@ class JsonStrategy implements StrategyInterface
                 $response = $response->withAddedHeader('content-type', 'application/json');
                 $response = $next($request, $response);
             } catch (HttpException $e) {
-                $response = $e->buildJsonResponse($this->getResponse());
+                $response = $e->buildJsonResponse($response);
             } catch (Exception $e) {
                 $body = [
                     'code'    => 500,
