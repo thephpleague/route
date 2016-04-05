@@ -31,7 +31,6 @@ class JsonStrategy implements StrategyInterface
                     );
                 }
 
-                $response = $response->withAddedHeader('content-type', 'application/json');
                 $response = $next($request, $response);
             } catch (HttpException $e) {
                 $response = $e->buildJsonResponse($response);
@@ -45,7 +44,7 @@ class JsonStrategy implements StrategyInterface
                 $response = $response->withStatus(500);
             }
 
-            return $response;
+            return $response->withAddedHeader('content-type', 'application/json');
         };
 
         $execChain = (new ExecutionChain)->middleware($middleware);
