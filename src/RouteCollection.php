@@ -117,7 +117,7 @@ class RouteCollection
     public function dispatch(ServerRequestInterface $request, ResponseInterface $response)
     {
         $dispatcher = $this->getDispatcher($request);
-        $execChain  = $dispatcher->handle($request, $response);
+        $execChain  = $dispatcher->handle($request);
 
         foreach ($this->getMiddlewareStack() as $middleware) {
             $execChain->middleware($middleware);
@@ -257,25 +257,5 @@ class RouteCollection
     protected function parseRoutePath($path)
     {
         return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $path);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function before(callable $middleware)
-    {
-        $this->getMiddlewareRunner()->before($middleware);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function after(callable $middleware)
-    {
-        $this->getMiddlewareRunner()->after($middleware);
-
-        return $this;
     }
 }
