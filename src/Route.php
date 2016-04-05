@@ -6,8 +6,8 @@ use League\Container\ImmutableContainerAwareInterface;
 use League\Container\ImmutableContainerAwareTrait;
 use League\Route\Http\RequestAwareInterface;
 use League\Route\Http\ResponseAwareInterface;
-use League\Route\Middleware\MiddlewareAwareInterface;
-use League\Route\Middleware\MiddlewareAwareTrait;
+use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
+use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
@@ -44,17 +44,25 @@ class Route implements ImmutableContainerAwareInterface, MiddlewareAwareInterfac
     /**
      * Dispatch the route via the attached strategy.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface      $response
-     * @param array                                    $vars
+     * @param array $vars
+     *
+     * @return \League\Route\Middleware\ExecutionChain
+     */
+    public function getExecutionChain(array $vars)
+    {
+        return $this->getStrategy()->getExecutionChain($this, $vars);
+    }
+
+    /**
+     * Get the callable.
      *
      * @throws \RuntimeException
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return callable
      */
-    public function dispatch(ServerRequestInterface $request, ResponseInterface $response, array $vars)
+    public function getCallable()
     {
-        $callable = $this->getCallable();
+        $callable = $this->callable;
 
         if (is_string($callable) && strpos($callable, '::') !== false) {
             $callable = explode('::', $callable);
@@ -82,35 +90,7 @@ class Route implements ImmutableContainerAwareInterface, MiddlewareAwareInterfac
             );
         }
 
-        $strategy = $this->getStrategy();
-
-        if ($strategy instanceof RequestAwareInterface) {
-            $strategy->setRequest($request);
-        }
-
-        if ($strategy instanceof ResponseAwareInterface) {
-            $strategy->setResponse($response);
-        }
-
-        foreach ($this->getMiddlewareBeforeQueue() as $middleware) {
-            $this->getMiddlewareRunner()->before($middleware);
-        }
-
-        foreach ($this->getMiddlewareAfterQueue() as $middleware) {
-            $this->getMiddlewareRunner()->after($middleware);
-        }
-
-        return $strategy->dispatch($callable, $vars, $this);
-    }
-
-    /**
-     * Get the callable.
-     *
-     * @return string|callable
-     */
-    public function getCallable()
-    {
-        return $this->callable;
+        return $callable;
     }
 
     /**
