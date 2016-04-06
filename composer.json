@@ -39,8 +39,7 @@
     "autoload-dev": {
         "psr-4": {
             "League\\Route\\Test\\": "tests"
-        },
-        "files": ["tests/Asset/functions.php"]
+        }
     },
     "extra": {
         "branch-alias": {
