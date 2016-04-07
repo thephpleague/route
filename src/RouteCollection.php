@@ -18,9 +18,10 @@ use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RouteCollection
-    extends RouteCollector
-    implements MiddlewareAwareInterface, RouteCollectionInterface, StrategyAwareInterface
+class RouteCollection extends RouteCollector implements
+    MiddlewareAwareInterface,
+    RouteCollectionInterface,
+    StrategyAwareInterface
 {
     use MiddlewareAwareTrait;
     use RouteCollectionMapTrait;
