@@ -2,6 +2,7 @@
 
 namespace League\Route;
 
+use InvalidArgumentException;
 use League\Container\ImmutableContainerAwareInterface;
 use League\Container\ImmutableContainerAwareTrait;
 use League\Route\Http\RequestAwareInterface;
@@ -12,7 +13,6 @@ use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 
 class Route implements ImmutableContainerAwareInterface, MiddlewareAwareInterface, StrategyAwareInterface
 {
@@ -81,13 +81,7 @@ class Route implements ImmutableContainerAwareInterface, MiddlewareAwareInterfac
         }
 
         if (! is_callable($callable)) {
-            throw new RuntimeException(
-                sprintf(
-                    'Invalid class method provided for: %s::%s',
-                    get_class($class),
-                    $callable[1]
-                )
-            );
+            throw new InvalidArgumentException('Could not resolve a callable for this route');
         }
 
         return $callable;

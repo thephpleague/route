@@ -33,7 +33,10 @@ class ApplicationStrategy implements StrategyInterface
 
         $execChain = (new ExecutionChain)->middleware($middleware);
 
-        foreach ($route->getMiddlewareStack() as $middleware) {
+        // ensure middleware is executed in the order it was added
+        $stack = array_reverse($route->getMiddlewareStack());
+
+        foreach ($stack as $middleware) {
             $execChain->middleware($middleware);
         }
 

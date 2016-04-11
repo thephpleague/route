@@ -23,21 +23,22 @@ class JsonStrategy implements StrategyInterface
             $route, $vars
         ) {
             try {
-                $response = call_user_func_array($route->getCallable(), [$request, $response, $vars]);
+                $return = call_user_func_array($route->getCallable(), [$request, $response, $vars]);
 
-                if (! $response instanceof ResponseInterface) {
+                if (! $return instanceof ResponseInterface) {
                     throw new RuntimeException(
                         'Route callables must return an instance of (Psr\Http\Message\ResponseInterface)'
                     );
                 }
 
+                $response = $return;
                 $response = $next($request, $response);
             } catch (HttpException $e) {
-                $response = $e->buildJsonResponse($response);
+                return $e->buildJsonResponse($response);
             } catch (Exception $e) {
                 $body = [
-                    'code'    => 500,
-                    'message' => $e->getMessage()
+                    'status_code'   => 500,
+                    'reason_phrase' => $e->getMessage()
                 ];
 
                 $response->getBody()->write(json_encode($body));
@@ -49,7 +50,10 @@ class JsonStrategy implements StrategyInterface
 
         $execChain = (new ExecutionChain)->middleware($middleware);
 
-        foreach ($route->getMiddlewareStack() as $middleware) {
+        // ensure middleware is executed in the order it was added
+        $stack = array_reverse($route->getMiddlewareStack());
+
+        foreach ($stack as $middleware) {
             $execChain->middleware($middleware);
         }
 
