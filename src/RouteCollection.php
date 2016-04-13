@@ -2,6 +2,7 @@
 
 namespace League\Route;
 
+use Exception;
 use FastRoute\DataGenerator;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
@@ -10,6 +11,7 @@ use FastRoute\RouteParser\Std as StdRouteParser;
 use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use League\Container\Container;
+use League\Route\Middleware\ExecutionChain;
 use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
 use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
 use League\Route\Strategy\ApplicationStrategy;
@@ -124,7 +126,12 @@ class RouteCollection extends RouteCollector implements
             $execChain->middleware($middleware);
         }
 
-        return $execChain->execute($request, $response);
+        try {
+            return $execChain->execute($request, $response);
+        } catch (Exception $exception) {
+            $middleware = $this->getStrategy()->getExceptionDecorator($exception);
+            return (new ExecutionChain)->middleware($middleware)->execute($request, $response);
+        }
     }
 
     /**

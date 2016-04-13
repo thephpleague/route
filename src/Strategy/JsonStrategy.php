@@ -2,7 +2,9 @@
 
 namespace League\Route\Strategy;
 
-use Exception;
+use \Exception;
+use League\Route\Http\Exception\MethodNotAllowedException;
+use League\Route\Http\Exception\NotFoundException;
 use League\Route\Http\Exception as HttpException;
 use League\Route\Middleware\ExecutionChain;
 use League\Route\Route;
@@ -22,28 +24,16 @@ class JsonStrategy implements StrategyInterface
         ) use (
             $route, $vars
         ) {
-            try {
-                $return = call_user_func_array($route->getCallable(), [$request, $response, $vars]);
+            $return = call_user_func_array($route->getCallable(), [$request, $response, $vars]);
 
-                if (! $return instanceof ResponseInterface) {
-                    throw new RuntimeException(
-                        'Route callables must return an instance of (Psr\Http\Message\ResponseInterface)'
-                    );
-                }
-
-                $response = $return;
-                $response = $next($request, $response);
-            } catch (HttpException $e) {
-                return $e->buildJsonResponse($response);
-            } catch (Exception $e) {
-                $body = [
-                    'status_code'   => 500,
-                    'reason_phrase' => $e->getMessage()
-                ];
-
-                $response->getBody()->write(json_encode($body));
-                $response = $response->withStatus(500);
+            if (! $return instanceof ResponseInterface) {
+                throw new RuntimeException(
+                    'Route callables must return an instance of (Psr\Http\Message\ResponseInterface)'
+                );
             }
+
+            $response = $return;
+            $response = $next($request, $response);
 
             return $response->withAddedHeader('content-type', 'application/json');
         };
@@ -58,5 +48,45 @@ class JsonStrategy implements StrategyInterface
         }
 
         return $execChain;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNotFoundDecorator(NotFoundException $exception)
+    {
+        return function (ServerRequestInterface $request, ResponseInterface $response) use ($exception) {
+            return $exception->buildJsonResponse($response);
+        };
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception)
+    {
+        return function (ServerRequestInterface $request, ResponseInterface $response) use ($exception) {
+            return $exception->buildJsonResponse($response);
+        };
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getExceptionDecorator(Exception $exception)
+    {
+        return function (ServerRequestInterface $request, ResponseInterface $response) use ($exception) {
+            if ($exception instanceof HttpException) {
+                return $exception->buildJsonResponse($response);
+            }
+
+            $response->getBody()->write(json_encode([
+                'status_code'     => 500,
+                'reason_phrase' => $exception->getMessage()
+            ]));
+
+            $response = $response->withAddedHeader('content-type', 'application/json');
+            return $response->withStatus(500, $exception->getMessage());
+        };
     }
 }
