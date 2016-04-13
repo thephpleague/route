@@ -2,77 +2,123 @@
 
 namespace League\Route\Test\Strategy;
 
+use League\Route\Http\Exception\BadRequestException;
 use League\Route\Strategy\JsonStrategy;
+use League\Route\Test\Asset\Controller;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class JsonStrategyTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Asserts that an exception is thrown when a response cannot b built.
+     * Asserts that the strategy can build an execution chain.
+     *
+     * @return void
      */
-    public function testThrowsExceptionWhenAJsonResponseCannotBeBuilt()
+    public function testStrategyCanBuildExecutionChain()
     {
-        $this->setExpectedException('RuntimeException');
+        $route    = $this->getMock('League\Route\Route');
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, array $args = []) {
+            $response = $response->withHeader('controller', 'true');
+            return $response;
+        };
 
-        $originalReq = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $originalRes = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $route->expects($this->once())->method('getCallable')->will($this->returnValue($callable));
+        $route->expects($this->once())->method('getMiddlewareStack')->will($this->returnValue([
+            new Controller, [new Controller, 'action']
+        ]));
 
-        $strategy = (new JsonStrategy)->setRequest($originalReq)->setResponse($originalRes);
+        $strategy = new JsonStrategy;
+        $chain    = $strategy->getExecutionChain($route, []);
 
-        $response = $strategy->dispatch(function ($request, $vars) use ($originalReq) {
-            $this->assertSame($request, $originalReq);
+        $this->assertInstanceOf('League\Route\Middleware\ExecutionChain', $chain);
 
-            return 'Hello, World!';
-        }, []);
+        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+
+        $response->expects($this->at(0))->method('withHeader')->with($this->equalTo('invoke'), $this->equalTo('true'))->will($this->returnSelf());
+        $response->expects($this->at(1))->method('withHeader')->with($this->equalTo('action'), $this->equalTo('true'))->will($this->returnSelf());
+        $response->expects($this->at(2))->method('withHeader')->with($this->equalTo('controller'), $this->equalTo('true'))->will($this->returnSelf());
+        $response->expects($this->at(3))->method('withAddedHeader')->with($this->equalTo('content-type'), $this->equalTo('application/json'))->will($this->returnSelf());
+
+        $newResponse = $chain->execute($request, $response);
+
+        $this->assertSame($response, $newResponse);
     }
 
     /**
-     * Asserts that a json response is built when a http exception is thrown.
+     * Asserts that the strategy builds a json response for a controller that does not return a repsonse.
+     *
+     * @return void
      */
-    public function testBuildsJsonResponseFromHttpException()
+    public function testStrategyBuildsJsonErrorResponseWhenNoResponseReturned()
     {
-        $originalReq = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $originalRes = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $exception   = $this->getMockBuilder('League\Route\Http\Exception', ['buildJsonresponse'])->disableOriginalConstructor()->getMock();
+        $route    = $this->getMock('League\Route\Route');
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, array $args = []) {};
 
-        $exception->expects($this->once())->method('buildJsonResponse')->with($this->equalTo($originalRes))->will($this->returnValue($originalRes));
+        $route->expects($this->once())->method('getCallable')->will($this->returnValue($callable));
+        $route->expects($this->once())->method('getMiddlewareStack')->will($this->returnValue([]));
 
-        $strategy = (new JsonStrategy)->setRequest($originalReq)->setResponse($originalRes);
+        $strategy = new JsonStrategy;
+        $chain    = $strategy->getExecutionChain($route, []);
 
-        $response = $strategy->dispatch(function ($request, $vars) use ($originalReq, $exception) {
-            $this->assertSame($request, $originalReq);
+        $this->assertInstanceOf('League\Route\Middleware\ExecutionChain', $chain);
 
-            throw $exception;
-        }, []);
+        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $body     = $this->getMock('Psr\Http\Message\StreamInterface');
 
-        $this->assertInstanceOf('Psr\Http\Message\ResponseInterface', $response);
+        $body->expects($this->once())->method('write')->with($this->equalTo(json_encode([
+            'status_code'   => 500,
+            'reason_phrase' => 'Route callables must return an instance of (Psr\Http\Message\ResponseInterface)'
+        ], true)));
+
+        $response->expects($this->at(0))->method('getBody')->will($this->returnValue($body));
+        $response->expects($this->at(1))->method('withStatus')->with($this->equalTo(500))->will($this->returnSelf());
+        $response->expects($this->at(2))->method('withAddedHeader')->with($this->equalTo('content-type'), $this->equalTo('application/json'))->will($this->returnSelf());
+
+        $newResponse = $chain->execute($request, $response);
+
+        $this->assertSame($response, $newResponse);
     }
 
     /**
-     * Asserts that the dispatch method invokes the callable and builds a response from the return.
+     * Asserts that the strategy builds a json response for a controller that throws a http response.
+     *
+     * @return void
      */
-    public function testDispatchInvokesCallableAndBuildsResponse()
+    public function testStrategyBuildsJsonErrorResponseWhenControllerThrowsHttpException()
     {
-        $originalReq = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $originalRes = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $route    = $this->getMock('League\Route\Route');
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, array $args = []) {
+            throw new BadRequestException;
+        };
 
-        $body = $this->getMock('Psr\Http\Message\StreamInterface');
+        $route->expects($this->once())->method('getCallable')->will($this->returnValue($callable));
+        $route->expects($this->once())->method('getMiddlewareStack')->will($this->returnValue([]));
 
-        $expected = ['Hello' => 'World!'];
+        $strategy = new JsonStrategy;
+        $chain    = $strategy->getExecutionChain($route, []);
 
-        $originalRes->expects($this->any())->method('getBody')->will($this->returnValue($body));
-        $originalRes->expects($this->once())->method('withAddedHeader')->with($this->equalTo('content-type'), $this->equalTo('application/json'))->will($this->returnSelf());
+        $this->assertInstanceOf('League\Route\Middleware\ExecutionChain', $chain);
+
+        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $body     = $this->getMock('Psr\Http\Message\StreamInterface');
 
         $body->expects($this->once())->method('isWritable')->will($this->returnValue(true));
-        $body->expects($this->once())->method('write')->with($this->equalTo(json_encode($expected)));
+        $body->expects($this->once())->method('write')->with($this->equalTo(json_encode([
+            'status_code'   => 400,
+            'reason_phrase' => 'Bad Request'
+        ], true)));
 
-        $strategy = (new JsonStrategy)->setRequest($originalReq)->setResponse($originalRes);
+        $response->expects($this->at(0))->method('withAddedHeader')->with($this->equalTo('content-type'), $this->equalTo('application/json'))->will($this->returnSelf());
+        $response->expects($this->at(1))->method('getBody')->will($this->returnValue($body));
+        $response->expects($this->at(2))->method('getBody')->will($this->returnValue($body));
+        $response->expects($this->at(3))->method('withStatus')->with($this->equalTo(400), $this->equalTo('Bad Request'))->will($this->returnSelf());
 
-        $response = $strategy->dispatch(function ($request, $vars) use ($originalReq, $expected) {
-            $this->assertSame($request, $originalReq);
+        $newResponse = $chain->execute($request, $response);
 
-            return $expected;
-        }, []);
-
-        $this->assertInstanceOf('Psr\Http\Message\ResponseInterface', $response);
+        $this->assertSame($response, $newResponse);
     }
 }

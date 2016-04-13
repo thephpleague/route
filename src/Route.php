@@ -2,19 +2,22 @@
 
 namespace League\Route;
 
+use InvalidArgumentException;
 use League\Container\ImmutableContainerAwareInterface;
 use League\Container\ImmutableContainerAwareTrait;
 use League\Route\Http\RequestAwareInterface;
 use League\Route\Http\ResponseAwareInterface;
+use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
+use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 
-class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
+class Route implements ImmutableContainerAwareInterface, MiddlewareAwareInterface, StrategyAwareInterface
 {
     use ImmutableContainerAwareTrait;
+    use MiddlewareAwareTrait;
     use RouteConditionTrait;
     use StrategyAwareTrait;
 
@@ -41,17 +44,25 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
     /**
      * Dispatch the route via the attached strategy.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface      $response
-     * @param array                                    $vars
+     * @param array $vars
+     *
+     * @return \League\Route\Middleware\ExecutionChain
+     */
+    public function getExecutionChain(array $vars)
+    {
+        return $this->getStrategy()->getExecutionChain($this, $vars);
+    }
+
+    /**
+     * Get the callable.
      *
      * @throws \RuntimeException
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return callable
      */
-    public function dispatch(ServerRequestInterface $request, ResponseInterface $response, array $vars)
+    public function getCallable()
     {
-        $callable = $this->getCallable();
+        $callable = $this->callable;
 
         if (is_string($callable) && strpos($callable, '::') !== false) {
             $callable = explode('::', $callable);
@@ -70,36 +81,10 @@ class Route implements ImmutableContainerAwareInterface, StrategyAwareInterface
         }
 
         if (! is_callable($callable)) {
-            throw new RuntimeException(
-                sprintf(
-                    'Invalid class method provided for: %s::%s',
-                    get_class($class),
-                    $callable[1]
-                )
-            );
+            throw new InvalidArgumentException('Could not resolve a callable for this route');
         }
 
-        $strategy = $this->getStrategy();
-
-        if ($strategy instanceof RequestAwareInterface) {
-            $strategy->setRequest($request);
-        }
-
-        if ($strategy instanceof ResponseAwareInterface) {
-            $strategy->setResponse($response);
-        }
-
-        return $strategy->dispatch($callable, $vars, $this);
-    }
-
-    /**
-     * Get the callable.
-     *
-     * @return string|callable
-     */
-    public function getCallable()
-    {
-        return $this->callable;
+        return $callable;
     }
 
     /**

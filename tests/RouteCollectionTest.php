@@ -7,115 +7,126 @@ use League\Route\RouteCollection;
 class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Asserts that the collection maps and stores a route object.
+     * Asserts that the collection can map and return a route object.
+     *
+     * @return void
      */
-    public function testCollectionMapsAndStoresRoute()
+    public function testCollectionMapsAndReturnsRoute()
     {
-        $router = new RouteCollection;
+        $collection = new RouteCollection;
+        $path       = '/something';
+        $callable   = function () {};
 
-        $router->get('get/something', 'handler')->setName('get');
-        $router->post('/post/something', 'handler')->setName('post');
-        $router->put('put/something', 'handler')->setName('put');
-        $router->patch('/patch/something', 'handler')->setName('patch');
-        $router->delete('delete/something', 'handler')->setName('delete');
-        $router->head('/head/something', 'handler')->setName('head');
-        $router->options('options/something', 'handler')->setName('options');
+        foreach ([
+            'get', 'post', 'put', 'patch', 'delete', 'head', 'options'
+        ] as $method) {
+            $route = $collection->map($method, $path, $callable);
 
-        foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
-            $route = $router->getNamedRoute($method);
             $this->assertInstanceOf('League\Route\Route', $route);
-
-            $this->assertSame("/${method}/something", $route->getPath());
-            $this->assertSame('handler', $route->getCallable());
+            $this->assertSame([$method], $route->getMethods());
+            $this->assertSame($path, $route->getPath());
+            $this->assertSame($callable, $route->getCallable());
         }
     }
 
     /**
-     * Asserts that the group method builds a group and returns it for any fluent manipulation.
+     * Asserts that the collection can map and return a route group object.
+     *
+     * @return void
      */
-    public function testCollectionSetsAndReturnsGroup()
+    public function testCollectionMapsAndReturnsGroup()
     {
-        $router = new RouteCollection;
+        $collection = new RouteCollection;
+        $prefix     = '/something';
+        $callable   = function () {};
 
-        $group = $router->group('/prefix', function ($collection) {
-            $this->assertInstanceOf('League\Route\RouteGroup', $collection);
-
-            $collection->get('get/something', 'handler')->setName('get');
-            $collection->post('/post/something', 'handler')->setName('post');
-            $collection->put('put/something', 'handler')->setName('put');
-            $collection->patch('/patch/something', 'handler')->setName('patch');
-            $collection->delete('delete/something', 'handler')->setName('delete');
-            $collection->head('/head/something', 'handler')->setName('head');
-            $collection->options('options/something', 'handler')->setName('options');
-        })->setHost('example.com')->setScheme('http');
+        $group = $collection->group($prefix, $callable);
 
         $this->assertInstanceOf('League\Route\RouteGroup', $group);
-
-        $group();
-
-        foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
-            $route = $router->getNamedRoute($method);
-
-            $this->assertInstanceOf('League\Route\Route', $route);
-
-            $this->assertSame("/prefix/${method}/something", $route->getPath());
-            $this->assertSame('handler', $route->getCallable());
-            $this->assertSame('example.com', $route->getHost());
-            $this->assertSame('http', $route->getScheme());
-            $this->assertSame($group, $route->getParentGroup());
-        }
     }
 
     /**
-     * Asserts that an exception is thown when a named route cannot be found.
+     * Asserts that the collection can set a named route and retrieve it by name.
+     *
+     * @return void
      */
-    public function testExceptionIsThrownWhenNamedRouteIsNotFound()
+    public function testCollectionCanSetAndGetNamedRoute()
+    {
+        $collection = new RouteCollection;
+        $name       = 'route';
+
+        $expected = $collection->map('get', '/something', function () {})->setName($name);
+        $actual   = $collection->getNamedRoute($name);
+
+        $this->assertSame($expected, $actual);
+    }
+
+    /**
+     * Asserts that the collection can set a named route via a group and retrieve it by name.
+     *
+     * @return void
+     */
+    public function testCollectionCanSetViaGroupAndGetNamedRoute()
+    {
+        $collection = new RouteCollection;
+        $name       = 'route';
+
+        $collection->group('/prefix', function ($collection) use ($name) {
+            $collection->map('get', '/something', function () {})->setName($name);
+        });
+
+        $route = $collection->getNamedRoute($name);
+        $this->assertInstanceOf('League\Route\Route', $route);
+    }
+
+    /**
+     * Asserts that an exception is thrown when trying to get a named route that does not exist.
+     *
+     * @return void
+     */
+    public function testCollectionThrowsExceptionWhenAttemptingToGetNamedRouteThstDoesNotExist()
     {
         $this->setExpectedException('InvalidArgumentException');
 
-        (new RouteCollection)->getNamedRoute('something');
+        (new RouteCollection)->getNamedRoute('umm');
     }
 
     /**
      * Asserts that appropriately configured regex strings are added to patternMatchers.
+     *
+     * @return void
      */
     public function testNewPatternMatchesCanBeAddedAtRuntime()
     {
-        $router = new RouteCollection;
-
-        $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');
-
-        $matchers = $this->getObjectAttribute($router, 'patternMatchers');
+        $collection = new RouteCollection;
+        $collection->addPatternMatcher('mockMatcher', '[a-zA-Z]');
+        $matchers = $this->getObjectAttribute($collection, 'patternMatchers');
 
         $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
         $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
     }
 
     /**
-     * Asserts that the collection will prep all routes and return a dispatcher.
+     * Asserts that the collection can prep routes and build a dispatcher.
+     *
+     * @return void
      */
-    public function testCollectionPrepsRoutesAndReturnsADispatcher()
+    public function testCollectionPrepsRoutesAndBuildsDispatcher()
     {
-        $router = new RouteCollection;
+        $collection = new RouteCollection;
+        $request    = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $uri        = $this->getMock('Psr\Http\Message\UriInterface');
 
-        $uri = $this->getMock('Psr\Http\Message\UriInterface');
-        $uri->expects($this->any())->method('getHost')->will($this->returnValue('example.com'));
-        $uri->expects($this->any())->method('getScheme')->will($this->returnValue('http'));
+        $uri->expects($this->exactly(2))->method('getScheme')->will($this->returnValue('https'));
+        $uri->expects($this->exactly(2))->method('getHost')->will($this->returnValue('something.com'));
+        $request->expects($this->exactly(4))->method('getUri')->will($this->returnValue($uri));
 
-        $request = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $request->expects($this->any())->method('getUri')->will($this->returnValue($uri));
+        $collection->map('get', '/something', function () {})->setScheme('http');
+        $collection->map('post', '/something', function () {})->setHost('example.com');
+        $collection->map('get', '/something-else', function () {})->setScheme('https')->setHost('something.com');
 
-        $router->get('get/something', 'handler')->setName('get')->setScheme('http')->setHost('example.com');
-        $router->post('/post/something', 'handler')->setName('post')->setScheme('https');
-        $router->put('put/something', 'handler')->setName('put')->setHost('sub.example.com');
-        $router->patch('/patch/something', 'handler')->setName('patch');
-        $router->delete('delete/something', 'handler')->setName('delete');
-        $router->head('/head/something', 'handler')->setName('head');
-        $router->options('options/something', 'handler')->setName('options');
-
-        $dispatcher = $router->getDispatcher($request);
+        $dispatcher = $collection->getDispatcher($request);
 
         $this->assertInstanceOf('League\Route\Dispatcher', $dispatcher);
-        $this->assertCount(5, $router->getData()[0]);
     }
 }

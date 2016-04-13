@@ -10,14 +10,20 @@ use FastRoute\RouteParser\Std as StdRouteParser;
 use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use League\Container\Container;
-use League\Route\Strategy\RequestResponseStrategy;
+use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
+use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
+use League\Route\Strategy\ApplicationStrategy;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RouteCollection extends RouteCollector implements StrategyAwareInterface, RouteCollectionInterface
+class RouteCollection extends RouteCollector implements
+    MiddlewareAwareInterface,
+    RouteCollectionInterface,
+    StrategyAwareInterface
 {
+    use MiddlewareAwareTrait;
     use RouteCollectionMapTrait;
     use StrategyAwareTrait;
 
@@ -77,8 +83,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     public function map($method, $path, $handler)
     {
-        $path = sprintf('/%s', ltrim($path, '/'));
-
+        $path  = sprintf('/%s', ltrim($path, '/'));
         $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
 
         $this->routes[] = $route;
@@ -96,8 +101,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
      */
     public function group($prefix, callable $group)
     {
-        $group = new RouteGroup($prefix, $group, $this);
-
+        $group          = new RouteGroup($prefix, $group, $this);
         $this->groups[] = $group;
 
         return $group;
@@ -114,8 +118,13 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     public function dispatch(ServerRequestInterface $request, ResponseInterface $response)
     {
         $dispatcher = $this->getDispatcher($request);
+        $execChain  = $dispatcher->handle($request);
 
-        return $dispatcher->handle($request, $response);
+        foreach ($this->getMiddlewareStack() as $middleware) {
+            $execChain->middleware($middleware);
+        }
+
+        return $execChain->execute($request, $response);
     }
 
     /**
@@ -128,7 +137,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     public function getDispatcher(ServerRequestInterface $request)
     {
         if (is_null($this->getStrategy())) {
-            $this->setStrategy(new RequestResponseStrategy);
+            $this->setStrategy(new ApplicationStrategy);
         }
 
         $this->prepRoutes($request);
@@ -170,7 +179,7 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
             $this->addRoute(
                 $route->getMethods(),
                 $this->parseRoutePath($route->getPath()),
-                [$route, 'dispatch']
+                [$route, 'getExecutionChain']
             );
         }
     }

@@ -3,216 +3,172 @@
 namespace League\Route\Test;
 
 use League\Route\Route;
+use League\Route\Test\Asset\Controller;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Asserts that a route can set and get all properties.
+     * Asserts that the route can set and resolve an invokable class callable.
+     *
+     * @return void
      */
-    public function testRouteSetsAndGetsProperties()
+    public function testRouteSetsAndResolvesInvokableClassCallable()
     {
         $route = new Route;
+        $callable = new Controller;
+
+        $route->setCallable($callable);
+        $this->assertTrue(is_callable($route->getCallable()));
+    }
+
+    /**
+     * Asserts that the route can set and resolve a class method callable.
+     *
+     * @return void
+     */
+    public function testRouteSetsAndResolvesClassMethodCallable()
+    {
+        $route = new Route;
+        $callable = [new Controller, 'action'];
+
+        $route->setCallable($callable);
+        $this->assertTrue(is_callable($route->getCallable()));
+    }
+
+    /**
+     * Asserts that the route can set and resolve a named function callable.
+     *
+     * @return void
+     */
+    public function testRouteSetsAndResolvesNamedFunctionCallable()
+    {
+        $route = new Route;
+        $callable = 'League\Route\Test\Asset\namedFunctionCallable';
+
+        $route->setCallable($callable);
+        $this->assertTrue(is_callable($route->getCallable()));
+    }
+
+    /**
+     * Asserts that the route can set and resolve a class method callable via the container.
+     *
+     * @return void
+     */
+    public function testRouteSetsAndResolvesClassMethodCallableAsStringViaContainer()
+    {
+        $container = $this->getMock('League\Container\ImmutableContainerInterface');
+
+        $container->expects($this->once())->method('has')->with($this->equalTo('League\Route\Test\Asset\Controller'))->will($this->returnValue(true));
+        $container->expects($this->once())->method('get')->with($this->equalTo('League\Route\Test\Asset\Controller'))->will($this->returnValue(new Controller));
+
+        $route = new Route;
+        $route->setContainer($container);
+
+        $callable = 'League\Route\Test\Asset\Controller::action';
+
+        $route->setCallable($callable);
+        $newCallable = $route->getCallable();
+
+        $this->assertTrue(is_callable($newCallable));
+        $this->assertTrue(is_array($newCallable));
+        $this->assertCount(2, $newCallable);
+        $this->assertInstanceOf('League\Route\Test\Asset\Controller', $newCallable[0]);
+        $this->assertEquals('action', $newCallable[1]);
+    }
+
+    /**
+     * Asserts that the route can set and resolve a class method callable without the container.
+     *
+     * @return void
+     */
+    public function testRouteSetsAndResolvesClassMethodCallableAsStringWithoutContainer()
+    {
+        $container = $this->getMock('League\Container\ImmutableContainerInterface');
+
+        $container->expects($this->once())->method('has')->with($this->equalTo('League\Route\Test\Asset\Controller'))->will($this->returnValue(false));
+
+        $route = new Route;
+        $route->setContainer($container);
+
+        $callable = 'League\Route\Test\Asset\Controller::action';
+
+        $route->setCallable($callable);
+        $newCallable = $route->getCallable();
+
+        $this->assertTrue(is_callable($newCallable));
+        $this->assertTrue(is_array($newCallable));
+        $this->assertCount(2, $newCallable);
+        $this->assertInstanceOf('League\Route\Test\Asset\Controller', $newCallable[0]);
+        $this->assertEquals('action', $newCallable[1]);
+    }
+
+    /**
+     * Asserts that the route throws an exception when trying to set and resolve a non callable.
+     *
+     * @return void
+     */
+    public function testRouteThrowsExceptionWhenSettingAndResolvingNonCallable()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        $route = new Route;
+        $callable = new \stdClass;
+
+        $route->setCallable($callable);
+        $route->getCallable();
+    }
+
+    /**
+     * Asserts that the route can set and get all properties.
+     *
+     * @return void
+     */
+    public function testRouteCanSetAndGetAllProperties()
+    {
+        $route = new Route;
+
+        $group = $this->getMockBuilder('League\Route\RouteGroup')->disableOriginalConstructor()->getMock();
+        $this->assertSame($group, $route->setParentGroup($group)->getParentGroup());
+
+        $path = '/something';
+        $this->assertSame('/something', $route->setPath($path)->getPath());
+
+        $methods = ['get', 'post'];
+        $this->assertSame($methods, $route->setMethods($methods)->getMethods());
+
+        $name = 'a.name';
+        $this->assertSame($name, $route->setName($name)->getName());
+
+        $scheme = 'http';
+        $this->assertSame($scheme, $route->setScheme($scheme)->getScheme());
+
+        $host = 'example.com';
+        $this->assertSame($host, $route->setHost($host)->getHost());
+
+        $middleware = new Controller;
+        $route->middleware($middleware)->middleware($middleware);
+        $this->assertSame([
+            $middleware, $middleware
+        ], $route->getMiddlewareStack());
+    }
+
+    /**
+     * Asserts the route proxies to the strategy to get the execution chain.
+     *
+     * @return void
+     */
+    public function testRouteProxiesToStrategyToGetExecutionChain()
+    {
+        $route = new Route;
+        $vars  = [];
+
+        $chain = $this->getMock('League\Route\Middleware\ExecutionChain');
 
         $strategy = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $group    = $this->getMockBuilder('League\Route\RouteGroup')->disableOriginalConstructor()->getMock();
-
-        $callable = function () {};
-        $host     = 'example.com';
-        $methods  = ['GET', 'POST'];
-        $name     = 'example';
-        $path     = '/example';
-        $scheme   = 'https';
-
-        $route->setCallable($callable);
-        $this->assertSame($callable, $route->getCallable());
-
-        $route->setHost($host);
-        $this->assertSame($host, $route->getHost());
-
-        $route->setMethods($methods);
-        $this->assertSame($methods, $route->getMethods());
-
-        $route->setName($name);
-        $this->assertSame($name, $route->getName());
-
-        $route->setPath($path);
-        $this->assertSame($path, $route->getPath());
-
-        $route->setScheme($scheme);
-        $this->assertSame($scheme, $route->getScheme());
+        $strategy->expects($this->once())->method('getExecutionChain')->with($this->equalTo($route), $this->equalTo($vars))->will($this->returnValue($chain));
 
         $route->setStrategy($strategy);
-        $this->assertSame($strategy, $route->getStrategy());
 
-        $route->setparentGroup($group);
-        $this->assertSame($group, $route->getParentGroup());
-    }
-
-    /**
-     * Asserts that a route can dispatch a closure to the correct strategy.
-     */
-    public function testRouteCanDispatchClosureToCorrectStrategy()
-    {
-        $route = new Route;
-
-        $strategy = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $callable = function () {};
-
-        $strategy->expects($this->once())->method('dispatch')->with($callable, [])->will($this->returnValue($response));
-
-        $route->setStrategy($strategy);
-        $route->setCallable($callable);
-
-        $actual = $route->dispatch($request, $response, []);
-
-        $this->assertSame($response, $actual);
-    }
-
-    /**
-     * Asserts that a route can dispatch a invokable class to the correct strategy.
-     */
-    public function testRouteCanDispatchInvokableClassToCorrectStrategy()
-    {
-        $route = new Route;
-
-        $strategy = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $callable = new Asset\InvokableController;
-
-        $strategy->expects($this->once())->method('dispatch')->with($callable, [])->will($this->returnValue($response));
-
-        $route->setStrategy($strategy);
-        $route->setCallable($callable);
-
-        $actual = $route->dispatch($request, $response, []);
-
-        $this->assertSame($response, $actual);
-    }
-
-    /**
-     * Asserts that a route can dispatch a array based callable with a class instance to the correct strategy.
-     */
-    public function testRouteCanDispatchArrayBasedCallableWithInstanceToCorrectStrategy()
-    {
-        $route = new Route;
-
-        $container = $this->getMock('Interop\Container\ContainerInterface');
-        $strategy  = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $request   = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response  = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $instance  = new Asset\InvokableController;
-        $callable  = [$instance, '__invoke'];
-
-        $strategy->expects($this->once())->method('dispatch')->with($callable, [])->will($this->returnValue($response));
-
-        $route->setContainer($container);
-        $route->setStrategy($strategy);
-        $route->setCallable($callable);
-
-        $actual = $route->dispatch($request, $response, []);
-
-        $this->assertSame($response, $actual);
-    }
-
-    /**
-     * Asserts that a route can dispatch a array based callable with a class name to the correct strategy.
-     */
-    public function testRouteCanDispatchArrayBasedCallableWithNameToCorrectStrategy()
-    {
-        $route = new Route;
-
-        $container = $this->getMock('Interop\Container\ContainerInterface');
-        $strategy  = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $request   = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response  = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $callable  = ['League\Route\Test\Asset\InvokableController', '__invoke'];
-        $instance  = new Asset\InvokableController;
-
-        $container->expects($this->once())->method('has')->with('League\Route\Test\Asset\InvokableController')->will($this->returnValue(true));
-        $container->expects($this->once())->method('get')->with('League\Route\Test\Asset\InvokableController')->will($this->returnValue($instance));
-        $strategy->expects($this->once())->method('dispatch')->with([$instance, '__invoke'], [])->will($this->returnValue($response));
-
-        $route->setContainer($container);
-        $route->setStrategy($strategy);
-        $route->setCallable($callable);
-
-        $actual = $route->dispatch($request, $response, []);
-
-        $this->assertSame($response, $actual);
-    }
-
-    /**
-     * Asserts that a route can dispatch a string based callable to the correct strategy.
-     */
-    public function testRouteCanDispatchStringBasedCallableToCorrectStrategy()
-    {
-        $route = new Route;
-
-        $container = $this->getMock('Interop\Container\ContainerInterface');
-        $strategy  = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $request   = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response  = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $callable  = 'League\Route\Test\Asset\InvokableController::__invoke';
-        $instance  = new Asset\InvokableController;
-
-        $container->expects($this->once())->method('has')->with('League\Route\Test\Asset\InvokableController')->will($this->returnValue(true));
-        $container->expects($this->once())->method('get')->with('League\Route\Test\Asset\InvokableController')->will($this->returnValue($instance));
-        $strategy->expects($this->once())->method('dispatch')->with([$instance, '__invoke'], [])->will($this->returnValue($response));
-
-        $route->setContainer($container);
-        $route->setStrategy($strategy);
-        $route->setCallable($callable);
-
-        $actual = $route->dispatch($request, $response, []);
-
-        $this->assertSame($response, $actual);
-    }
-
-    /**
-     * Asserts that a route can dispatch a named function to the correct strategy.
-     */
-    public function testRouteCanDispatchNamedFunctionToCorrectStrategy()
-    {
-        $route = new Route;
-
-        $strategy = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $callable = 'League\Route\Test\Asset\namedFunctionController';
-
-        $strategy->expects($this->once())->method('dispatch')->with($callable, [])->will($this->returnValue($response));
-
-        $route->setStrategy($strategy);
-        $route->setCallable($callable);
-
-        $actual = $route->dispatch($request, $response, []);
-
-        $this->assertSame($response, $actual);
-    }
-
-    /**
-     * Ensure an exception is thrown when providing an invalid class method.
-     */
-    public function testRouteThrowsExceptionWhenClassMethodIsNotCallable()
-    {
-        $this->setExpectedException(
-            'RuntimeException', 'Invalid class method provided for: League\Route\Test\Asset\TestController::invalid'
-        );
-
-        $route = new Route;
-
-        $container = $this->getMock('Interop\Container\ContainerInterface');
-        $request   = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response  = $this->getMock('Psr\Http\Message\ResponseInterface');
-        $callable  = 'League\Route\Test\Asset\TestController::invalid';
-        $instance  = new Asset\TestController;
-
-        $route->setContainer($container);
-        $route->setCallable($callable);
-
-        $route->dispatch($request, $response, []);
+        $this->assertSame($chain, $route->getExecutionChain($vars));
     }
 }

@@ -2,8 +2,12 @@
 
 namespace League\Route;
 
-class RouteGroup implements RouteCollectionInterface
+use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
+use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
+
+class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface
 {
+    use MiddlewareAwareTrait;
     use RouteCollectionMapTrait;
     use RouteConditionTrait;
 
@@ -62,6 +66,10 @@ class RouteGroup implements RouteCollectionInterface
 
         if ($scheme = $this->getScheme()) {
             $route->setScheme($scheme);
+        }
+
+        foreach ($this->getMiddlewareStack() as $middleware) {
+            $route->middleware($middleware);
         }
 
         return $route;

@@ -40,7 +40,7 @@
         "psr-4": {
             "League\\Route\\Test\\": "tests"
         },
-        "files": ["tests/Asset/functions.php"]
+        "files": ["tests/Asset/function.php"]
     },
     "extra": {
         "branch-alias": {

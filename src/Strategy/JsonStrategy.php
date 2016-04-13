@@ -2,41 +2,61 @@
 
 namespace League\Route\Strategy;
 
-use ArrayObject;
+use Exception;
 use League\Route\Http\Exception as HttpException;
+use League\Route\Middleware\ExecutionChain;
 use League\Route\Route;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
-class JsonStrategy extends AbstractStrategy implements StrategyInterface
+class JsonStrategy implements StrategyInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function dispatch(callable $controller, array $vars, Route $route = null)
+    public function getExecutionChain(Route $route, array $vars)
     {
-        try {
-            $response = call_user_func_array($controller, [
-                $this->getRequest(),
-                $vars
-            ]);
+        $middleware = function (
+            ServerRequestInterface $request, ResponseInterface $response, callable $next
+        ) use (
+            $route, $vars
+        ) {
+            try {
+                $return = call_user_func_array($route->getCallable(), [$request, $response, $vars]);
 
-            if (is_array($response) || $response instanceof ArrayObject) {
-                $body     = json_encode($response);
-                $response = $this->getResponse();
-
-                if ($response->getBody()->isWritable()) {
-                    $response->getBody()->write($body);
+                if (! $return instanceof ResponseInterface) {
+                    throw new RuntimeException(
+                        'Route callables must return an instance of (Psr\Http\Message\ResponseInterface)'
+                    );
                 }
+
+                $response = $return;
+                $response = $next($request, $response);
+            } catch (HttpException $e) {
+                return $e->buildJsonResponse($response);
+            } catch (Exception $e) {
+                $body = [
+                    'status_code'   => 500,
+                    'reason_phrase' => $e->getMessage()
+                ];
+
+                $response->getBody()->write(json_encode($body));
+                $response = $response->withStatus(500);
             }
 
-            if ($response instanceof ResponseInterface) {
-                return $response->withAddedHeader('content-type', 'application/json');
-            }
-        } catch (HttpException $e) {
-            return $e->buildJsonResponse($this->getResponse());
+            return $response->withAddedHeader('content-type', 'application/json');
+        };
+
+        $execChain = (new ExecutionChain)->middleware($middleware);
+
+        // ensure middleware is executed in the order it was added
+        $stack = array_reverse($route->getMiddlewareStack());
+
+        foreach ($stack as $middleware) {
+            $execChain->middleware($middleware);
         }
 
-        throw new RuntimeException('Unable to build a json response from controller return value.');
+        return $execChain;
     }
 }
