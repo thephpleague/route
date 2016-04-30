@@ -15,6 +15,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $route = new League\Route\RouteCollection;
 
+$router->setStrategy(new League\Route\Strategy\JsonStrategy);
+
 // this route would be considered a "get all" resource
 $router->get('/acme', function (ServerRequestInterface $request) {
     // pull data from $request and do something clever
