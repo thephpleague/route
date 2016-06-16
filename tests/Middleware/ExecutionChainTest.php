@@ -23,6 +23,26 @@ class ExecutionChainTest extends \PHPUnit_Framework_TestCase
             $middleware, $middleware
         ], $chain->getMiddlewareStack());
     }
+    
+    /**
+     * Asserts that the execution chain can set a middleware collection.
+     *
+     * @return void
+     */
+    public function testExecutionChainCanSetMiddlewareCollection()
+    {
+        $chain = new ExecutionChain;
+        $middleware = new Controller;
+
+        $chain->middlewares($middleware, $middleware);
+        $chain->middlewares([$middleware, $middleware]);
+        $chain->middlewares([$middleware, $middleware], $middleware);
+
+        $this->assertSame([
+            $middleware, $middleware, $middleware, $middleware,
+            $middleware, $middleware, $middleware
+        ], $chain->getMiddlewareStack());
+    }
 
     /**
      * Asserts that the execution chain can build and execute a chain.
