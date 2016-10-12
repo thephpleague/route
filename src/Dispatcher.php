@@ -2,6 +2,7 @@
 
 namespace League\Route;
 
+use Exception;
 use FastRoute\Dispatcher as FastRoute;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\MethodNotAllowedException;
@@ -64,16 +65,8 @@ class Dispatcher extends GroupCountBasedDispatcher implements StrategyAwareInter
      */
     protected function handleNotFound()
     {
-        $middleware = function (ServerRequestInterface $request, ResponseInterface $response) {
-            $exception = new NotFoundException;
-
-            if ($this->getStrategy() instanceof JsonStrategy) {
-                return $exception->buildJsonResponse($response);
-            }
-
-            throw $exception;
-        };
-
+        $exception  = new NotFoundException;
+        $middleware = $this->getStrategy()->getNotFoundDecorator($exception);
         return (new ExecutionChain)->middleware($middleware);
     }
 
@@ -86,16 +79,8 @@ class Dispatcher extends GroupCountBasedDispatcher implements StrategyAwareInter
      */
     protected function handleNotAllowed(array $allowed)
     {
-        $middleware = function (ServerRequestInterface $request, ResponseInterface $response) use ($allowed) {
-            $exception = new MethodNotAllowedException($allowed);
-
-            if ($this->getStrategy() instanceof JsonStrategy) {
-                return $exception->buildJsonResponse($response);
-            }
-
-            throw $exception;
-        };
-
+        $exception  = new MethodNotAllowedException($allowed);
+        $middleware = $this->getStrategy()->getMethodNotAllowedDecorator($exception);
         return (new ExecutionChain)->middleware($middleware);
     }
 }
