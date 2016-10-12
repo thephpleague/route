@@ -18,6 +18,24 @@ trait StackAwareTrait
 
         return $this;
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function middlewares()
+    {
+        $middlewares = func_get_args();
+
+        foreach ($middlewares as $middleware) {
+            if (is_array($middleware)) {
+                call_user_func_array(array($this, 'middlewares'), $middleware);
+            } else {
+                $this->middleware($middleware);
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * {@inheritdoc}
