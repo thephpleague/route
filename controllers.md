@@ -6,7 +6,7 @@ title: "Controllers"
 
 # Controllers
 
-Route will dispatch to any `callable` as a controller. Bellow are some examples.
+Route will dispatch to any `callable` as a controller. Below are some examples.
 
 ## Class methods
 
