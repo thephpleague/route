@@ -13,8 +13,8 @@ class ParamStrategy extends AbstractStrategy implements StrategyInterface
      */
     public function dispatch(callable $controller, array $vars, Route $route = null)
     {
-        if (method_exists($this->getContainer(), 'call')) {
-            $response = $this->getContainer()->call($controller, $vars);
+        if (method_exists($route->getContainer(), 'call')) {
+            $response = $route->getContainer()->call($controller, $vars);
 
             return $this->determineResponse($response);
         }
@@ -22,7 +22,7 @@ class ParamStrategy extends AbstractStrategy implements StrategyInterface
         throw new RuntimeException(
             sprintf(
                 'To use the parameter strategy, the container must implement the (::call) method. (%s) does not.',
-                get_class($this->getContainer())
+                get_class($route->getContainer())
             )
         );
     }

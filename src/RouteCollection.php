@@ -250,4 +250,12 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
     {
         return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $path);
     }
+
+    /**
+     * Get the container.
+     */
+    public function getContainer()
+    {
+      return $this->container;
+    }
 }
