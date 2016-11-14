@@ -167,6 +167,8 @@ class RouteCollection extends RouteCollector implements StrategyAwareInterface, 
                 $route->setStrategy($this->getStrategy());
             }
 
+            $route->getStrategy()->setContainer($this->container);
+
             $this->addRoute(
                 $route->getMethods(),
                 $this->parseRoutePath($route->getPath()),
