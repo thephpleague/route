@@ -7,6 +7,10 @@ php:
     - 7.0
     - 7.1
 
+env:
+  - COMPOSER_OPTS=""
+  - COMPOSER_OPTS="--prefer-lowest"
+
 matrix:
     fast_finish: true
     allow_failures:
@@ -20,7 +24,7 @@ before_install:
     - travis_retry composer self-update
 
 install:
-    - travis_retry composer install --no-interaction --prefer-dist
+    - travis_retry composer update --no-interaction --prefer-dist $COMPOSER_OPTS
 
 script:
     - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
