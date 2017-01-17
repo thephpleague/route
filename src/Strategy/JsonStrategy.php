@@ -81,7 +81,7 @@ class JsonStrategy implements StrategyInterface
             }
 
             $response->getBody()->write(json_encode([
-                'status_code'     => 500,
+                'status_code'   => 500,
                 'reason_phrase' => $exception->getMessage()
             ]));
 
