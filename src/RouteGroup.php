@@ -4,12 +4,15 @@ namespace League\Route;
 
 use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
 use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
+use League\Route\Strategy\StrategyAwareInterface;
+use League\Route\Strategy\StrategyAwareTrait;
 
-class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface
+class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, StrategyAwareInterface
 {
     use MiddlewareAwareTrait;
     use RouteCollectionMapTrait;
     use RouteConditionTrait;
+    use StrategyAwareTrait;
 
     /**
      * @var callable
@@ -70,6 +73,10 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface
 
         foreach ($this->getMiddlewareStack() as $middleware) {
             $route->middleware($middleware);
+        }
+
+        if (is_null($route->getStrategy()) && !is_null($this->getStrategy())){
+            $route->setStrategy($this->getStrategy());
         }
 
         return $route;

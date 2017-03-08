@@ -47,4 +47,23 @@ class RouteGroupTest extends \PHPUnit_Framework_TestCase
 
         $group();
     }
+
+    public function testGroupAddsStrategyToRoute()
+    {
+        $callback = function(){};
+        $collection = $this->getMock('League\Route\RouteCollectionInterface');
+        $strategy = $this->getMock('League\Route\Strategy\JsonStrategy');
+        $route      = $this->getMock('League\Route\Route');
+
+        $collection->expects($this->once())->method('map')->with($this->equalTo('GET'), $this->equalTo('/acme/route'), $this->equalTo($callback))->will($this->returnValue($route));
+        $route->expects($this->once())->method('setStrategy')->with($this->equalTo($strategy))->will($this->returnSelf());
+
+        $group = new RouteGroup('/acme', function ($route) use ($callback){
+            $route->get('/route', $callback);
+        }, $collection);
+
+        $group->setStrategy($strategy);
+
+        $group();
+    }
 }
