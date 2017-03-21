@@ -1,54 +1,71 @@
 ---
 layout: default
 permalink: /json-strategy/
-title: JSON Strategy
+title: JsonStrategy
 ---
 
-# JSON Strategy
+# JsonStrategy
 
-The JSON strategy aims to make building RESTful APIs a little easier. It is passed a PSR-7 `ServerRequestInterface` implementation and any route arguments and expects the controller to return either a PSR-7 `ResponseInterface` implementation or data in a format that can be converted to JSON.
+The `JsonStrategy` aims to make building REST APIs a little easier. It provides a PSR-7 `ServerRequestInterface` implementation and `ResponseInterface` implementation and any route arguments. This strategy expects that your controller returns a `ResponseInterface` implementation. Most PSR-7 implementations are likely to provide some convenience `ResponseInterface` implementations that will allow you to easily build a JSON response.
 
 ~~~php
 <?php
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-$route = new League\Route\RouteCollection;
+$router->get('/acme/route', function (ServerRequestInterface $request, ResponseInterface $response) {
+    // retrieve data from $request, do what you need to do and build your $content
 
-// this route would be considered a "get all" resource
-$router->get('/acme', function (ServerRequestInterface $request) {
-    // pull data from $request and do something clever
+    $response->getBody()->write(json_encode($content));
 
-    return [
-        // ... data to be converted to json
-    ];
-});
-
-// this route would be considered a "get one" resource
-$router->get('/acme/{id}', function (ServerRequestInterface $request, array $args) {
-    // get any required data from $request and find entity relating to $args['id']
-
-    return [
-        // ... data to be converted to json
-    ];
+    return $response->withStatus(200);
 });
 ~~~
 
-The problem with returning an array is that you are always assuming a `200 OK` HTTP response code, most PSR-7 implementations are likely to provide some convenience `ResponseInterface` implementations that will allow you to easily build a JSON response.
+~~~php
+<?php
 
-## HTTP 4xx Exceptions
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+$router->put('/user/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) {
+    $userId      = $args['id'];
+    $requestBody = json_decode($request->getBody(), true);
+
+    // possibly update a record in the database using the request body and get an array of the $user
+
+    $response->getBody()->write(json_encode($user));
+
+    return $response->withStatus(202);
+});
+~~~
+
+## Exception Decorators
+
+The `JsonStrategy` will decorate all exceptions, `NotFound`, `MethodNotAllowed`, and any 4xx or 5xx exceptions as a JSON Response, setting the correct HTTP status code in the process.
+
+~~~json
+{
+    "status_code": 404,
+    "message": "Not Found"
+}
+~~~
+
+### HTTP 4xx Exceptions
 
 In a RESTful API, covering all outcomes and returning the correct 4xx response can become quite verbose. Therefore, the dispatcher provides a convenient way to ensure you can return the correct response without the need for a conditional being created for every outcome.
 
-Simply throw one of the HTTP exceptions from within your application layer and the dispatcher will catch the exception and build the appropriate response.
+Simply throw one of the HTTP exceptions from within your application layer and the strategy will catch the exception and build the appropriate response.
 
 ~~~php
 <?php
 
 use League\Route\Http\Exception\BadRequestException;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-$router->post('/acme', function (ServerRequestInterface $request) {
+$router->post('/acme', function (ServerRequestInterface $request, ResponseInterface $response) {
     // create a record from the $request body
 
     // if we fail to insert due to a bad request
@@ -56,15 +73,6 @@ $router->post('/acme', function (ServerRequestInterface $request) {
 
     // ...
 });
-~~~
-
-If the exception is thrown, a request with the correct response code and headers is built containing the following body.
-
-~~~json
-{
-    "status_code": 400,
-    "message": "Bad Request"
-}
 ~~~
 
 ### Available HTTP Exceptions
@@ -86,4 +94,4 @@ If the exception is thrown, a request with the correct response code and headers
 | 418         | `League\Route\Http\Exception\ImATeapotException`                  | [I'm a teapot](http://en.wikipedia.org/wiki/April_Fools%27_Day_RFC).                                                                                                                                         |
 | 428         | `League\Route\Http\Exception\PreconditionRequiredException`       | The origin server requires the request to be conditional.                                                                                                                                                    |
 | 429         | `League\Route\Http\Exception\TooManyRequestsException`            | The user has sent too many requests in a given amount of time.                                                                                                                                               |
-| 451         | `League\Route\Http\Exception\UnavailableForLegalReasonsException` | The resource is unavailable for legal reasons.                                                                                                                                                              |
+| 451         | `League\Route\Http\Exception\UnavailableForLegalReasonsException` | The resource is unavailable for legal reasons.                                                                                                                                                               |

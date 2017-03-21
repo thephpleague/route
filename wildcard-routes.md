@@ -41,6 +41,14 @@ $router->map('GET', '/user/{id:number}/{name:word}', function (ServerRequestInte
 });
 ~~~
 
+There are several built in conditions for dynamic parts of a URI.
+
+- `number`
+- `word`
+- `alphanum_dash`
+- `slug`
+- `uuid`
+
 Dynamic parts can also be set as any regular expression such as `{id:[0-9]+}`.
 
 For convenience, you can also register your own aliases for a particular regular expression using the `addPatternMatcher` method on `RouteCollection`. For example:
