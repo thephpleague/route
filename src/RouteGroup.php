@@ -75,7 +75,7 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, 
             $route->middleware($middleware);
         }
 
-        if (is_null($route->getStrategy()) && !is_null($this->getStrategy())){
+        if (is_null($route->getStrategy()) && ! is_null($this->getStrategy())){
             $route->setStrategy($this->getStrategy());
         }
 
