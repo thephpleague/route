@@ -3,10 +3,11 @@
 namespace League\Route;
 
 use InvalidArgumentException;
-use League\Container\ImmutableContainerAwareInterface;
-use League\Container\ImmutableContainerAwareTrait;
+use League\Route\ContainerAwareInterface;
+use League\Route\ContainerAwareTrait;
 use League\Route\Http\RequestAwareInterface;
 use League\Route\Http\ResponseAwareInterface;
+use League\Route\Middleware\ExecutionChain;
 use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
 use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
 use League\Route\Strategy\StrategyAwareInterface;
@@ -14,9 +15,9 @@ use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class Route implements ImmutableContainerAwareInterface, MiddlewareAwareInterface, StrategyAwareInterface
+class Route implements ContainerAwareInterface, MiddlewareAwareInterface, StrategyAwareInterface
 {
-    use ImmutableContainerAwareTrait;
+    use ContainerAwareTrait;
     use MiddlewareAwareTrait;
     use RouteConditionTrait;
     use StrategyAwareTrait;
@@ -50,7 +51,15 @@ class Route implements ImmutableContainerAwareInterface, MiddlewareAwareInterfac
      */
     public function getExecutionChain(array $vars)
     {
-        return $this->getStrategy()->getExecutionChain($this, $vars);
+        $callable = $this->getStrategy()->getCallable($this, $vars);
+
+        $execChain = (new ExecutionChain)->middleware($callable);
+
+        foreach ($this->getMiddlewareStack() as $middleware) {
+            $execChain->middleware($middleware);
+        }
+
+        return $execChain;
     }
 
     /**

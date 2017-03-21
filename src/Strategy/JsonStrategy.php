@@ -6,7 +6,6 @@ use \Exception;
 use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Http\Exception as HttpException;
-use League\Route\Middleware\ExecutionChain;
 use League\Route\Route;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -17,13 +16,9 @@ class JsonStrategy implements StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getExecutionChain(Route $route, array $vars)
+    public function getCallable(Route $route, array $vars)
     {
-        $middleware = function (
-            ServerRequestInterface $request, ResponseInterface $response, callable $next
-        ) use (
-            $route, $vars
-        ) {
+        return function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($route, $vars) {
             $return = call_user_func_array($route->getCallable(), [$request, $response, $vars]);
 
             if (! $return instanceof ResponseInterface) {
@@ -37,17 +32,6 @@ class JsonStrategy implements StrategyInterface
 
             return $response->withAddedHeader('content-type', 'application/json');
         };
-
-        $execChain = (new ExecutionChain)->middleware($middleware);
-
-        // ensure middleware is executed in the order it was added
-        $stack = array_reverse($route->getMiddlewareStack());
-
-        foreach ($stack as $middleware) {
-            $execChain->middleware($middleware);
-        }
-
-        return $execChain;
     }
 
     /**

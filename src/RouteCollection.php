@@ -8,7 +8,6 @@ use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdRouteParser;
-use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use League\Container\Container;
 use League\Route\Middleware\ExecutionChain;
@@ -17,6 +16,7 @@ use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
 use League\Route\Strategy\ApplicationStrategy;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -30,7 +30,7 @@ class RouteCollection extends RouteCollector implements
     use StrategyAwareTrait;
 
     /**
-     * @var \Interop\Container\ContainerInterface
+     * @var \Psr\Container\ContainerInterface
      */
     protected $container;
 
@@ -63,9 +63,9 @@ class RouteCollection extends RouteCollector implements
     /**
      * Constructor.
      *
-     * @param \Interop\Container\ContainerInterface $container
-     * @param \FastRoute\RouteParser                $parser
-     * @param \FastRoute\DataGenerator              $generator
+     * @param \Psr\Container\ContainerInterface $container
+     * @param \FastRoute\RouteParser            $parser
+     * @param \FastRoute\DataGenerator          $generator
      */
     public function __construct(
         ContainerInterface $container = null,

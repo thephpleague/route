@@ -153,22 +153,22 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Asserts the route proxies to the strategy to get the execution chain.
+     * Asserts the route proxies to the strategy and builds the execution chain.
      *
      * @return void
      */
-    public function testRouteProxiesToStrategyToGetExecutionChain()
+    public function testRouteProxiesToStrategyAndBuildsExecutionChain()
     {
         $route = new Route;
         $vars  = [];
 
-        $chain = $this->getMock('League\Route\Middleware\ExecutionChain');
+        $callable = function () {};
 
         $strategy = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $strategy->expects($this->once())->method('getExecutionChain')->with($this->equalTo($route), $this->equalTo($vars))->will($this->returnValue($chain));
+        $strategy->expects($this->once())->method('getCallable')->with($this->equalTo($route), $this->equalTo($vars))->will($this->returnValue($callable));
 
         $route->setStrategy($strategy);
 
-        $this->assertSame($chain, $route->getExecutionChain($vars));
+        $this->assertInstanceOf(\League\Route\Middleware\ExecutionChain::class, $route->getExecutionChain($vars));
     }
 }

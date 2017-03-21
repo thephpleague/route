@@ -10,19 +10,24 @@ use League\Route\Route;
 interface StrategyInterface
 {
     /**
-     * Tasked with building a middleware that will dispatch the route callable.
-     * That callable should then be attached to an ExecutionChain along with
-     * any further middleware that is attached to the route.
+     * Return a PSR-7 compatible middleware callable.
+     *
+     * ```
+     * return function ($request, $response, $next) {
+     *     // ...
+     *     return $next($request, $response);
+     * }
+     * ```
      *
      * @param \League\Route\Route $route
      * @param array               $vars - named route arguments
      *
-     * @return \League\Route\Middleware\ExecutionChain
+     * @return callable
      */
-    public function getExecutionChain(Route $route, array $vars);
+    public function getCallable(Route $route, array $vars);
 
     /**
-     * Taskied with handling a not found exception, expects a
+     * Tasked with handling a not found exception, expects a
      * PSR-7 compatible middleware/callable to be returned
      * or for the exception to simply be thrown.
      *

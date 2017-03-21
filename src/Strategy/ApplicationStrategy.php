@@ -16,13 +16,9 @@ class ApplicationStrategy implements StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getExecutionChain(Route $route, array $vars)
+    public function getCallable(Route $route, array $vars)
     {
-        $middleware = function (
-            ServerRequestInterface $request, ResponseInterface $response, callable $next
-        ) use (
-            $route, $vars
-        ) {
+        return function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($route, $vars) {
             $response = call_user_func_array($route->getCallable(), [$request, $response, $vars]);
 
             if (! $response instanceof ResponseInterface) {
@@ -33,17 +29,6 @@ class ApplicationStrategy implements StrategyInterface
 
             return $next($request, $response);
         };
-
-        $execChain = (new ExecutionChain)->middleware($middleware);
-
-        // ensure middleware is executed in the order it was added
-        $stack = array_reverse($route->getMiddlewareStack());
-
-        foreach ($stack as $middleware) {
-            $execChain->middleware($middleware);
-        }
-
-        return $execChain;
     }
 
     /**
