@@ -14,9 +14,7 @@ trait StackAwareTrait
      */
     public function middleware(callable $middleware)
     {
-        // because the execution chain works front to back, later middlewares
-        // need to be prepended to the stack in order to run in order
-        array_unshift($this->middleware, $middleware);
+        $this->middleware[] = $middleware;
 
         return $this;
     }
