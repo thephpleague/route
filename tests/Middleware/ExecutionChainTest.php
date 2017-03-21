@@ -58,8 +58,8 @@ class ExecutionChainTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->at(1))->method('withHeader')->with($this->equalTo('action'), $this->equalTo('true'))->will($this->returnSelf());
 
         $chain = new ExecutionChain;
-        $chain->middleware([new Controller, 'action']);
         $chain->middleware(new Controller);
+        $chain->middleware([new Controller, 'action']);
 
         $this->assertSame($response, $chain->execute($request, $response));
     }
