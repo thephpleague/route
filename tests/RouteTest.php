@@ -169,6 +169,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $route->setStrategy($strategy);
 
-        $this->assertInstanceOf(\League\Route\Middleware\ExecutionChain::class, $route->getExecutionChain($vars));
+        $this->assertInstanceOf('League\Route\Middleware\ExecutionChain', $route->getExecutionChain($vars));
     }
 }
