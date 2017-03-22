@@ -54,8 +54,8 @@ class ExecutionChainTest extends \PHPUnit_Framework_TestCase
         $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
         $response = $this->getMock('Psr\Http\Message\ResponseInterface');
 
-        $response->expects($this->at(0))->method('withHeader')->with($this->equalTo('invoke'), $this->equalTo('true'))->will($this->returnSelf());
         $response->expects($this->at(1))->method('withHeader')->with($this->equalTo('action'), $this->equalTo('true'))->will($this->returnSelf());
+        $response->expects($this->at(0))->method('withHeader')->with($this->equalTo('invoke'), $this->equalTo('true'))->will($this->returnSelf());
 
         $chain = new ExecutionChain;
         $chain->middleware(new Controller);

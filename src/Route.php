@@ -53,12 +53,12 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
     {
         $callable = $this->getStrategy()->getCallable($this, $vars);
 
+        $execChain = (new ExecutionChain)->middleware($callable);
 
         foreach ($this->getMiddlewareStack() as $middleware) {
             $execChain->middleware($middleware);
         }
 
-        $execChain = (new ExecutionChain)->middleware($callable);
 
         return $execChain;
     }

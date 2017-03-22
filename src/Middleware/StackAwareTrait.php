@@ -14,7 +14,7 @@ trait StackAwareTrait
      */
     public function middleware(callable $middleware)
     {
-        array_unshift($this->middleware, $middleware);
+        $this->middleware[] = $middleware;
 
         return $this;
     }

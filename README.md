@@ -10,8 +10,7 @@
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/882acb6c-3001-4313-857d-6f7200f5ab90/big.png)](https://insight.sensiolabs.com/projects/882acb6c-3001-4313-857d-6f7200f5ab90)
 
-This package is compliant with [PSR-1], [PSR-2], [PSR-4], [PSR-7] [PSR-11]. If you notice compliance oversights,
-please send a patch via pull request.
+This package is compliant with [PSR-1], [PSR-2], [PSR-4], [PSR-7] and [PSR-11]. If you notice compliance oversights, please send a patch via pull request.
 
 [PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
 [PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
