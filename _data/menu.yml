@@ -10,6 +10,7 @@ Concepts:
     Route Groups: '/route-groups/'
     Controllers: '/controllers/'
     Strategies: '/strategies/'
+    Middleware: '/middleware/'
 Strategies:
     Application Strategy: '/application-strategy/'
     JSON Strategy: '/json-strategy/'
