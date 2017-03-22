@@ -5,7 +5,6 @@ namespace League\Route\Strategy;
 use \Exception;
 use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
-use League\Route\Middleware\ExecutionChain;
 use League\Route\Route;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface;
