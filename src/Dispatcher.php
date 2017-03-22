@@ -8,7 +8,6 @@ use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Middleware\ExecutionChain;
-use League\Route\Strategy\JsonStrategy;
 use League\Route\Strategy\StrategyAwareInterface;
 use League\Route\Strategy\StrategyAwareTrait;
 use Psr\Http\Message\ResponseInterface;
@@ -20,7 +19,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements StrategyAwareInter
 
     /**
      * Match and dispatch a route matching the given http method and
-     * uri, retruning an execution chain.
+     * uri, returning an execution chain.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      *
