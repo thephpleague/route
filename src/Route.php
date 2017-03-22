@@ -59,7 +59,6 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
             $execChain->middleware($middleware);
         }
 
-
         return $execChain;
     }
 
