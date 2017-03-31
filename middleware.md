@@ -160,3 +160,12 @@ $router->group('/prefix', function ($router) {
     return $response;
 });
 ~~~
+
+## RouteCollection as middleware
+
+You can use the RouteCollection as a middleware in a different stack of middleware. Because the `dispatch` method has the same interface as a callable middleware, you can combine it into an array format of a PHP callable.
+
+~~~php
+<?php
+$middleware = [$router, 'dispatch'];
+~~~
