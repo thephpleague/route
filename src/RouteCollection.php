@@ -147,9 +147,20 @@ class RouteCollection extends RouteCollector implements
             $this->setStrategy(new ApplicationStrategy);
         }
 
-        $this->prepRoutes($request);
+        if( !$this->isRoutesPrepared() )
+        {
+            $this->prepRoutes($request);
+        }
 
         return (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRoutesPrepared()
+    {
+        return !empty($this->dataGenerator->getData()[0]);
     }
 
     /**
