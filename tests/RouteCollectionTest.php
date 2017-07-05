@@ -129,4 +129,19 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('League\Route\Dispatcher', $dispatcher);
     }
+
+    /**
+     * Asserts that collection can get dispatcher multiple times.
+     *
+     * @return void
+     */
+    public function testCollectionGetDispatcherMultipleTimes()
+    {
+        $collection = new RouteCollection;
+        $request    = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $collection->map('get', '/something', function () {});
+
+        $collection->getDispatcher($request);
+        $collection->getDispatcher($request);
+    }
 }

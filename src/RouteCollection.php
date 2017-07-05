@@ -60,6 +60,11 @@ class RouteCollection extends RouteCollector implements
         '/{(.+?):uuid}/'          => '{$1:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}+}'
     ];
 
+    /*
+     * @var bool
+     */
+    protected $routesPrepared = false;
+
     /**
      * Constructor.
      *
@@ -162,6 +167,9 @@ class RouteCollection extends RouteCollector implements
      */
     protected function prepRoutes(ServerRequestInterface $request)
     {
+        if ($this->routesPrepared) {
+            return;
+        }
         $this->buildNameIndex();
 
         $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
@@ -189,6 +197,7 @@ class RouteCollection extends RouteCollector implements
                 [$route, 'getExecutionChain']
             );
         }
+        $this->routesPrepared = true;
     }
 
     /**
