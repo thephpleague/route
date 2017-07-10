@@ -66,11 +66,6 @@ class RouteCollection extends RouteCollector implements
         '/{(.+?):uuid}/'          => '{$1:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}+}'
     ];
 
-    /*
-     * @var bool
-     */
-    protected $routesPrepared = false;
-
     /**
      * Constructor.
      *
