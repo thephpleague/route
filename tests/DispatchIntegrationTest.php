@@ -266,4 +266,32 @@ class DispatchIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($response, $returnedResponse);
     }
+
+    /**
+     * Asserts that a route cannot be added after dispatcher has been built
+     * @return void
+     */
+    public function testThatRoutesCannotBeAddedAfterDispatch()
+    {
+        $collection = new RouteCollection;
+
+        $collection->map('GET', '/something', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
+        });
+
+        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $uri      = $this->getMock('Psr\Http\Message\UriInterface');
+
+        $uri->expects($this->once())->method('getPath')->will($this->returnValue('/something'));
+
+        $request->method('getMethod')->will($this->returnValue('GET'));
+        $request->method('getUri')->will($this->returnValue($uri));
+
+        $collection->dispatch($request, $response);
+        $this->setExpectedException('Exception', 'Cannot add routes after dispatching a request');
+        $collection->map('GET', '/something-else', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
+        });
+    }
 }
