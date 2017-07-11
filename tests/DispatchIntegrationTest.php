@@ -294,4 +294,43 @@ class DispatchIntegrationTest extends \PHPUnit_Framework_TestCase
             return $response;
         });
     }
+
+    /**
+     * Tests dispatching routes with scheme and host restrictions
+     * @dataProvider schemeAndHostProvider
+     */
+    public function testDispatchesWithSchemeAndHostMatching($routeScheme, $routeHost, $requestScheme, $requestHost, $expectedException = null)
+    {
+        if ($expectedException) {
+            $this->setExpectedException($expectedException);
+        }
+        $collection = new RouteCollection;
+
+        $collection->map('GET', '/something', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
+        })->setScheme($routeScheme)->setHost($routeHost);
+
+        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $uri      = $this->getMock('Psr\Http\Message\UriInterface');
+
+        $uri->expects($this->once())->method('getPath')->will($this->returnValue('/something'));
+        $uri->expects($this->any())->method('getHost')->will($this->returnValue($requestHost));
+        $uri->expects($this->any())->method('getScheme')->will($this->returnValue($requestScheme));
+
+        $request->expects($this->once())->method('getMethod')->will($this->returnValue('GET'));
+        $request->expects($this->atLeastOnce())->method('getUri')->will($this->returnValue($uri));
+
+        $collection->dispatch($request, $response);
+    }
+
+    public function schemeAndHostProvider()
+    {
+        return [
+            ['http', 'some.host', 'http', 'some.host', null],
+            ['http', 'some.host', 'https', 'some.host', 'League\Route\Http\Exception\NotFoundException'],
+            ['http', 'some.host', 'https', 'another.host', 'League\Route\Http\Exception\NotFoundException'],
+            ['http', 'some.host', 'http', 'another.host', 'League\Route\Http\Exception\NotFoundException'],
+        ];
+    }
 }
