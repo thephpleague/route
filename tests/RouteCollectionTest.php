@@ -115,11 +115,6 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     {
         $collection = new RouteCollection;
         $request    = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $uri        = $this->getMock('Psr\Http\Message\UriInterface');
-
-        $uri->expects($this->exactly(2))->method('getScheme')->will($this->returnValue('https'));
-        $uri->expects($this->exactly(2))->method('getHost')->will($this->returnValue('something.com'));
-        $request->expects($this->exactly(4))->method('getUri')->will($this->returnValue($uri));
 
         $collection->map('get', '/something', function () {})->setScheme('http');
         $collection->map('post', '/something', function () {})->setHost('example.com');
@@ -128,5 +123,23 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $dispatcher = $collection->getDispatcher($request);
 
         $this->assertInstanceOf('League\Route\Dispatcher', $dispatcher);
+    }
+
+    /**
+     * Asserts that collection can get dispatcher multiple times, and that
+     * the same dispatcher instance is returned.
+     *
+     * @return void
+     */
+    public function testCollectionGetDispatcherMultipleTimes()
+    {
+        $collection = new RouteCollection;
+        $request    = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $collection->map('get', '/something', function () {});
+
+        $this->assertSame(
+            $collection->getDispatcher($request),
+            $collection->getDispatcher($request)
+        );
     }
 }

@@ -35,6 +35,12 @@ class RouteCollection extends RouteCollector implements
     protected $container;
 
     /**
+     *
+     * @var \League\Route\Dispatcher
+     */
+    protected $dispatcher;
+
+    /**
      * @var \League\Route\Route[]
      */
     protected $routes = [];
@@ -85,6 +91,9 @@ class RouteCollection extends RouteCollector implements
      */
     public function map($method, $path, $handler)
     {
+        if ($this->dispatcher instanceof Dispatcher) {
+            throw new \Exception('Cannot add routes after dispatching a request');
+        }
         $path  = sprintf('/%s', ltrim($path, '/'));
         $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
 
@@ -137,46 +146,35 @@ class RouteCollection extends RouteCollector implements
     /**
      * Return a fully configured dispatcher.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
      * @return \League\Route\Dispatcher
      */
-    public function getDispatcher(ServerRequestInterface $request)
+    public function getDispatcher()
     {
-        if (is_null($this->getStrategy())) {
-            $this->setStrategy(new ApplicationStrategy);
+        if (!$this->dispatcher) {
+            if (is_null($this->getStrategy())) {
+                $this->setStrategy(new ApplicationStrategy);
+            }
+
+        $this->prepRoutes();
+
+            $this->dispatcher = (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
         }
-
-        $this->prepRoutes($request);
-
-        return (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
+        return $this->dispatcher;
     }
 
     /**
      * Prepare all routes, build name index and filter out none matching
      * routes before being passed off to the parser.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
      * @return void
      */
-    protected function prepRoutes(ServerRequestInterface $request)
+    protected function prepRoutes()
     {
         $this->buildNameIndex();
 
         $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
 
         foreach ($routes as $key => $route) {
-            // check for scheme condition
-            if (! is_null($route->getScheme()) && $route->getScheme() !== $request->getUri()->getScheme()) {
-                continue;
-            }
-
-            // check for domain condition
-            if (! is_null($route->getHost()) && $route->getHost() !== $request->getUri()->getHost()) {
-                continue;
-            }
-
             $route->setContainer($this->container);
 
             if (is_null($route->getStrategy())) {
