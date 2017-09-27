@@ -70,7 +70,7 @@ class JsonStrategy implements StrategyInterface
             ]));
 
             $response = $response->withAddedHeader('content-type', 'application/json');
-            return $response->withStatus(500, $exception->getMessage());
+            return $response->withStatus(500, strtok($exception->getMessage(), "\n"));
         };
     }
 }
