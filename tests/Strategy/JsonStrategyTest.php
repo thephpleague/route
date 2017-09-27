@@ -3,13 +3,9 @@
 namespace League\Route\Test\Strategy;
 
 use Exception;
-use League\Route\Http\Exception\BadRequestException;
-use League\Route\Middleware\ExecutionChain;
 use League\Route\Strategy\JsonStrategy;
-use League\Route\Test\Asset\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
 
 class JsonStrategyTest extends \PHPUnit_Framework_TestCase
 {
@@ -52,16 +48,16 @@ class JsonStrategyTest extends \PHPUnit_Framework_TestCase
         $strategy = new JsonStrategy;
         $callable = $strategy->getExceptionDecorator($exception);
 
-        $request = $this->prophesize(ServerRequestInterface::class);
+        $request = $this->prophesize('\Psr\Http\Message\ServerRequestInterface');
 
-        $stream = $this->prophesize(StreamInterface::class);
+        $stream = $this->prophesize('\Psr\Http\Message\StreamInterface');
         $stream->write(json_encode([
             'status_code'   => 500,
             'reason_phrase' => "some long message\nwith multiple\nlines",
         ]))
             ->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
+        $response = $this->prophesize('\Psr\Http\Message\ResponseInterface');
 
         $response->getBody()
             ->shouldBeCalled()
