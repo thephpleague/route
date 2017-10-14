@@ -4,8 +4,9 @@ namespace League\Route\Test\Middleware;
 
 use League\Route\Middleware\ExecutionChain;
 use League\Route\Test\Asset\Controller;
+use PHPUnit\Framework\TestCase;
 
-class ExecutionChainTest extends \PHPUnit_Framework_TestCase
+class ExecutionChainTest extends TestCase
 {
     /**
      * Asserts that the execution chain can set and get middleware.

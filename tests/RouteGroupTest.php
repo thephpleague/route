@@ -3,8 +3,9 @@
 namespace League\Route\Test;
 
 use League\Route\RouteGroup;
+use PHPUnit\Framework\TestCase;
 
-class RouteGroupTest extends \PHPUnit_Framework_TestCase
+class RouteGroupTest extends TestCase
 {
     /**
      * Asserts that a route group is created and it registeres routes with collection.

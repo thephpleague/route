@@ -4,8 +4,9 @@ namespace League\Route\Test;
 
 use League\Route\Route;
 use League\Route\Test\Asset\Controller;
+use PHPUnit\Framework\TestCase;
 
-class RouteTest extends \PHPUnit_Framework_TestCase
+class RouteTest extends TestCase
 {
     /**
      * Asserts that the route can set and resolve an invokable class callable.
