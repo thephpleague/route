@@ -30,7 +30,11 @@ class JsonStrategy implements StrategyInterface
             $response = $return;
             $response = $next($request, $response);
 
-            return $response->withAddedHeader('content-type', 'application/json');
+            if (!$response->hasHeader('content-type'))
+            {
+                return $response->withHeader('content-type', 'application/json');
+            }
+            return $response;
         };
     }
 
