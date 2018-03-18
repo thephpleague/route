@@ -145,6 +145,9 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $host = 'example.com';
         $this->assertSame($host, $route->setHost($host)->getHost());
 
+        $port = 8080;
+        $this->assertSame($port, $route->setPort($port)->getPort());
+
         $middleware = new Controller;
         $route->middleware($middleware)->middleware($middleware);
         $this->assertSame([

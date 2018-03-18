@@ -119,11 +119,13 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 
         $uri->expects($this->exactly(2))->method('getScheme')->will($this->returnValue('https'));
         $uri->expects($this->exactly(2))->method('getHost')->will($this->returnValue('something.com'));
-        $request->expects($this->exactly(4))->method('getUri')->will($this->returnValue($uri));
+        $uri->expects($this->exactly(2))->method('getPort')->will($this->returnValue(8080));
+        $request->expects($this->exactly(6))->method('getUri')->will($this->returnValue($uri));
 
         $collection->map('get', '/something', function () {})->setScheme('http');
         $collection->map('post', '/something', function () {})->setHost('example.com');
-        $collection->map('get', '/something-else', function () {})->setScheme('https')->setHost('something.com');
+        $collection->map('get', '/something', function () {})->setPort(8080);
+        $collection->map('get', '/something-else', function () {})->setScheme('https')->setPort(8080)->setHost('something.com');
 
         $dispatcher = $collection->getDispatcher($request);
 
