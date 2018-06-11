@@ -26,9 +26,9 @@ class PsrMiddlewareTest extends \PHPUnit_Framework_TestCase
         $response = $this->getMock('Psr\Http\Message\ResponseInterface');
 
         $chain->middleware($middleware);
+        $executedResponse = $chain->execute($request, $response);
 
-        $chain->execute($request, $response);
-
+        $this->assertSame($response, $executedResponse);
         $this->assertEquals(1, $middleware->getCalls());
     }
 }
