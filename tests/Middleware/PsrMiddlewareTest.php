@@ -4,6 +4,7 @@ namespace Middleware;
 
 use League\Route\Middleware\ExecutionChain;
 use League\Route\Test\Asset\Controller;
+use League\Route\Test\Asset\PSR15AfterMiddleware;
 use League\Route\Test\Asset\PSR15Middleware;
 
 class PsrMiddlewareTest extends \PHPUnit_Framework_TestCase
@@ -73,6 +74,22 @@ class PsrMiddlewareTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($response, $executedResponse);
         $this->assertEquals(1, $psr15Middleware->getCalls());
         $this->assertEquals(1, $calls);
+    }
 
+    public function testPSR15MiddlewareAffectsTheResponse()
+    {
+        $chain = new ExecutionChain();
+        $psr15Middleware = new PSR15AfterMiddleware();
+        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+
+        $response->expects($this->at(0))->method('withHeader')->with($this->equalTo('psr15'), $this->equalTo('true'))->will($this->returnSelf());
+
+        $chain->middleware($psr15Middleware);
+
+        $executedResponse = $chain->execute($request, $response);
+
+        $this->assertSame($response, $executedResponse);
+        $this->assertEquals(1, $psr15Middleware->getCalls());
     }
 }
