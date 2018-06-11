@@ -2,8 +2,10 @@
 
 namespace League\Route\Middleware;
 
+use League\Route\RequestHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 
 class ExecutionChain implements StackAwareInterface
 {
@@ -38,7 +40,12 @@ class ExecutionChain implements StackAwareInterface
 
         foreach ($stack as $middleware) {
             $next = function (ServerRequestInterface $request, ResponseInterface $response) use ($middleware, $next) {
-                return $middleware($request, $response, $next);
+                if ($middleware instanceof MiddlewareInterface) {
+                    $handler = new RequestHandler($next, $response);
+                    return $middleware->process($request, $handler);
+                } else {
+                    return $middleware($request, $response, $next);
+                }
             };
         }
 

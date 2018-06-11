@@ -17,4 +17,18 @@ class PsrMiddlewareTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame([$middleware], $chain->getMiddlewareStack());
     }
+
+    public function testItCanProcessAPSR15Middleware()
+    {
+        $chain = new ExecutionChain();
+        $middleware = new PSR15Middleware();
+        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
+        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+
+        $chain->middleware($middleware);
+
+        $chain->execute($request, $response);
+
+        $this->assertEquals(1, $middleware->getCalls());
+    }
 }
