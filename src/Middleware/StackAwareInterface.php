@@ -11,7 +11,7 @@ interface StackAwareInterface
      *
      * @return self
      */
-    public function middleware(callable $middleware);
+    public function middleware($middleware);
 
     /**
      * Get the middleware stack.

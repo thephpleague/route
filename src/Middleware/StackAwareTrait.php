@@ -2,6 +2,8 @@
 
 namespace League\Route\Middleware;
 
+use Psr\Http\Server\MiddlewareInterface;
+
 trait StackAwareTrait
 {
     /**
@@ -12,8 +14,11 @@ trait StackAwareTrait
     /**
      * {@inheritdoc}
      */
-    public function middleware(callable $middleware)
+    public function middleware($middleware)
     {
+        if (!is_callable($middleware) && !$middleware instanceof MiddlewareInterface) {
+            throw new InvalidMiddlewareException();
+        }
         $this->middleware[] = $middleware;
 
         return $this;
