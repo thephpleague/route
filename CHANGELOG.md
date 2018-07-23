@@ -4,10 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [3.1.0] 2018-07
 
 ### Fixed
 - Ensure JsonStrategy handles all exceptions by default.
+- Handle multiline exception messages.
+
+### Added
+- Add port condition to routes.
 
 ## [3.0.4] 2017-03
 
