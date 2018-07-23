@@ -8,8 +8,9 @@ use League\Route\RouteCollection;
 use League\Route\Strategy\JsonStrategy;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use PHPUnit\Framework\TestCase;
 
-class DispatchIntegrationTest extends \PHPUnit_Framework_TestCase
+class DispatchIntegrationTest extends TestCase
 {
     /**
      * Asserts that the collection/dispatcher can dispatch to a found route.

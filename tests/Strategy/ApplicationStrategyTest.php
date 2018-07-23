@@ -6,8 +6,9 @@ use League\Route\Strategy\ApplicationStrategy;
 use League\Route\Test\Asset\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use PHPUnit\Framework\TestCase;
 
-class ApplicationStrategyTest extends \PHPUnit_Framework_TestCase
+class ApplicationStrategyTest extends TestCase
 {
     /**
      * Asserts that the strategy builds a middleware that throws an exception when no response is returned.

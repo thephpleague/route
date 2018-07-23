@@ -3,8 +3,9 @@
 namespace League\Route\Test;
 
 use League\Route\RouteCollection;
+use PHPUnit\Framework\TestCase;
 
-class RouteCollectionTest extends \PHPUnit_Framework_TestCase
+class RouteCollectionTest extends TestCase
 {
     /**
      * Asserts that the collection can map and return a route object.

@@ -6,8 +6,9 @@ use Exception;
 use League\Route\Strategy\JsonStrategy;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use PHPUnit\Framework\TestCase;
 
-class JsonStrategyTest extends \PHPUnit_Framework_TestCase
+class JsonStrategyTest extends TestCase
 {
     /**
      * Asserts that the strategy builds a json response for a controller that does not return a repsonse.
