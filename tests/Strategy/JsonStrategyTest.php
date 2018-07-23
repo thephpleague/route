@@ -2,9 +2,8 @@
 
 namespace League\Route\Test\Strategy;
 
-use League\Route\Http\Exception\BadRequestException;
+use Exception;
 use League\Route\Strategy\JsonStrategy;
-use League\Route\Test\Asset\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -35,5 +34,43 @@ class JsonStrategyTest extends \PHPUnit_Framework_TestCase
         };
 
         $callable($request, $response, $next);
+    }
+
+    /**
+     * Test exception decorator will only use the first message line for reason phrase.
+     *
+     * @return void
+     */
+    public function testExceptionDecoratorWillOnlyUseTheFirstMessageLineForReasonPhrase()
+    {
+        $exception = new Exception("some long message\nwith multiple\nlines");
+
+        $strategy = new JsonStrategy;
+        $callable = $strategy->getExceptionDecorator($exception);
+
+        $request = $this->prophesize('\Psr\Http\Message\ServerRequestInterface');
+
+        $stream = $this->prophesize('\Psr\Http\Message\StreamInterface');
+        $stream->write(json_encode([
+            'status_code'   => 500,
+            'reason_phrase' => "some long message\nwith multiple\nlines",
+        ]))
+            ->shouldBeCalled();
+
+        $response = $this->prophesize('\Psr\Http\Message\ResponseInterface');
+
+        $response->getBody()
+            ->shouldBeCalled()
+            ->willReturn($stream->reveal());
+
+        $response->withAddedHeader('content-type', 'application/json')
+            ->shouldBeCalled()
+            ->willReturn($response->reveal());
+
+        $response->withStatus(500, 'some long message')
+            ->shouldBeCalled()
+            ->willReturn($response->reveal());
+
+        $callable($request->reveal(), $response->reveal());
     }
 }
