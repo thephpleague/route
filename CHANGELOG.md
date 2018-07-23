@@ -13,12 +13,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 - Add port condition to routes.
 
-## [3.0.4] 2017-03
+## 3.0.4 2017-03
 
 ### Fixed
 - Middleware execution order.
 
-## [3.0.0] 2017-03
+## 3.0.0 2017-03
 
 ## Added
 - Middleware functionality for PSR-7 compatible callables, globally to route collection or individually per route/group.
@@ -30,6 +30,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Simplified default strategies to just `Application` and `Json`.
 - Have strategies return a middleware to add to the stack.
 - Have strategies handle decoration of exceptions.
+
+## 2.0.2 - 2018-07
+
+### Fixed
+- Have JsonStrategy handle all exceptions by default.
 
 ## 2.0.0 - 2016-02
 
