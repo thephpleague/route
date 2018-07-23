@@ -2,6 +2,11 @@
 
 All Notable changes to `League\Route` will be documented in this file
 
+## 2.0.1 - 2018-07
+
+### Fixed
+- Have JsonStrategy handle all exceptions by default.
+
 ## 2.0.0 - 2016-02
 
 ### Added
