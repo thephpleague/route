@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## Unreleased
 
+### Fixed
+- Ensure JsonStrategy handles all exceptions by default.
+
 ## [3.0.4] 2017-03
 
 ### Fixed
@@ -24,7 +27,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Have strategies return a middleware to add to the stack.
 - Have strategies handle decoration of exceptions.
 
-## [2.0.0] - 2016-02
+## 2.0.0 - 2016-02
 
 ### Added
 - All routing and dispatching now built around PSR-7.
