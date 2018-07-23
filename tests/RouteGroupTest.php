@@ -19,6 +19,7 @@ class RouteGroupTest extends \PHPUnit_Framework_TestCase
 
         $route->expects($this->exactly(8))->method('setHost')->with($this->equalTo('example.com'))->will($this->returnSelf());
         $route->expects($this->exactly(8))->method('setScheme')->with($this->equalTo('https'))->will($this->returnSelf());
+        $route->expects($this->exactly(8))->method('setPort')->with($this->equalTo(8080))->will($this->returnSelf());
         $route->expects($this->exactly(8))->method('middleware')->with($this->equalTo($callback))->will($this->returnSelf());
 
         $collection->expects($this->at(0))->method('map')->with($this->equalTo('GET'), $this->equalTo('/acme/route'), $this->equalTo($callback))->will($this->returnValue($route));
@@ -30,7 +31,7 @@ class RouteGroupTest extends \PHPUnit_Framework_TestCase
         $collection->expects($this->at(6))->method('map')->with($this->equalTo('HEAD'), $this->equalTo('/acme/route'), $this->equalTo($callback))->will($this->returnValue($route));
 
         $group = new RouteGroup('/acme', function ($route) use ($callback) {
-            $route->get('/route', $callback)->setHost('example.com')->setScheme('https')->middleware($callback);
+            $route->get('/route', $callback)->setHost('example.com')->setPort(8080)->setScheme('https')->middleware($callback);
             $route->post('/route', $callback);
             $route->put('/route', $callback);
             $route->patch('/route', $callback);
@@ -42,6 +43,7 @@ class RouteGroupTest extends \PHPUnit_Framework_TestCase
         $group
             ->setHost('example.com')
             ->setScheme('https')
+            ->setPort(8080)
             ->middleware($callback)
         ;
 

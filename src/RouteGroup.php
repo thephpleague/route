@@ -71,6 +71,10 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, 
             $route->setScheme($scheme);
         }
 
+        if ($port = $this->getPort()) {
+            $route->setPort($port);
+        }
+
         foreach ($this->getMiddlewareStack() as $middleware) {
             $route->middleware($middleware);
         }

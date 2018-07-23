@@ -20,6 +20,11 @@ trait RouteConditionTrait
     protected $scheme;
 
     /**
+     * @var int
+     */
+    protected $port;
+
+    /**
      * Get the host.
      *
      * @return string
@@ -87,6 +92,30 @@ trait RouteConditionTrait
     public function setScheme($scheme)
     {
         $this->scheme = $scheme;
+
+        return $this;
+    }
+
+    /**
+     * Get the port.
+     *
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * Set the port.
+     *
+     * @param int $port
+     *
+     * @return \League\Route\Route
+     */
+    public function setPort($port)
+    {
+        $this->port = $port;
 
         return $this;
     }

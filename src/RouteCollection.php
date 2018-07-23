@@ -177,6 +177,11 @@ class RouteCollection extends RouteCollector implements
                 continue;
             }
 
+            // check for port condition
+            if (! is_null($route->getPort()) && $route->getPort() !== $request->getUri()->getPort()) {
+                continue;
+            }
+
             $route->setContainer($this->container);
 
             if (is_null($route->getStrategy())) {
