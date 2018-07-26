@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route;
 
-use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
-use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
-use League\Route\Strategy\StrategyAwareInterface;
-use League\Route\Strategy\StrategyAwareTrait;
+use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
+use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait};
 
 class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, StrategyAwareInterface
 {
@@ -44,6 +42,16 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, 
     }
 
     /**
+     * Return the prefix of the group.
+     *
+     * @return string
+     */
+    public function getPrefix() : string
+    {
+        return $this->prefix;
+    }
+
+    /**
      * Process the group and ensure routes are added to the collection.
      *
      * @return void
@@ -56,7 +64,7 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, 
     /**
      * {@inheritdoc}
      */
-    public function map($method, $path, $handler)
+    public function map(string $method, string $path, callable $handler) : Route
     {
         $path  = ($path === '/') ? $this->prefix : $this->prefix . sprintf('/%s', ltrim($path, '/'));
         $route = $this->collection->map($method, $path, $handler);
@@ -79,7 +87,7 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, 
             $route->middleware($middleware);
         }
 
-        if (is_null($route->getStrategy()) && ! is_null($this->getStrategy())){
+        if (is_null($route->getStrategy()) && ! is_null($this->getStrategy())) {
             $route->setStrategy($this->getStrategy());
         }
 

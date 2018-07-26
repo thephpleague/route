@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route;
 
@@ -14,7 +14,7 @@ trait ContainerAwareTrait
     /**
      * Get container.
      *
-     * @return \Psr\Container\ContainerInterface
+     * @return \Psr\Container\ContainerInterface|null
      */
     public function getContainer()
     {
@@ -28,7 +28,7 @@ trait ContainerAwareTrait
      *
      * @return self
      */
-    public function setContainer(ContainerInterface $container)
+    public function setContainer(ContainerInterface $container) : ContainerAwareInterface
     {
         $this->container = $container;
 

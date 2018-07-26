@@ -1,56 +1,85 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route\Strategy;
 
-use \Exception;
-use League\Route\Http\Exception\MethodNotAllowedException;
-use League\Route\Http\Exception\NotFoundException;
+use Exception;
+use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
+use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
-use RuntimeException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
-class ApplicationStrategy implements StrategyInterface
+class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
 {
+    use ContainerAwareTrait;
+
     /**
      * {@inheritdoc}
      */
-    public function getCallable(Route $route, array $vars)
+    public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface
     {
-        return function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($route, $vars) {
-            $response = call_user_func_array($route->getCallable(), [$request, $response, $vars]);
+        return call_user_func_array($route->getCallable($this->getContainer()), [$request, $route->getVars()]);
+    }
 
-            if (! $response instanceof ResponseInterface) {
-                throw new RuntimeException(
-                    'Route callables must return an instance of (Psr\Http\Message\ResponseInterface)'
-                );
+    /**
+     * {@inheritdoc}
+     */
+    public function getNotFoundDecoratorMiddleware(NotFoundException $exception) : MiddlewareInterface
+    {
+        return $this->throwExceptionMiddleware($exception);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMethodNotAllowedDecoratorMiddleware(MethodNotAllowedException $exception) : MiddlewareInterface
+    {
+        return $this->throwExceptionMiddleware($exception);
+    }
+
+    /**
+     * Return a middleware that simply throws and exception.
+     *
+     * @param \Exception $exception
+     *
+     * @return \Psr\Http\Server\MiddlewareInterface
+     */
+    protected function throwExceptionMiddleware(Exception $exception) : MiddlewareInterface
+    {
+        return new class($exception) implements MiddlewareInterface
+        {
+            protected $exception;
+
+            public function __construct(Exception $exception)
+            {
+                $this->exception = $exception;
             }
 
-            return $next($request, $response);
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $requestHandler) : ResponseInterface
+            {
+                throw $this->exception;
+            }
         };
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getNotFoundDecorator(NotFoundException $exception)
+    public function getExceptionHandlerMiddleware() : MiddlewareInterface
     {
-        throw $exception;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception)
-    {
-        throw $exception;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getExceptionDecorator(Exception $exception)
-    {
-        throw $exception;
+        return new class implements MiddlewareInterface
+        {
+            /**
+             * {@inheritdoc}
+             */
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $requestHandler) : ResponseInterface
+            {
+                try {
+                    return $requestHandler->handle($request);
+                } catch (Exception $e) {
+                    throw $e;
+                }
+            }
+        };
     }
 }

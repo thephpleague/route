@@ -1,25 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route;
 
-trait RouteCollectionMapTrait
+trait RouteCollectionTrait
 {
     /**
      * Add a route to the map.
      *
-     * @param array|string    $method
+     * @param string          $method
      * @param string          $path
-     * @param string|callable $handler
+     * @param callable|string $handler
      *
      * @return \League\Route\Route
      */
-    abstract public function map($method, $path, $handler);
+    abstract public function map($method, string $path, $handler);
 
     /**
      * Add a route that responds to GET HTTP method.
      *
      * @param string          $path
-     * @param string|callable $handler
+     * @param callable|string $handler
      *
      * @return \League\Route\Route
      */
@@ -32,7 +32,7 @@ trait RouteCollectionMapTrait
      * Add a route that responds to POST HTTP method.
      *
      * @param string          $path
-     * @param string|callable $handler
+     * @param callable|string $handler
      *
      * @return \League\Route\Route
      */
@@ -45,7 +45,7 @@ trait RouteCollectionMapTrait
      * Add a route that responds to PUT HTTP method.
      *
      * @param string          $path
-     * @param string|callable $handler
+     * @param callable|string $handler
      *
      * @return \League\Route\Route
      */
@@ -58,7 +58,7 @@ trait RouteCollectionMapTrait
      * Add a route that responds to PATCH HTTP method.
      *
      * @param string          $path
-     * @param string|callable $handler
+     * @param callable|string $handler
      *
      * @return \League\Route\Route
      */
@@ -71,7 +71,7 @@ trait RouteCollectionMapTrait
      * Add a route that responds to DELETE HTTP method.
      *
      * @param string          $path
-     * @param string|callable $handler
+     * @param callable|string $handler
      *
      * @return \League\Route\Route
      */
@@ -84,7 +84,7 @@ trait RouteCollectionMapTrait
      * Add a route that responds to HEAD HTTP method.
      *
      * @param string          $path
-     * @param string|callable $handler
+     * @param callable|string $handler
      *
      * @return \League\Route\Route
      */
@@ -97,7 +97,7 @@ trait RouteCollectionMapTrait
      * Add a route that responds to OPTIONS HTTP method.
      *
      * @param string          $path
-     * @param string|callable $handler
+     * @param callable|string $handler
      *
      * @return \League\Route\Route
      */

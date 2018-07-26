@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route;
 
@@ -9,7 +9,7 @@ interface ContainerAwareInterface
     /**
      * Get container.
      *
-     * @return \Psr\Container\ContainerInterface
+     * @return \Psr\Container\ContainerInterface|null
      */
     public function getContainer();
 
@@ -20,5 +20,5 @@ interface ContainerAwareInterface
      *
      * @return self
      */
-    public function setContainer(ContainerInterface $container);
+    public function setContainer(ContainerInterface $container) : ContainerAwareInterface;
 }

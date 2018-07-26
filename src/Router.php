@@ -1,38 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route;
 
-use Exception;
-use FastRoute\DataGenerator;
-use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedDataGenerator;
-use FastRoute\RouteCollector;
-use FastRoute\RouteParser;
-use FastRoute\RouteParser\Std as StdRouteParser;
-use InvalidArgumentException;
-use League\Container\Container;
-use League\Route\Middleware\ExecutionChain;
-use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
-use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
-use League\Route\Strategy\ApplicationStrategy;
-use League\Route\Strategy\StrategyAwareInterface;
-use League\Route\Strategy\StrategyAwareTrait;
-use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use FastRoute\{DataGenerator, RouteCollector, RouteParser};
+use League\Route\Strategy\{ApplicationStrategy, StrategyAwareInterface, StrategyAwareTrait};
+use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
-class RouteCollection extends RouteCollector implements
+class Router extends RouteCollector implements
     MiddlewareAwareInterface,
     RouteCollectionInterface,
     StrategyAwareInterface
 {
     use MiddlewareAwareTrait;
-    use RouteCollectionMapTrait;
+    use RouteCollectionTrait;
     use StrategyAwareTrait;
-
-    /**
-     * @var \Psr\Container\ContainerInterface
-     */
-    protected $container;
 
     /**
      * @var \League\Route\Route[]
@@ -63,30 +45,24 @@ class RouteCollection extends RouteCollector implements
     /**
      * Constructor.
      *
-     * @param \Psr\Container\ContainerInterface $container
-     * @param \FastRoute\RouteParser            $parser
-     * @param \FastRoute\DataGenerator          $generator
+     * @param \FastRoute\RouteParser   $parser
+     * @param \FastRoute\DataGenerator $generator
      */
-    public function __construct(
-        ContainerInterface $container = null,
-        RouteParser        $parser    = null,
-        DataGenerator      $generator = null
-    ) {
-        $this->container = ($container instanceof ContainerInterface) ? $container : new Container;
-
+    public function __construct(RouteParser $parser = null, DataGenerator $generator = null)
+    {
         // build parent route collector
-        $parser    = ($parser instanceof RouteParser) ? $parser : new StdRouteParser;
-        $generator = ($generator instanceof DataGenerator) ? $generator : new GroupCountBasedDataGenerator;
+        $parser    = ($parser) ?? new RouteParser\Std;
+        $generator = ($generator) ?? new DataGenerator\GroupCountBased;
         parent::__construct($parser, $generator);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function map($method, $path, $handler)
+    public function map(string $method, string $path, $handler) : Route
     {
         $path  = sprintf('/%s', ltrim($path, '/'));
-        $route = (new Route)->setMethods((array) $method)->setPath($path)->setCallable($handler);
+        $route = (new Route)->setMethod($method)->setPath($path)->setCallable($handler);
 
         $this->routes[] = $route;
 
@@ -101,7 +77,7 @@ class RouteCollection extends RouteCollector implements
      *
      * @return \League\Route\RouteGroup
      */
-    public function group($prefix, callable $group)
+    public function group($prefix, callable $group) : RouteGroup
     {
         $group          = new RouteGroup($prefix, $group, $this);
         $this->groups[] = $group;
@@ -110,38 +86,9 @@ class RouteCollection extends RouteCollector implements
     }
 
     /**
-     * Dispatch the route based on the request.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface      $response
-     *
-     * @return \Psr\Http\Message\ResponseInterface
+     * {@inheritdoc}
      */
-    public function dispatch(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $dispatcher = $this->getDispatcher($request);
-        $execChain  = $dispatcher->handle($request);
-
-        foreach ($this->getMiddlewareStack() as $middleware) {
-            $execChain->middleware($middleware);
-        }
-
-        try {
-            return $execChain->execute($request, $response);
-        } catch (Exception $exception) {
-            $middleware = $this->getStrategy()->getExceptionDecorator($exception);
-            return (new ExecutionChain)->middleware($middleware)->execute($request, $response);
-        }
-    }
-
-    /**
-     * Return a fully configured dispatcher.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \League\Route\Dispatcher
-     */
-    public function getDispatcher(ServerRequestInterface $request)
+    public function dispatch(ServerRequestInterface $request) : ResponseInterface
     {
         if (is_null($this->getStrategy())) {
             $this->setStrategy(new ApplicationStrategy);
@@ -149,7 +96,11 @@ class RouteCollection extends RouteCollector implements
 
         $this->prepRoutes($request);
 
-        return (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
+        return (new Dispatcher($this->getData()))
+            ->middlewares($this->getMiddlewareStack())
+            ->setStrategy($this->getStrategy())
+            ->dispatchRequest($request)
+        ;
     }
 
     /**
@@ -162,6 +113,7 @@ class RouteCollection extends RouteCollector implements
      */
     protected function prepRoutes(ServerRequestInterface $request)
     {
+        $this->processGroups($request);
         $this->buildNameIndex();
 
         $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
@@ -182,17 +134,11 @@ class RouteCollection extends RouteCollector implements
                 continue;
             }
 
-            $route->setContainer($this->container);
-
             if (is_null($route->getStrategy())) {
                 $route->setStrategy($this->getStrategy());
             }
 
-            $this->addRoute(
-                $route->getMethods(),
-                $this->parseRoutePath($route->getPath()),
-                [$route, 'getExecutionChain']
-            );
+            $this->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $route);
         }
     }
 
@@ -203,8 +149,6 @@ class RouteCollection extends RouteCollector implements
      */
     protected function buildNameIndex()
     {
-        $this->processGroups();
-
         foreach ($this->routes as $key => $route) {
             if (! is_null($route->getName())) {
                 unset($this->routes[$key]);
@@ -214,13 +158,25 @@ class RouteCollection extends RouteCollector implements
     }
 
     /**
-     * Process all groups.
+     * Process all groups, and determine if we are using a group's strategy.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      *
      * @return void
      */
-    protected function processGroups()
+    protected function processGroups(ServerRequestInterface $request)
     {
+        $activePath = $request->getUri()->getPath();
+
         foreach ($this->groups as $key => $group) {
+            // we want to determine if we are technically in a group even if the
+            // route is not matched so exceptions are handled correctly
+            if (strncmp($activePath, $group->getPrefix, strlen($group->getPrefix)) === 0
+                && ! is_null($group->getStrategy())
+            ) {
+                $this->setStrategy($group->getStrategy());
+            }
+
             unset($this->groups[$key]);
             $group();
         }
@@ -231,9 +187,11 @@ class RouteCollection extends RouteCollector implements
      *
      * @param string $name
      *
+     * @throws \InvalidArgumentException when no route of the provided name exists.
+     *
      * @return \League\Route\Route
      */
-    public function getNamedRoute($name)
+    public function getNamedRoute(string $name) : Route
     {
         $this->buildNameIndex();
 
@@ -250,14 +208,16 @@ class RouteCollection extends RouteCollector implements
      * @param string $alias
      * @param string $regex
      *
-     * @return void
+     * @return self
      */
-    public function addPatternMatcher($alias, $regex)
+    public function addPatternMatcher(string $alias, string $regex) : self
     {
         $pattern = '/{(.+?):' . $alias . '}/';
         $regex   = '{$1:' . $regex . '}';
 
         $this->patternMatchers[$pattern] = $regex;
+
+        return $this;
     }
 
     /**
@@ -267,7 +227,7 @@ class RouteCollection extends RouteCollector implements
      *
      * @return string
      */
-    protected function parseRoutePath($path)
+    protected function parseRoutePath(string $path) : string
     {
         return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $path);
     }

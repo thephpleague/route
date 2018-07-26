@@ -1,29 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route;
 
-use InvalidArgumentException;
-use League\Route\ContainerAwareInterface;
-use League\Route\ContainerAwareTrait;
-use League\Route\Http\RequestAwareInterface;
-use League\Route\Http\ResponseAwareInterface;
-use League\Route\Middleware\ExecutionChain;
-use League\Route\Middleware\StackAwareInterface as MiddlewareAwareInterface;
-use League\Route\Middleware\StackAwareTrait as MiddlewareAwareTrait;
-use League\Route\Strategy\StrategyAwareInterface;
-use League\Route\Strategy\StrategyAwareTrait;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
+use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
-class Route implements ContainerAwareInterface, MiddlewareAwareInterface, StrategyAwareInterface
+class Route implements
+    MiddlewareInterface,
+    MiddlewareAwareInterface,
+    StrategyAwareInterface
 {
-    use ContainerAwareTrait;
     use MiddlewareAwareTrait;
     use RouteConditionTrait;
     use StrategyAwareTrait;
 
     /**
-     * @var string|callable
+     * @var callable
      */
     protected $callable;
 
@@ -33,9 +27,9 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
     protected $group;
 
     /**
-     * @var string[]
+     * @var string
      */
-    protected $methods = [];
+    protected $method;
 
     /**
      * @var string
@@ -43,33 +37,30 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
     protected $path;
 
     /**
-     * Dispatch the route via the attached strategy.
-     *
-     * @param array $vars
-     *
-     * @return \League\Route\Middleware\ExecutionChain
+     * @var array
      */
-    public function getExecutionChain(array $vars)
-    {
-        $callable = $this->getStrategy()->getCallable($this, $vars);
+    protected $vars = [];
 
-        $execChain = (new ExecutionChain)->middleware($callable);
-
-        foreach ($this->getMiddlewareStack() as $middleware) {
-            $execChain->middleware($middleware);
-        }
-
-        return $execChain;
+    /**
+     * {@inheritdoc}
+     */
+    public function process(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $requestHandler
+    ) : ResponseInterface {
+        return $this->getStrategy()->invokeRouteCallable($this, $request);
     }
 
     /**
      * Get the callable.
      *
+     * @param \Psr\Container\ContainerInterface $container
+     *
      * @throws \RuntimeException
      *
      * @return callable
      */
-    public function getCallable()
+    public function getCallable(ContainerInterface $container = null) : callable
     {
         $callable = $this->callable;
 
@@ -82,9 +73,9 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
         }
 
         if (is_array($callable) && isset($callable[0]) && is_string($callable[0])) {
-            $class = ($this->getContainer()->has($callable[0]))
-                   ? $this->getContainer()->get($callable[0])
-                   : new $callable[0];
+            $class = (! is_null($container) && $container->has($callable[0]))
+                ? $container->get($callable[0])
+                : new $callable[0];
 
             $callable = [$class, $callable[1]];
         }
@@ -97,13 +88,37 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
     }
 
     /**
-     * Set the callable.
+     * Return vars to be passed to route callable.
      *
-     * @param string|callable $callable
+     * @return array
+     */
+    public function getVars() : array
+    {
+        return $this->vars;
+    }
+
+    /**
+     * Set vars to be passed to route callable.
+     *
+     * @param array $vars
      *
      * @return \League\Route\Route
      */
-    public function setCallable($callable)
+    public function setVars(array $vars) : self
+    {
+        $this->vars = $vars;
+
+        return $this;
+    }
+
+    /**
+     * Set the callable.
+     *
+     * @param callable|string $callable
+     *
+     * @return \League\Route\Route
+     */
+    public function setCallable($callable) : self
     {
         $this->callable = $callable;
 
@@ -113,7 +128,7 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
     /**
      * Get the parent group.
      *
-     * @return \League\Route\RouteGroup
+     * @return \League\Route\RouteGroup|null
      */
     public function getParentGroup()
     {
@@ -127,7 +142,7 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
      *
      * @return \League\Route\Route
      */
-    public function setParentGroup(RouteGroup $group)
+    public function setParentGroup(RouteGroup $group) : self
     {
         $this->group = $group;
 
@@ -139,7 +154,7 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
      *
      * @return string
      */
-    public function getPath()
+    public function getPath() : string
     {
         return $this->path;
     }
@@ -151,7 +166,7 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
      *
      * @return \League\Route\Route
      */
-    public function setPath($path)
+    public function setPath($path) : self
     {
         $this->path = $path;
 
@@ -161,23 +176,23 @@ class Route implements ContainerAwareInterface, MiddlewareAwareInterface, Strate
     /**
      * Get the methods.
      *
-     * @return string[]
+     * @return string
      */
-    public function getMethods()
+    public function getMethod() : string
     {
-        return $this->methods;
+        return $this->method;
     }
 
     /**
-     * Get the methods.
+     * Get the method.
      *
-     * @param string[] $methods
+     * @param string $method
      *
      * @return \League\Route\Route
      */
-    public function setMethods(array $methods)
+    public function setMethod(string $method) : self
     {
-        $this->methods = $methods;
+        $this->method = $method;
 
         return $this;
     }
