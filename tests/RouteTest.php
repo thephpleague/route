@@ -1,10 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace League\Route\Test;
+namespace League\Route;
 
-use League\Route\Route;
+use InvalidArgumentException;
 use League\Route\Test\Asset\Controller;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class RouteTest extends TestCase
 {
@@ -13,12 +16,10 @@ class RouteTest extends TestCase
      *
      * @return void
      */
-    public function testRouteSetsAndResolvesInvokableClassCallable()
+    public function testRouteSetsAndResolvesInvokableClassCallable() : void
     {
-        $route = new Route;
         $callable = new Controller;
-
-        $route->setCallable($callable);
+        $route    = new Route('GET', '/', $callable);
         $this->assertTrue(is_callable($route->getCallable()));
     }
 
@@ -27,12 +28,10 @@ class RouteTest extends TestCase
      *
      * @return void
      */
-    public function testRouteSetsAndResolvesClassMethodCallable()
+    public function testRouteSetsAndResolvesClassMethodCallable() : void
     {
-        $route = new Route;
         $callable = [new Controller, 'action'];
-
-        $route->setCallable($callable);
+        $route    = new Route('GET', '/', $callable);
         $this->assertTrue(is_callable($route->getCallable()));
     }
 
@@ -41,12 +40,10 @@ class RouteTest extends TestCase
      *
      * @return void
      */
-    public function testRouteSetsAndResolvesNamedFunctionCallable()
+    public function testRouteSetsAndResolvesNamedFunctionCallable() : void
     {
-        $route = new Route;
         $callable = 'League\Route\Test\Asset\namedFunctionCallable';
-
-        $route->setCallable($callable);
+        $route    = new Route('GET', '/', $callable);
         $this->assertTrue(is_callable($route->getCallable()));
     }
 
@@ -55,25 +52,33 @@ class RouteTest extends TestCase
      *
      * @return void
      */
-    public function testRouteSetsAndResolvesClassMethodCallableAsStringViaContainer()
+    public function testRouteSetsAndResolvesClassMethodCallableAsStringViaContainer() : void
     {
-        $container = $this->getMock('League\Container\ImmutableContainerInterface');
+        $container = $this->createMock(ContainerInterface::class);
 
-        $container->expects($this->once())->method('has')->with($this->equalTo('League\Route\Test\Asset\Controller'))->will($this->returnValue(true));
-        $container->expects($this->once())->method('get')->with($this->equalTo('League\Route\Test\Asset\Controller'))->will($this->returnValue(new Controller));
+        $container
+            ->expects($this->once())
+            ->method('has')
+            ->with($this->equalTo(Controller::class))
+            ->will($this->returnValue(true))
+        ;
 
-        $route = new Route;
-        $route->setContainer($container);
+        $container
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo(Controller::class))
+            ->will($this->returnValue(new Controller))
+        ;
 
         $callable = 'League\Route\Test\Asset\Controller::action';
+        $route    = new Route('GET', '/', $callable);
 
-        $route->setCallable($callable);
-        $newCallable = $route->getCallable();
+        $newCallable = $route->getCallable($container);
 
         $this->assertTrue(is_callable($newCallable));
         $this->assertTrue(is_array($newCallable));
         $this->assertCount(2, $newCallable);
-        $this->assertInstanceOf('League\Route\Test\Asset\Controller', $newCallable[0]);
+        $this->assertInstanceOf(Controller::class, $newCallable[0]);
         $this->assertEquals('action', $newCallable[1]);
     }
 
@@ -82,24 +87,26 @@ class RouteTest extends TestCase
      *
      * @return void
      */
-    public function testRouteSetsAndResolvesClassMethodCallableAsStringWithoutContainer()
+    public function testRouteSetsAndResolvesClassMethodCallableAsStringWithoutContainer() : void
     {
-        $container = $this->getMock('League\Container\ImmutableContainerInterface');
+        $container = $this->createMock(ContainerInterface::class);
 
-        $container->expects($this->once())->method('has')->with($this->equalTo('League\Route\Test\Asset\Controller'))->will($this->returnValue(false));
-
-        $route = new Route;
-        $route->setContainer($container);
+        $container
+            ->expects($this->once())
+            ->method('has')
+            ->with($this->equalTo(Controller::class))
+            ->will($this->returnValue(false))
+        ;
 
         $callable = 'League\Route\Test\Asset\Controller::action';
+        $route    = new Route('GET', '/', $callable);
 
-        $route->setCallable($callable);
-        $newCallable = $route->getCallable();
+        $newCallable = $route->getCallable($container);
 
         $this->assertTrue(is_callable($newCallable));
         $this->assertTrue(is_array($newCallable));
         $this->assertCount(2, $newCallable);
-        $this->assertInstanceOf('League\Route\Test\Asset\Controller', $newCallable[0]);
+        $this->assertInstanceOf(Controller::class, $newCallable[0]);
         $this->assertEquals('action', $newCallable[1]);
     }
 
@@ -110,12 +117,8 @@ class RouteTest extends TestCase
      */
     public function testRouteThrowsExceptionWhenSettingAndResolvingNonCallable()
     {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $route = new Route;
-        $callable = new \stdClass;
-
-        $route->setCallable($callable);
+        $this->expectException(InvalidArgumentException::class);
+        $route = new Route('GET', '/', new \stdClass);
         $route->getCallable();
     }
 
@@ -124,18 +127,21 @@ class RouteTest extends TestCase
      *
      * @return void
      */
-    public function testRouteCanSetAndGetAllProperties()
+    public function testRouteCanSetAndGetAllProperties() : void
     {
-        $route = new Route;
+        $route = new Route('GET', '/something', function () {
+        });
 
-        $group = $this->getMockBuilder('League\Route\RouteGroup')->disableOriginalConstructor()->getMock();
+        $group = $this
+            ->getMockBuilder(RouteGroup::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
         $this->assertSame($group, $route->setParentGroup($group)->getParentGroup());
 
-        $path = '/something';
-        $this->assertSame('/something', $route->setPath($path)->getPath());
-
-        $methods = ['get', 'post'];
-        $this->assertSame($methods, $route->setMethods($methods)->getMethods());
+        $this->assertSame('/something', $route->getPath());
+        $this->assertSame('GET', $route->getMethod());
 
         $name = 'a.name';
         $this->assertSame($name, $route->setName($name)->getName());
@@ -146,33 +152,25 @@ class RouteTest extends TestCase
         $host = 'example.com';
         $this->assertSame($host, $route->setHost($host)->getHost());
 
+        $vars = ['example', 'something'];
+        $this->assertSame($vars, $route->setVars($vars)->getVars());
+
         $port = 8080;
         $this->assertSame($port, $route->setPort($port)->getPort());
 
-        $middleware = new Controller;
-        $route->middleware($middleware)->middleware($middleware);
+        $middleware = new class implements MiddlewareInterface
+        {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $requestHandler
+            ) : ResponseInterface {
+            }
+        };
+
+        $route->middlewares([$middleware, $middleware]);
+
         $this->assertSame([
             $middleware, $middleware
         ], $route->getMiddlewareStack());
-    }
-
-    /**
-     * Asserts the route proxies to the strategy and builds the execution chain.
-     *
-     * @return void
-     */
-    public function testRouteProxiesToStrategyAndBuildsExecutionChain()
-    {
-        $route = new Route;
-        $vars  = [];
-
-        $callable = function () {};
-
-        $strategy = $this->getMock('League\Route\Strategy\StrategyInterface');
-        $strategy->expects($this->once())->method('getCallable')->with($this->equalTo($route), $this->equalTo($vars))->will($this->returnValue($callable));
-
-        $route->setStrategy($strategy);
-
-        $this->assertInstanceOf('League\Route\Middleware\ExecutionChain', $route->getExecutionChain($vars));
     }
 }

@@ -24,7 +24,7 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getNotFoundDecoratorMiddleware(NotFoundException $exception) : MiddlewareInterface
+    public function getNotFoundDecorator(NotFoundException $exception) : MiddlewareInterface
     {
         return $this->throwExceptionMiddleware($exception);
     }
@@ -32,7 +32,7 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getMethodNotAllowedDecoratorMiddleware(MethodNotAllowedException $exception) : MiddlewareInterface
+    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception) : MiddlewareInterface
     {
         return $this->throwExceptionMiddleware($exception);
     }
@@ -55,8 +55,10 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
                 $this->exception = $exception;
             }
 
-            public function process(ServerRequestInterface $request, RequestHandlerInterface $requestHandler) : ResponseInterface
-            {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $requestHandler
+            ) : ResponseInterface {
                 throw $this->exception;
             }
         };
@@ -65,15 +67,17 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getExceptionHandlerMiddleware() : MiddlewareInterface
+    public function getExceptionHandler() : MiddlewareInterface
     {
         return new class implements MiddlewareInterface
         {
             /**
              * {@inheritdoc}
              */
-            public function process(ServerRequestInterface $request, RequestHandlerInterface $requestHandler) : ResponseInterface
-            {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $requestHandler
+            ) : ResponseInterface {
                 try {
                     return $requestHandler->handle($request);
                 } catch (Exception $e) {

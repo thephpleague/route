@@ -14,9 +14,9 @@ trait ContainerAwareTrait
     /**
      * Get container.
      *
-     * @return \Psr\Container\ContainerInterface|null
+     * @return ?\Psr\Container\ContainerInterface
      */
-    public function getContainer()
+    public function getContainer() : ?ContainerInterface
     {
         return $this->container;
     }
@@ -26,7 +26,7 @@ trait ContainerAwareTrait
      *
      * @param \Psr\Container\ContainerInterface $container
      *
-     * @return self
+     * @return \League\Route\ContainerAwareInterface
      */
     public function setContainer(ContainerInterface $container) : ContainerAwareInterface
     {

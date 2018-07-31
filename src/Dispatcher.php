@@ -69,18 +69,18 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      *
      * @return void
      */
-    protected function setFoundMiddleware(Route $route)
+    protected function setFoundMiddleware(Route $route) : void
     {
         if (! is_null($route->getStrategy())) {
             $route->setStrategy($this->getStrategy());
         }
 
         // wrap entire dispatch process in exception handler
-        $this->prependMiddleware($this->getStrategy()->getExceptionHandlerMiddleware());
+        $this->prependMiddleware($route->getStrategy()->getExceptionHandler());
 
         // add group and route specific niddlewares
         if ($group = $route->getParentGroup()) {
-            $this->middlewares($route->getParentGroup()->getMiddlewareStack());
+            $this->middlewares($group->getMiddlewareStack());
         }
 
         $this->middlewares($route->getMiddlewareStack());
@@ -94,9 +94,9 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      *
      * @return void
      */
-    protected function setNotFoundDecoratorMiddleware()
+    protected function setNotFoundDecoratorMiddleware() : void
     {
-        $middleware = $this->getStrategy()->getNotFoundDecoratorMiddleware(new NotFoundException);
+        $middleware = $this->getStrategy()->getNotFoundDecorator(new NotFoundException);
         $this->prependMiddleware($middleware);
     }
 
@@ -107,9 +107,9 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      *
      * @return void
      */
-    protected function setMethodNotAllowedDecoratorMiddleware(array $allowed)
+    protected function setMethodNotAllowedDecoratorMiddleware(array $allowed) : void
     {
-        $middleware = $this->getStrategy()->getMethodNotAllowedDecoratorMiddleware(
+        $middleware = $this->getStrategy()->getMethodNotAllowedDecorator(
             new MethodNotAllowedException($allowed)
         );
 

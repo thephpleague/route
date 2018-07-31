@@ -9,16 +9,16 @@ interface ContainerAwareInterface
     /**
      * Get container.
      *
-     * @return \Psr\Container\ContainerInterface|null
+     * @return ?\Psr\Container\ContainerInterface
      */
-    public function getContainer();
+    public function getContainer() : ?ContainerInterface;
 
     /**
      * Set container.
      *
      * @param \Psr\Container\ContainerInterface $container
      *
-     * @return self
+     * @return \League\Route\ContainerAwareInterface
      */
     public function setContainer(ContainerInterface $container) : ContainerAwareInterface;
 }

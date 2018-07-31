@@ -54,7 +54,7 @@ trait MiddlewareAwareTrait
     /**
      * {@inheritdoc}
      */
-    public function getMiddlewareStack() : array
+    public function getMiddlewareStack() : iterable
     {
         return $this->middleware;
     }

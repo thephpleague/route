@@ -30,14 +30,32 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     }
 
     /**
+     * Invoke the given factory to return a response.
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    protected function newResponse() : ResponseInterface
+    {
+        $responseFactory = $this->responseFactory;
+        return $responseFactory();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface
     {
         $response = call_user_func_array($route->getCallable($this->getContainer()), [$request, $route->getVars()]);
 
+        if (is_array($response)) {
+            $body     = json_encode($response);
+            $response = $this->newResponse();
+            $response = $response->withStatus(200);
+            $response->getBody()->write($body);
+        }
+
         if ($response instanceof ResponseInterface && ! $response->hasHeader('content-type')) {
-            $response->withHeader('content-type', 'application/json');
+            $response->withAddedHeader('content-type', 'application/json');
         }
 
         return $response;
@@ -46,7 +64,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getNotFoundDecoratorMiddleware(NotFoundException $exception) : MiddlewareInterface
+    public function getNotFoundDecorator(NotFoundException $exception) : MiddlewareInterface
     {
         return $this->buildJsonResponseMiddleware($exception);
     }
@@ -54,7 +72,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getMethodNotAllowedDecoratorMiddleware(MethodNotAllowedException $exception) : MiddlewareInterface
+    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception) : MiddlewareInterface
     {
         return $this->buildJsonResponseMiddleware($exception);
     }
@@ -68,21 +86,22 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
      */
     protected function buildJsonResponseMiddleware(HttpException $exception) : MiddlewareInterface
     {
-        return new class($this->responseFactory, $exception) implements MiddlewareInterface
+        return new class($this->newResponse(), $exception) implements MiddlewareInterface
         {
-            protected $responseFactory;
+            protected $response;
             protected $exception;
 
-            public function __construct(callable $responseFactory, HttpException $exception)
+            public function __construct(ResponseInterface $response, HttpException $exception)
             {
-                $this->responseFactory = $responseFactory;
-                $this->exception       = $exception;
+                $this->response  = $response;
+                $this->exception = $exception;
             }
 
-            public function process(ServerRequestInterface $request, RequestHandlerInterface $requestHandler) : ResponseInterface
-            {
-                $responseFactory = $this->responseFactory;
-                return $this->exception->buildJsonResponse($responseFactory());
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $requestHandler
+            ) : ResponseInterface {
+                return $this->exception->buildJsonResponse($this->response);
             }
         };
     }
@@ -90,24 +109,25 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getExceptionHandlerMiddleware() : MiddlewareInterface
+    public function getExceptionHandler() : MiddlewareInterface
     {
-        return new class($this->responseFactory) implements MiddlewareInterface
+        return new class($this->newResponse()) implements MiddlewareInterface
         {
-            protected $responseFactory;
+            protected $response;
 
-            public function __construct(callable $responseFactory)
+            public function __construct(ResponseInterface $response)
             {
-                $this->responseFactory = $responseFactory;
+                $this->response = $response;
             }
 
-            public function process(ServerRequestInterface $request, RequestHandlerInterface $requestHandler) : ResponseInterface
-            {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $requestHandler
+            ) : ResponseInterface {
                 try {
                     return $requestHandler->handle($request);
                 } catch (Exception $exception) {
-                    $responseFactory = $this->responseFactory;
-                    $response = $responseFactory();
+                    $response = $this->response;
 
                     if ($exception instanceof HttpException) {
                         return $exception->buildJsonResponse($response);

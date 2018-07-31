@@ -1,77 +1,298 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace League\Route\Test\Strategy;
+namespace League\Route\Strategy;
 
 use Exception;
-use League\Route\Strategy\JsonStrategy;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use League\Route\Http\Exception as HttpException;
+use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
+use League\Route\Route;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface, StreamInterface};
+use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class JsonStrategyTest extends TestCase
 {
     /**
-     * Asserts that the strategy builds a json response for a controller that does not return a repsonse.
+     * Asserts that the strategy properly invokes the route callable.
      *
      * @return void
      */
-    public function testStrategyBuildsJsonErrorResponseWhenNoResponseReturned()
+    public function testStrategyInvokesRouteCallable() : void
     {
-        $this->setExpectedException('RuntimeException');
+        $route = $this->createMock(Route::class);
 
-        $route    = $this->getMock('League\Route\Route');
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, array $args = []) {};
+        $expectedResponse = $this->createMock(ResponseInterface::class);
+        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
+        $expectedVars     = ['something', 'else'];
 
-        $route->expects($this->once())->method('getCallable')->will($this->returnValue($callable));
+        $route
+            ->expects($this->once())
+            ->method('getCallable')
+            ->will($this->returnValue(
+                function (
+                    ServerRequestInterface $request,
+                    array                  $vars = []
+                ) use (
+                    $expectedRequest,
+                    $expectedResponse,
+                    $expectedVars
+                ) : ResponseInterface {
+                    $this->assertSame($expectedRequest, $request);
+                    $this->assertSame($expectedVars, $vars);
+                    return $expectedResponse;
+                }
+            ))
+        ;
 
-        $strategy = new JsonStrategy;
-        $callable = $strategy->getCallable($route, []);
+        $route
+            ->expects($this->once())
+            ->method('getVars')
+            ->will($this->returnValue($expectedVars))
+        ;
 
-        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $strategy = new JsonStrategy(function () {});
+        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
 
-        $next = function ($request, $response) {
-            return $response;
-        };
-
-        $callable($request, $response, $next);
+        $this->assertSame($expectedResponse, $response);
     }
 
     /**
-     * Test exception decorator will only use the first message line for reason phrase.
+     * Asserts that the strategy properly invokes the route callable with an array return.
      *
      * @return void
      */
-    public function testExceptionDecoratorWillOnlyUseTheFirstMessageLineForReasonPhrase()
+    public function testStrategyInvokesRouteCallableWithArrayReturn() : void
     {
-        $exception = new Exception("some long message\nwith multiple\nlines");
+        $route = $this->createMock(Route::class);
 
-        $strategy = new JsonStrategy;
-        $callable = $strategy->getExceptionDecorator($exception);
+        $expectedResponse = $this->createMock(ResponseInterface::class);
+        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
+        $body             = $this->createMock(StreamInterface::class);
+        $expectedVars     = ['something', 'else'];
 
-        $request = $this->prophesize('\Psr\Http\Message\ServerRequestInterface');
+        $expectedResponse
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($body))
+        ;
 
-        $stream = $this->prophesize('\Psr\Http\Message\StreamInterface');
-        $stream->write(json_encode([
-            'status_code'   => 500,
-            'reason_phrase' => "some long message\nwith multiple\nlines",
-        ]))
-            ->shouldBeCalled();
+        $expectedResponse
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
 
-        $response = $this->prophesize('\Psr\Http\Message\ResponseInterface');
+        $expectedResponse
+            ->expects($this->once())
+            ->method('withStatus')
+            ->with($this->equalTo(200))
+            ->will($this->returnSelf())
+        ;
 
-        $response->getBody()
-            ->shouldBeCalled()
-            ->willReturn($stream->reveal());
+        $expectedResponse
+            ->expects($this->once())
+            ->method('hasHeader')
+            ->with($this->equalTo('content-type'))
+            ->will($this->returnValue(false))
+        ;
 
-        $response->withAddedHeader('content-type', 'application/json')
-            ->shouldBeCalled()
-            ->willReturn($response->reveal());
+        $body
+            ->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo(json_encode([$expectedVars[0] => $expectedVars[1]])))
+        ;
 
-        $response->withStatus(500, 'some long message')
-            ->shouldBeCalled()
-            ->willReturn($response->reveal());
+        $route
+            ->expects($this->once())
+            ->method('getCallable')
+            ->will($this->returnValue(
+                function (
+                    ServerRequestInterface $request,
+                    array                  $vars = []
+                ) use (
+                    $expectedRequest,
+                    $expectedVars
+                ) : array {
+                    $this->assertSame($expectedRequest, $request);
+                    $this->assertSame($expectedVars, $vars);
+                    return [$vars[0] => $vars[1]];
+                }
+            ))
+        ;
 
-        $callable($request->reveal(), $response->reveal());
+        $route
+            ->expects($this->once())
+            ->method('getVars')
+            ->will($this->returnValue($expectedVars))
+        ;
+
+        $strategy = new JsonStrategy(function () use ($expectedResponse) {
+            return $expectedResponse;
+        });
+
+        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
+
+        $this->assertSame($expectedResponse, $response);
+    }
+
+    /**
+     * Asserts that the strategy returns the correct middleware to decorate NotFoundException.
+     *
+     * @return void
+     */
+    public function testStrategyReturnsCorrectNotFoundDecorator() : void
+    {
+        $exception      = $this->createMock(NotFoundException::class);
+        $request        = $this->createMock(ServerRequestInterface::class);
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+        $response       = $this->createMock(ResponseInterface::class);
+
+        $exception
+            ->expects($this->once())
+            ->method('buildJsonResponse')
+            ->with($this->equalTo($response))
+            ->will($this->returnValue($response))
+        ;
+
+        $strategy = new JsonStrategy(function () use ($response) {
+            return $response;
+        });
+
+        $handler = $strategy->getNotFoundDecorator($exception);
+        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
+
+        $actualResponse = $handler->process($request, $requestHandler);
+        $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
+        $this->assertSame($response, $actualResponse);
+    }
+
+    /**
+     * Asserts that the strategy returns the correct middleware to decorate MethodNotAllowedException.
+     *
+     * @return void
+     */
+    public function testStrategyReturnsCorrectMethodNotAllowedDecorator() : void
+    {
+        $exception      = $this->createMock(MethodNotAllowedException::class);
+        $request        = $this->createMock(ServerRequestInterface::class);
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+        $response       = $this->createMock(ResponseInterface::class);
+
+        $exception
+            ->expects($this->once())
+            ->method('buildJsonResponse')
+            ->with($this->equalTo($response))
+            ->will($this->returnValue($response))
+        ;
+
+        $strategy = new JsonStrategy(function () use ($response) {
+            return $response;
+        });
+
+        $handler = $strategy->getMethodNotAllowedDecorator($exception);
+        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
+
+        $actualResponse = $handler->process($request, $requestHandler);
+        $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
+        $this->assertSame($response, $actualResponse);
+    }
+
+    /**
+     * Asserts that the strategy returns the correct exception handler middleware.
+     *
+     * @return void
+     */
+    public function testStrategyReturnsCorrectExceptionHandler() : void
+    {
+        $request        = $this->createMock(ServerRequestInterface::class);
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+        $response       = $this->createMock(ResponseInterface::class);
+        $body           = $this->createMock(StreamInterface::class);
+
+        $requestHandler
+            ->expects($this->once())
+            ->method('handle')
+            ->with($this->equalTo($request))
+            ->will($this->throwException(new Exception('Exception thrown')))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($body))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withStatus')
+            ->with($this->equalTo(500), $this->equalTo('Exception thrown'))
+            ->will($this->returnSelf())
+        ;
+
+        $body
+            ->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo(json_encode([
+                'status_code'   => 500,
+                'reason_phrase' => 'Exception thrown'
+            ])))
+        ;
+
+        $strategy = new JsonStrategy(function () use ($response) {
+            return $response;
+        });
+
+        $handler = $strategy->getExceptionHandler();
+        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
+
+        $actualResponse = $handler->process($request, $requestHandler);
+        $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
+        $this->assertSame($response, $actualResponse);
+    }
+
+    /**
+     * Asserts that the strategy returns the correct http exception handler middleware.
+     *
+     * @return void
+     */
+    public function testStrategyReturnsCorrectHttpExceptionHandler() : void
+    {
+        $exception      = $this->createMock(HttpException::class);
+        $request        = $this->createMock(ServerRequestInterface::class);
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+        $response       = $this->createMock(ResponseInterface::class);
+
+        $exception
+            ->expects($this->once())
+            ->method('buildJsonResponse')
+            ->with($this->equalTo($response))
+            ->will($this->returnValue($response))
+        ;
+
+        $requestHandler
+            ->expects($this->once())
+            ->method('handle')
+            ->with($this->equalTo($request))
+            ->will($this->throwException($exception))
+        ;
+
+        $strategy = new JsonStrategy(function () use ($response) {
+            return $response;
+        });
+
+        $handler = $strategy->getExceptionHandler();
+        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
+
+        $actualResponse = $handler->process($request, $requestHandler);
+        $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
+        $this->assertSame($response, $actualResponse);
     }
 }

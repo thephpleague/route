@@ -1,14 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace League\Route\Test;
+namespace League\Route;
 
 use Exception;
-use League\Route\Http\Exception\BadRequestException;
+use League\Route\Http\Exception\{BadRequestException, MethodNotAllowedException, NotFoundException};
 use League\Route\Router;
 use League\Route\Strategy\JsonStrategy;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface, StreamInterface, UriInterface};
 
 class DispatchIntegrationTest extends TestCase
 {
@@ -17,20 +16,38 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesFoundRoute()
+    public function testDispatchesFoundRoute() : void
     {
-        $request  = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->getMock();
-        $response = $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->getMock();
-        $uri      = $this->getMockBuilder('Psr\Http\Message\UriInterface')->getMock();
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
 
-        $uri->expects($this->exactly(2))->method('getPath')->will($this->returnValue('/example/route'));
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
 
-        $request->expects($this->once())->method('getMethod')->will($this->returnValue('GET'));
-        $request->expects($this->exactly(2))->method('getUri')->will($this->returnValue($uri));
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
 
         $router = new Router;
 
-        $router->map('GET', '/example/{something}', function (ServerRequestInterface $request, array $args) use ($response) {
+        $router->map('GET', '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args
+        ) use (
+            $response
+        ) : ResponseInterface {
             $this->assertSame([
                 'something' => 'route'
             ], $args);
@@ -48,7 +65,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesExceptionRoute()
+    public function testDispatchesExceptionRoute() : void
     {
         $this->expectException(Exception::class);
 
@@ -58,14 +75,27 @@ class DispatchIntegrationTest extends TestCase
             throw new Exception;
         });
 
-        $request  = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->getMock();
-        $response = $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->getMock();
-        $uri      = $this->getMockBuilder('Psr\Http\Message\UriInterface')->getMock();
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
 
-        $uri->expects($this->exactly(2))->method('getPath')->will($this->returnValue('/example/route'));
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
 
-        $request->expects($this->once())->method('getMethod')->will($this->returnValue('GET'));
-        $request->expects($this->exactly(2))->method('getUri')->will($this->returnValue($uri));
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
 
         $router->dispatch($request, $response);
     }
@@ -75,26 +105,59 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesExceptionWithJsonStrategyRoute()
+    public function testDispatchesExceptionWithJsonStrategyRoute() : void
     {
-        $request  = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->getMock();
-        $response = $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->getMock();
-        $uri      = $this->getMockBuilder('Psr\Http\Message\UriInterface')->getMock();
-        $body     = $this->getMockBuilder('Psr\Http\Message\StreamInterface')->getMock();
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+        $body     = $this->createMock(StreamInterface::class);
 
-        $uri->expects($this->exactly(2))->method('getPath')->will($this->returnValue('/example/route'));
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
 
-        $request->expects($this->once())->method('getMethod')->will($this->returnValue('GET'));
-        $request->expects($this->exactly(2))->method('getUri')->will($this->returnValue($uri));
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
 
-        $body->expects($this->once())->method('write')->with($this->equalTo(json_encode([
-            'status_code'   => 500,
-            'reason_phrase' => 'Blah'
-        ])));
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
 
-        $response->expects($this->once())->method('getBody')->will($this->returnValue($body));
-        $response->expects($this->once())->method('withAddedHeader')->with($this->equalTo('content-type'), $this->equalTo('application/json'))->will($this->returnSelf());
-        $response->expects($this->once())->method('withStatus')->with($this->equalTo(500), $this->equalTo('Blah'))->will($this->returnSelf());
+        $body
+            ->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo(json_encode([
+                'status_code'   => 500,
+                'reason_phrase' => 'Blah'
+            ])))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($body))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withStatus')
+            ->with($this->equalTo(500), $this->equalTo('Blah'))
+            ->will($this->returnSelf())
+        ;
 
         $router = (new Router)->setStrategy(new JsonStrategy(function () use ($response) {
             return $response;
@@ -110,31 +173,70 @@ class DispatchIntegrationTest extends TestCase
     }
 
     /**
-     * Asserts that the collection/dispatcher can filter through exception decorator for http exception with the json strategy.
+     * Asserts that the collection/dispatcher can filter through exception decorator
+     * for http exception with the json strategy.
      *
      * @return void
      */
-    public function testDispatchesHttpExceptionWithJsonStrategyRoute()
+    public function testDispatchesHttpExceptionWithJsonStrategyRoute() : void
     {
-        $request  = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->getMock();
-        $response = $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->getMock();
-        $uri      = $this->getMockBuilder('Psr\Http\Message\UriInterface')->getMock();
-        $body     = $this->getMockBuilder('Psr\Http\Message\StreamInterface')->getMock();
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+        $body     = $this->createMock(StreamInterface::class);
 
-        $uri->expects($this->exactly(2))->method('getPath')->will($this->returnValue('/example/route'));
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
 
-        $request->expects($this->once())->method('getMethod')->will($this->returnValue('GET'));
-        $request->expects($this->exactly(2))->method('getUri')->will($this->returnValue($uri));
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
 
-        $body->expects($this->once())->method('isWritable')->will($this->returnValue(true));
-        $body->expects($this->once())->method('write')->with($this->equalTo(json_encode([
-            'status_code'   => 400,
-            'reason_phrase' => 'Bad Request'
-        ])));
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
 
-        $response->expects($this->exactly(2))->method('getBody')->will($this->returnValue($body));
-        $response->expects($this->once())->method('withAddedHeader')->with($this->equalTo('content-type'), $this->equalTo('application/json'))->will($this->returnSelf());
-        $response->expects($this->once())->method('withStatus')->with($this->equalTo(400), $this->equalTo('Bad Request'))->will($this->returnSelf());
+        $body
+            ->expects($this->once())
+            ->method('isWritable')
+            ->will($this->returnValue(true))
+        ;
+
+        $body
+            ->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo(json_encode([
+                'status_code'   => 400,
+                'reason_phrase' => 'Bad Request'
+            ])))
+        ;
+
+        $response
+            ->expects($this->exactly(2))
+            ->method('getBody')
+            ->will($this->returnValue($body))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withStatus')
+            ->with($this->equalTo(400), $this->equalTo('Bad Request'))
+            ->will($this->returnSelf())
+        ;
 
         $router = (new Router)->setStrategy(new JsonStrategy(function () use ($response) {
             return $response;
@@ -154,20 +256,33 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesNotFoundRoute()
+    public function testDispatchesNotFoundRoute() : void
     {
-        $this->expectException('League\Route\Http\Exception\NotFoundException');
+        $this->expectException(NotFoundException::class);
 
         $router = new Router;
 
-        $request  = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->getMock();
-        $response = $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->getMock();
-        $uri      = $this->getMockBuilder('Psr\Http\Message\UriInterface')->getMock();
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
 
-        $uri->expects($this->exactly(2))->method('getPath')->will($this->returnValue('/example/route'));
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
 
-        $request->expects($this->once())->method('getMethod')->will($this->returnValue('GET'));
-        $request->expects($this->exactly(2))->method('getUri')->will($this->returnValue($uri));
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
 
         $router->dispatch($request, $response);
     }
@@ -177,27 +292,65 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesNotFoundRouteWithJsonStrategy()
+    public function testDispatchesNotFoundRouteWithJsonStrategy() : void
     {
-        $request  = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->getMock();
-        $response = $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->getMock();
-        $uri      = $this->getMockBuilder('Psr\Http\Message\UriInterface')->getMock();
-        $body     = $this->getMockBuilder('Psr\Http\Message\StreamInterface')->getMock();
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+        $body     = $this->createMock(StreamInterface::class);
 
-        $uri->expects($this->exactly(2))->method('getPath')->will($this->returnValue('/example/route'));
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
 
-        $body->expects($this->once())->method('isWritable')->will($this->returnValue(true));
-        $body->expects($this->once())->method('write')->with($this->equalTo(json_encode([
-            'status_code'   => 404,
-            'reason_phrase' => 'Not Found'
-        ])));
+        $body
+            ->expects($this->once())
+            ->method('isWritable')
+            ->will($this->returnValue(true))
+        ;
 
-        $request->expects($this->once())->method('getMethod')->will($this->returnValue('GET'));
-        $request->expects($this->exactly(2))->method('getUri')->will($this->returnValue($uri));
+        $body
+            ->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo(json_encode([
+                'status_code'   => 404,
+                'reason_phrase' => 'Not Found'
+            ])))
+        ;
 
-        $response->expects($this->once())->method('withAddedHeader')->with($this->equalTo('content-type'), $this->equalTo('application/json'))->will($this->returnSelf());
-        $response->expects($this->once())->method('withStatus')->with($this->equalTo(404), $this->equalTo('Not Found'))->will($this->returnSelf());
-        $response->expects($this->exactly(2))->method('getBody')->will($this->returnValue($body));
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withStatus')
+            ->with($this->equalTo(404), $this->equalTo('Not Found'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->exactly(2))
+            ->method('getBody')
+            ->will($this->returnValue($body))
+        ;
 
         $router = (new Router)->setStrategy(new JsonStrategy(function () use ($response) {
             return $response;
@@ -213,24 +366,37 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesNotAllowedRoute()
+    public function testDispatchesNotAllowedRoute() : void
     {
-        $this->expectException('League\Route\Http\Exception\MethodNotAllowedException');
+        $this->expectException(MethodNotAllowedException::class);
 
         $router = new Router;
 
-        $router->map('GET', '/example/{something}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) {
+        $router->map('GET', '/example/{something}', function (ServerRequestInterface $request, array $args) {
             return $response;
         });
 
-        $request  = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->getMock();
-        $response = $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->getMock();
-        $uri      = $this->getMockBuilder('Psr\Http\Message\UriInterface')->getMock();
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
 
-        $uri->expects($this->exactly(2))->method('getPath')->will($this->returnValue('/example/route'));
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
 
-        $request->expects($this->once())->method('getMethod')->will($this->returnValue('POST'));
-        $request->expects($this->exactly(2))->method('getUri')->will($this->returnValue($uri));
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('POST'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
 
         $router->dispatch($request, $response);
     }
@@ -240,34 +406,78 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesNotAllowedRouteWithJsonStrategy()
+    public function testDispatchesNotAllowedRouteWithJsonStrategy() : void
     {
-        $request  = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->getMock();
-        $response = $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->getMock();
-        $uri      = $this->getMockBuilder('Psr\Http\Message\UriInterface')->getMock();
-        $body     = $this->getMockBuilder('Psr\Http\Message\StreamInterface')->getMock();
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+        $body     = $this->createMock(StreamInterface::class);
 
-        $uri->expects($this->exactly(2))->method('getPath')->will($this->returnValue('/example/route'));
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
 
-        $body->expects($this->once())->method('isWritable')->will($this->returnValue(true));
-        $body->expects($this->once())->method('write')->with($this->equalTo(json_encode([
-            'status_code'   => 405,
-            'reason_phrase' => 'Method Not Allowed'
-        ])));
+        $body
+            ->expects($this->once())
+            ->method('isWritable')
+            ->will($this->returnValue(true))
+        ;
 
-        $request->expects($this->once())->method('getMethod')->will($this->returnValue('POST'));
-        $request->expects($this->exactly(2))->method('getUri')->will($this->returnValue($uri));
+        $body
+            ->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo(json_encode([
+                'status_code'   => 405,
+                'reason_phrase' => 'Method Not Allowed'
+            ])))
+        ;
 
-        $response->expects($this->at(0))->method('withAddedHeader')->with($this->equalTo('Allow'), $this->equalTo('GET'))->will($this->returnSelf());
-        $response->expects($this->at(1))->method('withAddedHeader')->with($this->equalTo('content-type'), $this->equalTo('application/json'))->will($this->returnSelf());
-        $response->expects($this->once())->method('withStatus')->with($this->equalTo(405), $this->equalTo('Method Not Allowed'))->will($this->returnSelf());
-        $response->expects($this->exactly(2))->method('getBody')->will($this->returnValue($body));
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('POST'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $response
+            ->expects($this->at(0))
+            ->method('withAddedHeader')
+            ->with($this->equalTo('Allow'), $this->equalTo('GET'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->at(1))
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withStatus')
+            ->with($this->equalTo(405), $this->equalTo('Method Not Allowed'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->exactly(2))
+            ->method('getBody')
+            ->will($this->returnValue($body))
+        ;
 
         $router = (new Router)->setStrategy(new JsonStrategy(function () use ($response) {
             return $response;
         }));
 
-        $router->map('GET', '/example/{something}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) {
+        $router->map('GET', '/example/{something}', function (ServerRequestInterface $request, array $args) {
             return $response;
         });
 

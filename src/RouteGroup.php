@@ -5,11 +5,15 @@ namespace League\Route;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait};
 
-class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, StrategyAwareInterface
+class RouteGroup implements
+    MiddlewareAwareInterface,
+    RouteCollectionInterface,
+    RouteConditionHandlerInterface,
+    StrategyAwareInterface
 {
     use MiddlewareAwareTrait;
-    use RouteCollectionMapTrait;
-    use RouteConditionTrait;
+    use RouteCollectionTrait;
+    use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
     /**
@@ -34,7 +38,7 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, 
      * @param callable                      $callback
      * @param \League\Route\RouteCollection $collection
      */
-    public function __construct($prefix, callable $callback, RouteCollectionInterface $collection)
+    public function __construct(string $prefix, callable $callback, RouteCollectionInterface $collection)
     {
         $this->callback   = $callback;
         $this->collection = $collection;
@@ -56,7 +60,7 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, 
      *
      * @return void
      */
-    public function __invoke()
+    public function __invoke() : void
     {
         call_user_func_array($this->callback, [$this]);
     }
@@ -64,7 +68,7 @@ class RouteGroup implements MiddlewareAwareInterface, RouteCollectionInterface, 
     /**
      * {@inheritdoc}
      */
-    public function map(string $method, string $path, callable $handler) : Route
+    public function map(string $method, string $path, $handler) : Route
     {
         $path  = ($path === '/') ? $this->prefix : $this->prefix . sprintf('/%s', ltrim($path, '/'));
         $route = $this->collection->map($method, $path, $handler);

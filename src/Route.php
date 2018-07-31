@@ -2,24 +2,27 @@
 
 namespace League\Route;
 
+use InvalidArgumentException;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait};
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class Route implements
     MiddlewareInterface,
     MiddlewareAwareInterface,
+    RouteConditionHandlerInterface,
     StrategyAwareInterface
 {
     use MiddlewareAwareTrait;
-    use RouteConditionTrait;
+    use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
     /**
-     * @var callable
+     * @var callable|string
      */
-    protected $callable;
+    protected $handler;
 
     /**
      * @var \League\Route\RouteGroup
@@ -41,6 +44,13 @@ class Route implements
      */
     protected $vars = [];
 
+    public function __construct(string $method, string $path, $handler)
+    {
+        $this->method  = $method;
+        $this->path    = $path;
+        $this->handler = $handler;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -54,15 +64,15 @@ class Route implements
     /**
      * Get the callable.
      *
-     * @param \Psr\Container\ContainerInterface $container
+     * @param ?\Psr\Container\ContainerInterface $container
      *
      * @throws \RuntimeException
      *
      * @return callable
      */
-    public function getCallable(ContainerInterface $container = null) : callable
+    public function getCallable(?ContainerInterface $container = null) : callable
     {
-        $callable = $this->callable;
+        $callable = $this->handler;
 
         if (is_string($callable) && strpos($callable, '::') !== false) {
             $callable = explode('::', $callable);
@@ -112,25 +122,11 @@ class Route implements
     }
 
     /**
-     * Set the callable.
-     *
-     * @param callable|string $callable
-     *
-     * @return \League\Route\Route
-     */
-    public function setCallable($callable) : self
-    {
-        $this->callable = $callable;
-
-        return $this;
-    }
-
-    /**
      * Get the parent group.
      *
-     * @return \League\Route\RouteGroup|null
+     * @return ?\League\Route\RouteGroup
      */
-    public function getParentGroup()
+    public function getParentGroup() : ?RouteGroup
     {
         return $this->group;
     }
@@ -160,20 +156,6 @@ class Route implements
     }
 
     /**
-     * Set the path.
-     *
-     * @param string $path
-     *
-     * @return \League\Route\Route
-     */
-    public function setPath($path) : self
-    {
-        $this->path = $path;
-
-        return $this;
-    }
-
-    /**
      * Get the methods.
      *
      * @return string
@@ -181,19 +163,5 @@ class Route implements
     public function getMethod() : string
     {
         return $this->method;
-    }
-
-    /**
-     * Get the method.
-     *
-     * @param string $method
-     *
-     * @return \League\Route\Route
-     */
-    public function setMethod(string $method) : self
-    {
-        $this->method = $method;
-
-        return $this;
     }
 }

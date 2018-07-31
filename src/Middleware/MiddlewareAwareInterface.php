@@ -45,5 +45,5 @@ interface MiddlewareAwareInterface
      *
      * @return \Psr\Http\Server\MiddlewareInterface[]
      */
-    public function getMiddlewareStack() : array;
+    public function getMiddlewareStack() : iterable;
 }

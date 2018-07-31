@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route\Http\Exception;
 
@@ -10,11 +10,11 @@ class ForbiddenException extends HttpException
     /**
      * Constructor
      *
-     * @param string     $message
-     * @param \Exception $previous
-     * @param integer    $code
+     * @param string      $message
+     * @param ?\Exception $previous
+     * @param integer     $code
      */
-    public function __construct($message = 'Forbidden', Exception $previous = null, $code = 0)
+    public function __construct(string $message = 'Forbidden', ?Exception $previous = null, int $code = 0)
     {
         parent::__construct(403, $message, $previous, [], $code);
     }

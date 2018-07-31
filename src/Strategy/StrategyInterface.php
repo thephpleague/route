@@ -11,22 +11,38 @@ use Psr\Http\Server\MiddlewareInterface;
 interface StrategyInterface
 {
     /**
-     * {@inheritdoc}
+     * Invoke the route callable based on the strategy.
+     *
+     * @param \League\Route\Route                      $route
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface;
 
     /**
-     * {@inheritdoc}
+     * Get a middleware that will decorate a NotFoundException
+     *
+     * @param \League\Route\Http\Exception\NotFoundException $exception
+     *
+     * @return \Psr\Http\Server\MiddlewareInterface
      */
-    public function getNotFoundDecoratorMiddleware(NotFoundException $exception) : MiddlewareInterface;
+    public function getNotFoundDecorator(NotFoundException $exception) : MiddlewareInterface;
 
     /**
-     * {@inheritdoc}
+     * Get a middleware that will decorate a NotAllowedException
+     *
+     * @param \League\Route\Http\Exception\NotFoundException $exception
+     *
+     * @return \Psr\Http\Server\MiddlewareInterface
      */
-    public function getMethodNotAllowedDecoratorMiddleware(MethodNotAllowedException $exception) : MiddlewareInterface;
+    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception) : MiddlewareInterface;
 
     /**
-     * {@inheritdoc}
+     * Get a middleware that acts as an exception handler, it should wrap the rest of the
+     * middleware stack and catch eny exceptions.
+     *
+     * @return \Psr\Http\Server\MiddlewareInterface
      */
-    public function getExceptionHandlerMiddleware() : MiddlewareInterface;
+    public function getExceptionHandler() : MiddlewareInterface;
 }

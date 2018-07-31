@@ -2,7 +2,7 @@
 
 namespace League\Route;
 
-trait RouteConditionTrait
+trait RouteConditionHandlerTrait
 {
     /**
      * @var string
@@ -29,7 +29,7 @@ trait RouteConditionTrait
      *
      * @return string
      */
-    public function getHost()
+    public function getHost() : ?string
     {
         return $this->host;
     }
@@ -39,9 +39,9 @@ trait RouteConditionTrait
      *
      * @param string $host
      *
-     * @return \League\Route\Route
+     * @return \League\Route\RouteConditionHandlerInterface
      */
-    public function setHost($host)
+    public function setHost($host) : RouteConditionHandlerInterface
     {
         $this->host = $host;
 
@@ -53,7 +53,7 @@ trait RouteConditionTrait
      *
      * @return string
      */
-    public function getName()
+    public function getName() : ?string
     {
         return $this->name;
     }
@@ -63,9 +63,9 @@ trait RouteConditionTrait
      *
      * @param string $name
      *
-     * @return \League\Route\Route
+     * @return \League\Route\RouteConditionHandlerInterface
      */
-    public function setName($name)
+    public function setName($name) : RouteConditionHandlerInterface
     {
         $this->name = $name;
 
@@ -77,7 +77,7 @@ trait RouteConditionTrait
      *
      * @return string
      */
-    public function getScheme()
+    public function getScheme() : ?string
     {
         return $this->scheme;
     }
@@ -87,9 +87,9 @@ trait RouteConditionTrait
      *
      * @param string $scheme
      *
-     * @return \League\Route\Route
+     * @return \League\Route\RouteConditionHandlerInterface
      */
-    public function setScheme($scheme)
+    public function setScheme($scheme) : RouteConditionHandlerInterface
     {
         $this->scheme = $scheme;
 
@@ -101,7 +101,7 @@ trait RouteConditionTrait
      *
      * @return int
      */
-    public function getPort()
+    public function getPort() : ?int
     {
         return $this->port;
     }
@@ -111,9 +111,9 @@ trait RouteConditionTrait
      *
      * @param int $port
      *
-     * @return \League\Route\Route
+     * @return \League\Route\RouteConditionHandlerInterface
      */
-    public function setPort($port)
+    public function setPort($port) : RouteConditionHandlerInterface
     {
         $this->port = $port;
 

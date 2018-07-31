@@ -14,9 +14,9 @@ trait StrategyAwareTrait
      *
      * @param \League\Route\Strategy\StrategyInterface $strategy
      *
-     * @return $this
+     * @return \League\Route\Strategy\StrategyAwareInterface
      */
-    public function setStrategy(StrategyInterface $strategy)
+    public function setStrategy(StrategyInterface $strategy) : StrategyAwareInterface
     {
         $this->strategy = $strategy;
 
@@ -26,9 +26,9 @@ trait StrategyAwareTrait
     /**
      * Gets the strategy.
      *
-     * @return \League\Route\Strategy\StrategyInterface
+     * @return ?\League\Route\Strategy\StrategyInterface
      */
-    public function getStrategy()
+    public function getStrategy() : ?StrategyInterface
     {
         return $this->strategy;
     }

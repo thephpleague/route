@@ -1,39 +1,126 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace League\Route\Test\Strategy;
+namespace League\Route\Strategy;
 
-use League\Route\Strategy\ApplicationStrategy;
-use League\Route\Test\Asset\Controller;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Exception;
+use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
+use League\Route\Route;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class ApplicationStrategyTest extends TestCase
 {
     /**
-     * Asserts that the strategy builds a middleware that throws an exception when no response is returned.
+     * Asserts that the strategy properly invokes the route callable
      *
      * @return void
      */
-    public function testStrategyBuildsMiddlewareToThrowExceptionWhenNoResponseReturned()
+    public function testStrategyInvokesRouteCallable() : void
     {
-        $this->setExpectedException('RuntimeException');
+        $route = $this->createMock(Route::class);
 
-        $route    = $this->getMock('League\Route\Route');
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, array $args = []) {};
+        $expectedResponse = $this->createMock(ResponseInterface::class);
+        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
+        $expectedVars     = ['something', 'else'];
 
-        $route->expects($this->once())->method('getCallable')->will($this->returnValue($callable));
+        $route
+            ->expects($this->once())
+            ->method('getCallable')
+            ->will($this->returnValue(
+                function (
+                    ServerRequestInterface $request,
+                    array                  $vars = []
+                ) use (
+                    $expectedRequest,
+                    $expectedResponse,
+                    $expectedVars
+                ) : ResponseInterface {
+                    $this->assertSame($expectedRequest, $request);
+                    $this->assertSame($expectedVars, $vars);
+                    return $expectedResponse;
+                }
+            ))
+        ;
+
+        $route
+            ->expects($this->once())
+            ->method('getVars')
+            ->will($this->returnValue($expectedVars))
+        ;
 
         $strategy = new ApplicationStrategy;
-        $callable = $strategy->getCallable($route, []);
+        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
 
-        $request  = $this->getMock('Psr\Http\Message\ServerRequestInterface');
-        $response = $this->getMock('Psr\Http\Message\ResponseInterface');
+        $this->assertSame($expectedResponse, $response);
+    }
 
-        $next = function ($request, $response) {
-            return $response;
-        };
+    /**
+     * Asserts that the strategy returns the correct middleware to decorate NotFoundException.
+     *
+     * @return void
+     */
+    public function testStrategyReturnsCorrectNotFoundDecorator() : void
+    {
+        $this->expectException(NotFoundException::class);
 
-        $callable($request, $response, $next);
+        $exception      = $this->createMock(NotFoundException::class);
+        $request        = $this->createMock(ServerRequestInterface::class);
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+
+        $strategy  = new ApplicationStrategy;
+        $decorator = $strategy->getNotFoundDecorator($exception);
+
+        $this->assertInstanceOf(MiddlewareInterface::class, $decorator);
+
+        $decorator->process($request, $requestHandler);
+    }
+
+    /**
+     * Asserts that the strategy returns the correct middleware to decorate MethodNotAllowedException.
+     *
+     * @return void
+     */
+    public function testStrategyReturnsCorrectMethodNotAllowedDecorator() : void
+    {
+        $this->expectException(MethodNotAllowedException::class);
+
+        $exception      = $this->createMock(MethodNotAllowedException::class);
+        $request        = $this->createMock(ServerRequestInterface::class);
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+
+        $strategy  = new ApplicationStrategy;
+        $decorator = $strategy->getMethodNotAllowedDecorator($exception);
+
+        $this->assertInstanceOf(MiddlewareInterface::class, $decorator);
+
+        $decorator->process($request, $requestHandler);
+    }
+
+    /**
+     * Asserts that the strategy returns the correct exception handler middleware.
+     *
+     * @return void
+     */
+    public function testStrategyReturnsCorrectExceptionHandler() : void
+    {
+        $this->expectException(Exception::class);
+
+        $request        = $this->createMock(ServerRequestInterface::class);
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+
+        $requestHandler
+            ->expects($this->once())
+            ->method('handle')
+            ->with($this->equalTo($request))
+            ->will($this->throwException(new Exception))
+        ;
+
+        $strategy = new ApplicationStrategy;
+        $handler  = $strategy->getExceptionHandler();
+
+        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
+
+        $handler->process($request, $requestHandler);
     }
 }

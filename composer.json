@@ -1,12 +1,15 @@
 {
     "name": "league/route",
-    "description": "A fast routing and dispatch package built on top of FastRoute.",
+    "description": "Fast routing and dispatch componening including PSR-15 middleware, built on top of FastRoute.",
     "keywords": [
         "league",
         "route",
+        "router",
         "dispatcher",
         "psr-7",
-        "psr7"
+        "psr7",
+        "psr-15",
+        "psr15"
     ],
     "homepage": "https://github.com/thephpleague/route",
     "license": "MIT",
@@ -18,7 +21,7 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=7.1",
         "nikic/fast-route": "^1.0",
         "psr/container": "^1.0",
         "psr/http-message": "^1.0",
@@ -26,7 +29,7 @@
         "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit" : "^6.0",
+        "phpunit/phpunit" : "^7.0",
         "squizlabs/php_codesniffer": "^3.3"
     },
     "replace": {
@@ -46,7 +49,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "4.x-dev",
+            "dev-4.x": "4.x-dev",
             "dev-3.x": "3.x-dev",
             "dev-2.x": "2.x-dev",
             "dev-1.x": "1.x-dev"

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route\Http\Exception;
 
@@ -11,20 +11,21 @@ interface HttpExceptionInterface
      *
      * @return integer
      */
-    public function getStatusCode();
+    public function getStatusCode() : int;
 
     /**
      * Return an array of headers provided when the exception was thrown
      *
      * @return array
      */
-    public function getHeaders();
+    public function getHeaders() : array;
 
     /**
      * Accepts a response object and builds it in to a json representation of the exception.
      *
-     * @param  \Psr\Http\Message\ResponseInterface
+     * @param  \Psr\Http\Message\ResponseInterface $response
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function buildJsonResponse(ResponseInterface $response);
+    public function buildJsonResponse(ResponseInterface $response) : ResponseInterface;
 }

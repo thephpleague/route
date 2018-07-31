@@ -2,6 +2,7 @@
 
 namespace League\Route;
 
+use InvalidArgumentException;
 use FastRoute\{DataGenerator, RouteCollector, RouteParser};
 use League\Route\Strategy\{ApplicationStrategy, StrategyAwareInterface, StrategyAwareTrait};
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
@@ -45,10 +46,10 @@ class Router extends RouteCollector implements
     /**
      * Constructor.
      *
-     * @param \FastRoute\RouteParser   $parser
-     * @param \FastRoute\DataGenerator $generator
+     * @param ?\FastRoute\RouteParser   $parser
+     * @param ?\FastRoute\DataGenerator $generator
      */
-    public function __construct(RouteParser $parser = null, DataGenerator $generator = null)
+    public function __construct(?RouteParser $parser = null, ?DataGenerator $generator = null)
     {
         // build parent route collector
         $parser    = ($parser) ?? new RouteParser\Std;
@@ -62,7 +63,7 @@ class Router extends RouteCollector implements
     public function map(string $method, string $path, $handler) : Route
     {
         $path  = sprintf('/%s', ltrim($path, '/'));
-        $route = (new Route)->setMethod($method)->setPath($path)->setCallable($handler);
+        $route = new Route($method, $path, $handler);
 
         $this->routes[] = $route;
 
@@ -77,7 +78,7 @@ class Router extends RouteCollector implements
      *
      * @return \League\Route\RouteGroup
      */
-    public function group($prefix, callable $group) : RouteGroup
+    public function group(string $prefix, callable $group) : RouteGroup
     {
         $group          = new RouteGroup($prefix, $group, $this);
         $this->groups[] = $group;
@@ -111,7 +112,7 @@ class Router extends RouteCollector implements
      *
      * @return void
      */
-    protected function prepRoutes(ServerRequestInterface $request)
+    protected function prepRoutes(ServerRequestInterface $request) : void
     {
         $this->processGroups($request);
         $this->buildNameIndex();
@@ -147,7 +148,7 @@ class Router extends RouteCollector implements
      *
      * @return void
      */
-    protected function buildNameIndex()
+    protected function buildNameIndex() : void
     {
         foreach ($this->routes as $key => $route) {
             if (! is_null($route->getName())) {
@@ -160,11 +161,11 @@ class Router extends RouteCollector implements
     /**
      * Process all groups, and determine if we are using a group's strategy.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ?\Psr\Http\Message\ServerRequestInterface $request
      *
      * @return void
      */
-    protected function processGroups(ServerRequestInterface $request)
+    protected function processGroups(?ServerRequestInterface $request = null) : void
     {
         $activePath = $request->getUri()->getPath();
 

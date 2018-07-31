@@ -13,7 +13,7 @@ trait RouteCollectionTrait
      *
      * @return \League\Route\Route
      */
-    abstract public function map($method, string $path, $handler);
+    abstract public function map(string $method, string $path, $handler);
 
     /**
      * Add a route that responds to GET HTTP method.
