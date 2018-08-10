@@ -64,7 +64,7 @@ class Route implements
     /**
      * Get the callable.
      *
-     * @param ?\Psr\Container\ContainerInterface $container
+     * @param \Psr\Container\ContainerInterface $container
      *
      * @throws \RuntimeException
      *
@@ -132,7 +132,7 @@ class Route implements
     /**
      * Get the parent group.
      *
-     * @return ?\League\Route\RouteGroup
+     * @return \League\Route\RouteGroup
      */
     public function getParentGroup() : ?RouteGroup
     {

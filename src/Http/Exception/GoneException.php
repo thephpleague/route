@@ -11,7 +11,7 @@ class GoneException extends HttpException
      * Constructor
      *
      * @param string      $message
-     * @param ?\Exception $previous
+     * @param \Exception $previous
      * @param integer     $code
      */
     public function __construct(string $message = 'Gone', ?Exception $previous = null, int $code = 0)

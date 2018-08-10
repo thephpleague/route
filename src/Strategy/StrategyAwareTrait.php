@@ -26,7 +26,7 @@ trait StrategyAwareTrait
     /**
      * Gets the strategy.
      *
-     * @return ?\League\Route\Strategy\StrategyInterface
+     * @return \League\Route\Strategy\StrategyInterface
      */
     public function getStrategy() : ?StrategyInterface
     {

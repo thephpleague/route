@@ -14,7 +14,7 @@ trait ContainerAwareTrait
     /**
      * Get container.
      *
-     * @return ?\Psr\Container\ContainerInterface
+     * @return \Psr\Container\ContainerInterface
      */
     public function getContainer() : ?ContainerInterface
     {

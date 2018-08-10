@@ -11,7 +11,7 @@ class ImATeapotException extends HttpException
      * Constructor
      *
      * @param string      $message
-     * @param ?\Exception $previous
+     * @param \Exception $previous
      * @param integer     $code
      */
     public function __construct(string $message = "I'm a teapot", ?Exception $previous = null, int $code = 0)

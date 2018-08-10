@@ -46,8 +46,8 @@ class Router extends RouteCollector implements
     /**
      * Constructor.
      *
-     * @param ?\FastRoute\RouteParser   $parser
-     * @param ?\FastRoute\DataGenerator $generator
+     * @param \FastRoute\RouteParser   $parser
+     * @param \FastRoute\DataGenerator $generator
      */
     public function __construct(?RouteParser $parser = null, ?DataGenerator $generator = null)
     {
@@ -161,7 +161,7 @@ class Router extends RouteCollector implements
     /**
      * Process all groups, and determine if we are using a group's strategy.
      *
-     * @param ?\Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ServerRequestInterface $request
      *
      * @return void
      */

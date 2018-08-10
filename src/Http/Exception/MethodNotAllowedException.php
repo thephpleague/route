@@ -12,7 +12,7 @@ class MethodNotAllowedException extends HttpException
      *
      * @param array       $allowed
      * @param string      $message
-     * @param ?\Exception $previous
+     * @param \Exception $previous
      * @param integer     $code
      */
     public function __construct(
