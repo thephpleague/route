@@ -165,7 +165,7 @@ class Router extends RouteCollector implements
      *
      * @return void
      */
-    protected function processGroups(?ServerRequestInterface $request = null) : void
+    protected function processGroups(ServerRequestInterface $request) : void
     {
         $activePath = $request->getUri()->getPath();
 
