@@ -7,7 +7,10 @@ use League\Route\Http\Exception\{BadRequestException, MethodNotAllowedException,
 use League\Route\Router;
 use League\Route\Strategy\JsonStrategy;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface, StreamInterface, UriInterface};
+use Psr\Http\Message\{
+    ResponseFactoryInterface, ResponseInterface, ServerRequestInterface, StreamInterface, UriInterface
+};
+use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class DispatchIntegrationTest extends TestCase
 {
@@ -97,7 +100,7 @@ class DispatchIntegrationTest extends TestCase
             ->will($this->returnValue($uri))
         ;
 
-        $router->dispatch($request, $response);
+        $router->dispatch($request);
     }
 
     /**
@@ -159,15 +162,21 @@ class DispatchIntegrationTest extends TestCase
             ->will($this->returnSelf())
         ;
 
-        $router = (new Router)->setStrategy(new JsonStrategy(function () use ($response) {
-            return $response;
-        }));
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $router = (new Router)->setStrategy(new JsonStrategy($factory));
 
         $router->map('GET', '/example/route', function () {
             throw new Exception('Blah');
         });
 
-        $resultResponse = $router->dispatch($request, $response);
+        $resultResponse = $router->dispatch($request);
 
         $this->assertSame($response, $resultResponse);
     }
@@ -238,15 +247,21 @@ class DispatchIntegrationTest extends TestCase
             ->will($this->returnSelf())
         ;
 
-        $router = (new Router)->setStrategy(new JsonStrategy(function () use ($response) {
-            return $response;
-        }));
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $router = (new Router)->setStrategy(new JsonStrategy($factory));
 
         $router->map('GET', '/example/route', function () {
             throw new BadRequestException;
         });
 
-        $resultResponse = $router->dispatch($request, $response);
+        $resultResponse = $router->dispatch($request);
 
         $this->assertSame($response, $resultResponse);
     }
@@ -284,7 +299,7 @@ class DispatchIntegrationTest extends TestCase
             ->will($this->returnValue($uri))
         ;
 
-        $router->dispatch($request, $response);
+        $router->dispatch($request);
     }
 
     /**
@@ -352,11 +367,17 @@ class DispatchIntegrationTest extends TestCase
             ->will($this->returnValue($body))
         ;
 
-        $router = (new Router)->setStrategy(new JsonStrategy(function () use ($response) {
-            return $response;
-        }));
+        $factory = $this->createMock(ResponseFactoryInterface::class);
 
-        $returnedResponse = $router->dispatch($request, $response);
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $router = (new Router)->setStrategy(new JsonStrategy($factory));
+
+        $returnedResponse = $router->dispatch($request);
 
         $this->assertSame($response, $returnedResponse);
     }
@@ -398,7 +419,7 @@ class DispatchIntegrationTest extends TestCase
             ->will($this->returnValue($uri))
         ;
 
-        $router->dispatch($request, $response);
+        $router->dispatch($request);
     }
 
     /**
@@ -473,16 +494,294 @@ class DispatchIntegrationTest extends TestCase
             ->will($this->returnValue($body))
         ;
 
-        $router = (new Router)->setStrategy(new JsonStrategy(function () use ($response) {
-            return $response;
-        }));
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $router = (new Router)->setStrategy(new JsonStrategy($factory));
 
         $router->map('GET', '/example/{something}', function (ServerRequestInterface $request, array $args) {
             return $response;
         });
 
-        $returnedResponse = $router->dispatch($request, $response);
+        $returnedResponse = $router->dispatch($request);
 
         $this->assertSame($response, $returnedResponse);
+    }
+
+    /**
+     * Asserts that the router does not prep a route for a mismatched scheme.
+     *
+     * @return void
+     */
+    public function testRoutesDoesNotPrepMismatchedScheme()
+    {
+        $this->expectException(Http\Exception\NotFoundException::class);
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $uri     = $this->createMock(UriInterface::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(3))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/something'))
+        ;
+
+        $uri
+            ->expects($this->once())
+            ->method('getScheme')
+            ->will($this->returnValue('http'))
+        ;
+
+        $router = new Router;
+
+        $router->get('/something', function () {
+        })->setScheme('https');
+
+        $router->dispatch($request);
+    }
+
+    /**
+     * Asserts that the router does not prep a route for a mismatched host.
+     *
+     * @return void
+     */
+    public function testRoutesDoesNotPrepMismatchedHost()
+    {
+        $this->expectException(Http\Exception\NotFoundException::class);
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $uri     = $this->createMock(UriInterface::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(3))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/something'))
+        ;
+
+        $uri
+            ->expects($this->once())
+            ->method('getHost')
+            ->will($this->returnValue('example.com'))
+        ;
+
+        $router = new Router;
+
+        $router->get('/something', function () {
+        })->setHost('sub.example.com');
+
+        $router->dispatch($request);
+    }
+
+    /**
+     * Asserts that the router does not prep a route for a mismatched port.
+     *
+     * @return void
+     */
+    public function testRoutesDoesNotPrepMismatchedPort()
+    {
+        $this->expectException(Http\Exception\NotFoundException::class);
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $uri     = $this->createMock(UriInterface::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(3))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/something'))
+        ;
+
+        $uri
+            ->expects($this->once())
+            ->method('getPort')
+            ->will($this->returnValue(80))
+        ;
+
+        $router = new Router;
+
+        $router->get('/something', function () {
+        })->setPort(8080);
+
+        $router->dispatch($request);
+    }
+
+    /**
+     * Asserts that the group strategy is set when the group URI matches but no route is matched.
+     *
+     * @return void
+     */
+    public function testRouterSetsGroupStrategyOnGroupUriMatchButNoRouteMatch()
+    {
+        $this->expectException(Http\Exception\NotFoundException::class);
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $uri     = $this->createMock(UriInterface::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/group/something'))
+        ;
+
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $router = (new Router)->setStrategy(new JsonStrategy($factory));
+
+        $router->group('/group', function ($r) {
+            $r->get('/', function () {
+            });
+        })->setStrategy(new Strategy\ApplicationStrategy);
+
+        $router->dispatch($request);
+        $this->assertInstanceOf(Strategy\ApplicationStrategy::class, $router->getStrategy());
+    }
+
+    /**
+     * Asserts that middleware is invoked in the correct order.
+     *
+     * @return void
+     */
+    public function testMiddlewareIsOrderedCorrectly()
+    {
+        $counter = new class
+        {
+            private $counter = 0;
+
+            public function getCounter()
+            {
+                return ++$this->counter;
+            }
+        };
+
+        $middlewareOne = new class($counter, $this) implements MiddlewareInterface
+        {
+            public function __consttruct($counter, $phpunit)
+            {
+                $phpunit->assertSame($counter->getCounter(), 1);
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler
+            ) : ResponseInterface {
+                return $handler->handle($request);
+            }
+        };
+
+        $middlewareTwo = new class($counter, $this) implements MiddlewareInterface
+        {
+            public function __consttruct($counter, $phpunit)
+            {
+                $phpunit->assertSame($counter->getCounter(), 2);
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler
+            ) : ResponseInterface {
+                return $handler->handle($request);
+            }
+        };
+
+        $middlewareThree = new class($counter, $this) implements MiddlewareInterface
+        {
+            public function __consttruct($counter, $phpunit)
+            {
+                $phpunit->assertSame($counter->getCounter(), 3);
+            }
+
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler
+            ) : ResponseInterface {
+                return $handler->handle($request);
+            }
+        };
+
+        $response = $this->createMock(ResponseInterface::class);
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/group/route'))
+        ;
+
+        $router = new Router;
+
+        $router->middleware($middlewareOne);
+
+        $router->group('/group', function ($r) use ($response, $middlewareThree) : void {
+            $r->get('/route', function (ServerRequestInterface $request) use ($response) : ResponseInterface {
+                return $response;
+            })->middleware($middlewareThree);
+        })->middleware($middlewareTwo);
+
+        $router->dispatch($request);
     }
 }

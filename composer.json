@@ -1,6 +1,6 @@
 {
     "name": "league/route",
-    "description": "Fast routing and dispatch componening including PSR-15 middleware, built on top of FastRoute.",
+    "description": "Fast routing and dispatch component including PSR-15 middleware, built on top of FastRoute.",
     "keywords": [
         "league",
         "route",
@@ -24,6 +24,7 @@
         "php": ">=7.1",
         "nikic/fast-route": "^1.0",
         "psr/container": "^1.0",
+        "psr/http-factory": "^1.0",
         "psr/http-message": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0"

@@ -18,7 +18,7 @@ interface RouteConditionHandlerInterface
      *
      * @return \League\Route\RouteConditionHandlerInterface
      */
-    public function setHost($host) : RouteConditionHandlerInterface;
+    public function setHost(string $host) : RouteConditionHandlerInterface;
 
     /**
      * Get the name.
@@ -34,7 +34,7 @@ interface RouteConditionHandlerInterface
      *
      * @return \League\Route\RouteConditionHandlerInterface
      */
-    public function setName($name) : RouteConditionHandlerInterface;
+    public function setName(string $name) : RouteConditionHandlerInterface;
 
     /**
      * Get the scheme.
@@ -50,7 +50,7 @@ interface RouteConditionHandlerInterface
      *
      * @return \League\Route\RouteConditionHandlerInterface
      */
-    public function setScheme($scheme) : RouteConditionHandlerInterface;
+    public function setScheme(string $scheme) : RouteConditionHandlerInterface;
 
     /**
      * Get the port.
@@ -66,5 +66,5 @@ interface RouteConditionHandlerInterface
      *
      * @return \League\Route\RouteConditionHandlerInterface
      */
-    public function setPort($port) : RouteConditionHandlerInterface;
+    public function setPort(int $port) : RouteConditionHandlerInterface;
 }

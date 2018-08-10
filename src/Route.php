@@ -85,9 +85,17 @@ class Route implements
         if (is_array($callable) && isset($callable[0]) && is_string($callable[0])) {
             $class = (! is_null($container) && $container->has($callable[0]))
                 ? $container->get($callable[0])
-                : new $callable[0];
+                : new $callable[0]
+            ;
 
             $callable = [$class, $callable[1]];
+        }
+
+        if (is_string($callable) && method_exists($callable, '__invoke')) {
+            $callable = (! is_null($container) && $container->has($callable))
+                ? $container->get($callable)
+                : new $callable
+            ;
         }
 
         if (! is_callable($callable)) {

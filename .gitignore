@@ -1,4 +1,4 @@
 build
 composer.lock
-docs
 vendor
+.sass-cache

@@ -7,7 +7,7 @@ use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
 use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class JsonStrategy implements ContainerAwareInterface, StrategyInterface
@@ -15,29 +15,18 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     use ContainerAwareTrait;
 
     /**
-     * @var callable
+     * @var \Psr\Http\Message\ResponseFactoryInterface
      */
     protected $responseFactory;
 
     /**
      * Construct.
      *
-     * @param callable $responseFactory
+     * @param \Psr\Http\Message\ResponseFactoryInterface $responseFactory
      */
-    public function __construct(callable $responseFactory)
+    public function __construct(ResponseFactoryInterface $responseFactory)
     {
         $this->responseFactory = $responseFactory;
-    }
-
-    /**
-     * Invoke the given factory to return a response.
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    protected function newResponse() : ResponseInterface
-    {
-        $responseFactory = $this->responseFactory;
-        return $responseFactory();
     }
 
     /**
@@ -49,7 +38,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
 
         if (is_array($response)) {
             $body     = json_encode($response);
-            $response = $this->newResponse();
+            $response = $this->responseFactory->createResponse();
             $response = $response->withStatus(200);
             $response->getBody()->write($body);
         }
@@ -86,7 +75,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
      */
     protected function buildJsonResponseMiddleware(HttpException $exception) : MiddlewareInterface
     {
-        return new class($this->newResponse(), $exception) implements MiddlewareInterface
+        return new class($this->responseFactory->createResponse(), $exception) implements MiddlewareInterface
         {
             protected $response;
             protected $exception;
@@ -111,7 +100,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
      */
     public function getExceptionHandler() : MiddlewareInterface
     {
-        return new class($this->newResponse()) implements MiddlewareInterface
+        return new class($this->responseFactory->createResponse()) implements MiddlewareInterface
         {
             protected $response;
 

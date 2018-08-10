@@ -172,7 +172,7 @@ class Router extends RouteCollector implements
         foreach ($this->groups as $key => $group) {
             // we want to determine if we are technically in a group even if the
             // route is not matched so exceptions are handled correctly
-            if (strncmp($activePath, $group->getPrefix, strlen($group->getPrefix)) === 0
+            if (strncmp($activePath, $group->getPrefix(), strlen($group->getPrefix())) === 0
                 && ! is_null($group->getStrategy())
             ) {
                 $this->setStrategy($group->getStrategy());

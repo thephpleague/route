@@ -7,7 +7,7 @@ use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface, StreamInterface};
+use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface, StreamInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class JsonStrategyTest extends TestCase
@@ -50,7 +50,9 @@ class JsonStrategyTest extends TestCase
             ->will($this->returnValue($expectedVars))
         ;
 
-        $strategy = new JsonStrategy(function () {});
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $strategy = new JsonStrategy($factory);
         $response = $strategy->invokeRouteCallable($route, $expectedRequest);
 
         $this->assertSame($expectedResponse, $response);
@@ -127,9 +129,15 @@ class JsonStrategyTest extends TestCase
             ->will($this->returnValue($expectedVars))
         ;
 
-        $strategy = new JsonStrategy(function () use ($expectedResponse) {
-            return $expectedResponse;
-        });
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($expectedResponse))
+        ;
+
+        $strategy = new JsonStrategy($factory);
 
         $response = $strategy->invokeRouteCallable($route, $expectedRequest);
 
@@ -155,9 +163,15 @@ class JsonStrategyTest extends TestCase
             ->will($this->returnValue($response))
         ;
 
-        $strategy = new JsonStrategy(function () use ($response) {
-            return $response;
-        });
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $strategy = new JsonStrategy($factory);
 
         $handler = $strategy->getNotFoundDecorator($exception);
         $this->assertInstanceOf(MiddlewareInterface::class, $handler);
@@ -186,9 +200,15 @@ class JsonStrategyTest extends TestCase
             ->will($this->returnValue($response))
         ;
 
-        $strategy = new JsonStrategy(function () use ($response) {
-            return $response;
-        });
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $strategy = new JsonStrategy($factory);
 
         $handler = $strategy->getMethodNotAllowedDecorator($exception);
         $this->assertInstanceOf(MiddlewareInterface::class, $handler);
@@ -246,9 +266,15 @@ class JsonStrategyTest extends TestCase
             ])))
         ;
 
-        $strategy = new JsonStrategy(function () use ($response) {
-            return $response;
-        });
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $strategy = new JsonStrategy($factory);
 
         $handler = $strategy->getExceptionHandler();
         $this->assertInstanceOf(MiddlewareInterface::class, $handler);
@@ -284,9 +310,15 @@ class JsonStrategyTest extends TestCase
             ->will($this->throwException($exception))
         ;
 
-        $strategy = new JsonStrategy(function () use ($response) {
-            return $response;
-        });
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $strategy = new JsonStrategy($factory);
 
         $handler = $strategy->getExceptionHandler();
         $this->assertInstanceOf(MiddlewareInterface::class, $handler);

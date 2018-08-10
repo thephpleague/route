@@ -1,0 +1,57 @@
+-
+  version: unstable
+  name: League\Route (dev-master)
+  type: Unstable
+  requires: PHP >= 7.1.0
+  release: None
+  support: Own Risk
+  url: /unstable/
+  menu:
+    Getting Started: '/unstable/'
+    Basic Usage: '/unstable/usage/'
+    Concepts: '/unstable/concepts/'
+    Strategies: '/unstable/strategies/'
+-
+  default: true
+  version: 4.x
+  name: League\Route 4.x
+  type: Current
+  requires: PHP >= 7.1.0
+  release: 4.0.0 - 2018-08
+  support: Ongoing
+  url: /4.x/
+  menu:
+    Getting Started: '/4.x/'
+    Basic Usage: '/4.x/usage/'
+    HTTP: '/4.x/http/'
+    Routes: '/4.x/routes/'
+    Controllers: '/4.x/controllers/'
+    Strategies: '/4.x/strategies/'
+    Middleware: '/4.x/middleware/'
+    Dependency Injection: '/4.x/dependency-injection/'
+-
+  version: 3.x
+  name: League\Route 2.x
+  type: Old
+  requires: PHP >= 5.4.0
+  release: 3.1.0 - 2018-07
+  support: 2019-02
+  url: /3.x/
+  menu:
+    Getting Started: '/3.x/'
+    Basic Usage: '/3.x/usage/'
+    Concepts: '/3.x/concepts/'
+    Strategies: '/3.x/strategies/'
+-
+  version: 2.x
+  name: League\Route 2.x
+  type: Legacy
+  requires: PHP >= 5.4.0
+  release: 2.0.1 - 2016-11
+  support: 2017-08
+  url: /2.x/
+  menu:
+    Getting Started: '/2.x/'
+    Basic Usage: '/2.x/usage/'
+    Concepts: '/2.x/concepts/'
+    Strategies: '/2.x/strategies/'
