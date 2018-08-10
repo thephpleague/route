@@ -2,186 +2,80 @@
 layout: post
 title: Dependency Injection
 sections:
-    Constructor Injection: constructor-injection
-    Setter Injection: setter-injection
-    Factories: factories
+    Introduction: introduction
+    Recommended Reading: recommended-reading
+    Using a Container: using-a-container
 ---
-Container at it's core is a simple dependency injection container, this section will focus on teaching you how to achieve different types of dependency injection using Container.
+## Introduction
 
-## Constructor Injection
+Route has the ability to use a [PSR-11](https://www.php-fig.org/psr/psr-11/) dependency injection container to resolve any classes it needs to instantiate. Using a dependency injection container is no longer forced with route, however, it is very much recommended.
 
-Passing dependencies to a class constructor is the simplest way of achieving dependency injection. When your classes are defined with Conatiner, it can easily wire them together for you using this method.
+## Recommended Reading
 
-As a basic example, consider we have a controller class that depends on a model, and that model depends on PDO for database connections.
+It is recommended that if you have limited or no knowledge of dependency injection you should read about the concepts before you attempt to implement it. A good place to get started is with the [Dependency Injection chapter](https://www.phptherightway.com/#dependency_injection) pf PHP The Right Way.
 
-~~~php
-<?php declare(strict_types=1);
+## Using a Container
 
-namespace Acme;
+In these examples, we will be using [league/container](https://container.thephpleague.com/) to demonstrate how to easily implement a dependency injection container with route.
 
-class Controller
-{
-    /**
-     * @var \Acme\Model
-     */
-    public $model;
-
-    /**
-     * Construct.
-     *
-     * @param \Acme\Model $model
-     */
-    public function __construct(Model $model)
-    {
-        $this->model = $model;
-    }
-}
-
-class Model
-{
-    /**
-     * @var \PDO
-     */
-    public $pdo;
-
-    /**
-     * Construct.
-     *
-     * @param \PDO $pdo
-     */
-    public function __construct(\PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-}
-~~~
-
-This dependency tree can be defined in Container, then whenever we retrieves `Acme\Controller`, Container will recursively build all dependencies and inject them as required.
-
-~~~ php
-<?php declare(strict_types=1);
-
-$container = new League\Container\Container;
-
-$container->add(Acme\Controller::class)->addArgument(Acme\Model::class);
-$container->add(Acme\Model::class)->addArgument(PDO::class);
-
-$container
-    ->add(PDO::class)
-    ->addArgument('dsn_string')
-    ->addArgument('username')
-    ->addArgument('password')
-    ->addArgument([/* options */])
-;
-
-$controller = $container->get(Acme\Controller::class);
-
-var_dump($controller instanceof Acme\Controller);   // true
-var_dump($controller->model instanceof Acme\Model); // true
-var_dump($controller->model->pdo instanceof PDO);   // true
-~~~
-
-## Setter Injection
-
-Dependency injection can also be achieved by invoking and passing dependencies to setter methods. We can refactor the example above so that the model receives PDO via a setter instead of a constructor argument.
+Consider that we have a controller class that needs a template renderer to load and render our HTML templates.
 
 ~~~php
 <?php declare(strict_types=1);
 
 namespace Acme;
 
-class Controller
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response;
+
+class SomeController
 {
     /**
-     * @var \Acme\Model
+     * @var \Acme\TemplateRenderer
      */
-    public $model;
+    protected $templateRenderer;
 
     /**
      * Construct.
      *
-     * @param \Acme\Model $model
+     * @param \Acme\TemplateRenderer $templateRenderer
      */
-    public function __construct(Model $model)
+    public function __construct(TemplateRenderer $templateRenderer)
     {
-        $this->model = $model;
+        $this->templateRenderer = $templateRenderer;
     }
-}
-
-class Model
-{
-    /**
-     * @var \PDO
-     */
-    public $pdo;
 
     /**
-     * Set PDO.
+     * Controller.
      *
-     * @param \PDO $pdo
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function setPdo(\PDO $pdo)
+    public function __invoke(ServerRequestInterface $request) : ResponseInterface
     {
-        $this->pdo = $pdo;
+        $body     = $this->templateRenderer->render('some-template');
+        $response = new Response;
+
+        $response->getBody()->write($body);
+        return $response->withStatus(200);
     }
 }
 ~~~
 
-Now we need to make a slight change to our definition in Container to ensure that the method is correctly invoked on instantiation.
+We can now build a container, define our controller and set it on the strategy, when the route is matched, the controller will be resolved via the container with the template renderer passed to it.
 
-~~~ php
+~~~php
 <?php declare(strict_types=1);
 
 $container = new League\Container\Container;
 
-$container->add(Acme\Controller::class)->addArgument(Acme\Model::class);
+$container->add(Acme\SomeController::class)->addArgument(Acme\TemplateRenderer::class);
+$container->add(Acme\TemplateRenderer::class);
 
-$container
-    ->add(Acme\Model::class)
-    // first argument is the name of the method to invoke, the second argument
-    // is an array of arguments to pass to the method, Container will attempt
-    // to resolve each element of the array via itself
-    ->addMethodCall('setPdo', [PDO::class])
-;
+$strategy = (new League\Route\Strategy\ApplicationStrategy)->setContainer($container);
+$router   = (new League\Route\Router)->setStrategy($strategy);
 
-$container
-    ->add(PDO::class)
-    ->addArgument('dsn_string')
-    ->addArgument('username')
-    ->addArgument('password')
-    ->addArgument([/* options */])
-;
-
-$controller = $container->get(Acme\Controller::class);
-
-var_dump($controller instanceof Acme\Controller);   // true
-var_dump($controller->model instanceof Acme\Model); // true
-var_dump($controller->model->pdo instanceof PDO);   // true
-~~~
-
-## Factories
-
-Container can accept any `callable` that will be used as a factory to resolve your classes. This is the most performant way to resolve your objects as no inspection is needed of the definition, however, this does reduce the amount of flexibilty you can take advantage of.
-
-Using the same example as above, we can define it in Container as follows.
-
-~~~ php
-<?php declare(strict_types=1);
-
-$container = new League\Container\Container;
-
-$container->add(Acme\Controller::class, function () {
-    $pdo   = new PDO('dsn_string', 'username', 'password', [/* options */]);
-    $model = new Acme\Model;
-
-    $model->setPdo($pdo);
-
-    return new Acme\Controller($model);
-});
-
-$controller = $container->get(Acme\Controller::class);
-
-var_dump($controller instanceof Acme\Controller);   // true
-var_dump($controller->model instanceof Acme\Model); // true
-var_dump($controller->model->pdo instanceof PDO);   // true
+$router->map('GET', '/', Acme\SomeController::class);
 ~~~
