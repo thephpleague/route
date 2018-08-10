@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.0] 2018-08
+
+### Changed
+- Increased minimum PHP version to 7.1.0
+- Now implements PSR-15 middleware and request handlers.
+- No longer enforces use of container, one can be used optionally.
+- Strategies now return PSR-15 middleare as handlers.
+- Increased types of proxy callables that can be used as controllers.
+- General housekeeping and refactoring for continued improvement.
+
+### Fixed
+- Group level strategies now handle exceptions if a route is not matched but the request falls within the group.
+
 ## [3.1.0] 2018-07
 
 ### Fixed
