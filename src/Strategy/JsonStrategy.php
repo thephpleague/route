@@ -44,7 +44,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
         }
 
         if ($response instanceof ResponseInterface && ! $response->hasHeader('content-type')) {
-            $response->withAddedHeader('content-type', 'application/json');
+            $response = $response->withAddedHeader('content-type', 'application/json');
         }
 
         return $response;

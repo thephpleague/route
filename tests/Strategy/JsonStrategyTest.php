@@ -50,6 +50,13 @@ class JsonStrategyTest extends TestCase
             ->will($this->returnValue($expectedVars))
         ;
 
+        $expectedResponse
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
         $factory = $this->createMock(ResponseFactoryInterface::class);
 
         $strategy = new JsonStrategy($factory);
