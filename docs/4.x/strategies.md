@@ -102,7 +102,7 @@ function controller(ServerRequestInterface $request, array $args) : ResponseInte
 
 ### Exception Decorators
 
-The applkication strategy simply allows any exceptions to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception decorator methods. See [Custom Strategies](#custom-strategies).
+The application strategy simply allows any exceptions to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception decorator methods. See [Custom Strategies](#custom-strategies).
 
 ## JSON Strategy
 
