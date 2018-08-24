@@ -3,6 +3,7 @@
 namespace League\Route\Strategy;
 
 use Exception;
+use JsonSerializable;
 use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
 use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
@@ -36,7 +37,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     {
         $response = call_user_func_array($route->getCallable($this->getContainer()), [$request, $route->getVars()]);
 
-        if (is_array($response)) {
+        if (is_array($response) || $response instanceof JsonSerializable) {
             $body     = json_encode($response);
             $response = $this->responseFactory->createResponse();
             $response = $response->withStatus(200);
