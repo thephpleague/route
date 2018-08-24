@@ -36,7 +36,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     {
         $response = call_user_func_array($route->getCallable($this->getContainer()), [$request, $route->getVars()]);
 
-        if (is_array($response)) {
+        if ($this->isJsonEncodable($response)) {
             $body     = json_encode($response);
             $response = $this->responseFactory->createResponse();
             $response = $response->withStatus(200);
@@ -48,6 +48,21 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
         }
 
         return $response;
+    }
+
+    /**
+     * Check if the response can be converted to json
+     * Arrays can always be converted, objects can be converted if they're not a response already
+     *
+     * @param $response
+     *
+     * @return bool
+     */
+    private function isJsonEncodable($response):bool{
+        if (! (is_array($response) || is_object($response))){
+            return false;
+        }
+        return ! ($response instanceof ResponseInterface);
     }
 
     /**

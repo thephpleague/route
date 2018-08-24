@@ -3,6 +3,7 @@
 namespace League\Route\Strategy;
 
 use Exception;
+use stdClass;
 use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
@@ -333,5 +334,93 @@ class JsonStrategyTest extends TestCase
         $actualResponse = $handler->process($request, $requestHandler);
         $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
         $this->assertSame($response, $actualResponse);
+    }
+
+    /**
+     * Asserts that the strategy properly invokes the route callable with an object return.
+     *
+     * @return void
+     */
+    public function testStrategyInvokesRouteCallableWithObjectReturn() : void
+    {
+        $route = $this->createMock(Route::class);
+
+        $expectedResponse = $this->createMock(ResponseInterface::class);
+        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
+        $body             = $this->createMock(StreamInterface::class);
+        $expectedVars     = ['something', 'else'];
+        $expectedObject = new stdClass();
+
+        $expectedResponse
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($body))
+        ;
+
+        $expectedResponse
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
+        $expectedResponse
+            ->expects($this->once())
+            ->method('withStatus')
+            ->with($this->equalTo(200))
+            ->will($this->returnSelf())
+        ;
+
+        $expectedResponse
+            ->expects($this->once())
+            ->method('hasHeader')
+            ->with($this->equalTo('content-type'))
+            ->will($this->returnValue(false))
+        ;
+
+        $expectedObject->something = 'else';
+
+        $body
+            ->expects($this->once())
+            ->method('write')
+            ->with($this->equalTo(json_encode([$expectedVars[0] => $expectedVars[1]])))
+        ;
+
+        $route
+            ->expects($this->once())
+            ->method('getCallable')
+            ->will($this->returnValue(
+                function (
+                    ServerRequestInterface $request
+                ) use (
+                    $expectedRequest,
+                    $expectedObject
+                ) : stdClass {
+                    $this->assertSame($expectedRequest, $request);
+                    return $expectedObject;
+                }
+
+            ))
+        ;
+
+        $route
+            ->expects($this->once())
+            ->method('getVars')
+            ->will($this->returnValue($expectedVars))
+        ;
+
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->will($this->returnValue($expectedResponse))
+        ;
+
+        $strategy = new JsonStrategy($factory);
+
+        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
+
+        $this->assertSame($expectedResponse, $response);
     }
 }
