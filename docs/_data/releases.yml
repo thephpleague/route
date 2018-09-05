@@ -31,7 +31,7 @@
     Dependency Injection: '/4.x/dependency-injection/'
 -
   version: 3.x
-  name: League\Route 2.x
+  name: League\Route 3.x
   type: Old
   requires: PHP >= 5.4.0
   release: 3.1.0 - 2018-07
