@@ -23,7 +23,7 @@ Strategies can be applied in three ways, each takes precedence over the previous
 
 ### Globally
 
-Will apply to all routes defined by the router unless the route or it's parent group has a different strategy applied.
+Will apply to all routes defined by the router unless the route or its parent group has a different strategy applied.
 
 ~~~php
 <?php declare(strict_types=1);
@@ -56,7 +56,7 @@ $router
 
 ### Per Route
 
-A strategy can be applied to any specific route, at top level or within a group, this will take precedence over any strategy applied to it's parent group or globally.
+A strategy can be applied to any specific route, at top level or within a group, this will take precedence over any strategy applied to its parent group or globally.
 
 ~~~php
 <?php declare(strict_types=1);
