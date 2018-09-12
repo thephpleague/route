@@ -72,7 +72,7 @@ $router
     ->group('/group', function ($router) {
         $router
             ->map('GET', '/acme/route', 'Acme\Controller::action')
-            ->setStrategy(new CustomStrategy) // will not ignore the strategy applied to the group
+            ->setStrategy(new CustomStrategy) // will ignore the strategy applied to the group
         ;
     })
     ->setStrategy(new ApplicationStrategy)
