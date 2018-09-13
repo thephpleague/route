@@ -70,7 +70,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      */
     protected function setFoundMiddleware(Route $route) : void
     {
-        if (! is_null($route->getStrategy())) {
+        if (is_null($route->getStrategy())) {
             $route->setStrategy($this->getStrategy());
         }
 
