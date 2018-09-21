@@ -7,10 +7,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ## [4.1.0] 2018-09
 
 ### Changed
-- JSON strategy no allows array and object returns and builds JSON response. (Thanks @willemwollebrants)
+- JSON strategy now allows array and object returns and builds JSON response. (Thanks @willemwollebrants)
 
 ### Fixed
-- Fixed issue where setting strategy on specific route had no effect. (Thanks @aag)
+- Fixed issue where setting strategy on specific routes had no effect. (Thanks @aag)
 
 ## [4.0.1] 2018-08
 
