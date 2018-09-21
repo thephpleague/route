@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.0] 2018-09
+
+### Changed
+- JSON strategy no allows array and object returns and builds JSON response. (Thanks @willemwollebrants)
+
+### Fixed
+- Fixed issue where setting strategy on specific route had no effect. (Thanks @aag)
+
 ## [4.0.1] 2018-08
 
 ### Fixed
