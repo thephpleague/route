@@ -58,11 +58,13 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
      *
      * @return bool
      */
-    private function isJsonEncodable($response):bool{
-        if (! (is_array($response) || is_object($response))){
+    protected function isJsonEncodable($response) : bool
+    {
+        if ($response instanceof ResponseInterface) {
             return false;
         }
-        return ! ($response instanceof ResponseInterface);
+
+        return (is_array($response) || is_object($response));
     }
 
     /**
