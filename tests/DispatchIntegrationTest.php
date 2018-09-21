@@ -689,6 +689,136 @@ class DispatchIntegrationTest extends TestCase
     }
 
     /**
+     * Asserts that a strategy set on a route overrides the global strategy.
+     *
+     * @return void
+     */
+    public function testRouteStrategyOverridesGlobalStrategy()
+    {
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withStatus')
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($this->createMock(\Psr\Http\Message\StreamInterface::class)))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/'))
+        ;
+
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+        $factory
+            ->expects($this->exactly(2))
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $router = (new Router)->setStrategy(new Strategy\ApplicationStrategy);
+
+        $router->map('GET', '/', function () : array {
+            return [];
+        })->setStrategy(new JsonStrategy($factory));
+
+        $router->dispatch($request);
+    }
+
+    /**
+     * Asserts that a strategy set on a route overrides its group's strategy.
+     *
+     * @return void
+     */
+    public function testRouteStrategyOverridesGroupStrategy()
+    {
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withStatus')
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($this->createMock(\Psr\Http\Message\StreamInterface::class)))
+        ;
+
+        $response
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
+            ->will($this->returnSelf())
+        ;
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/group/id'))
+        ;
+
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+        $factory
+            ->expects($this->exactly(2))
+            ->method('createResponse')
+            ->will($this->returnValue($response))
+        ;
+
+        $router = new Router;
+
+        $router->group('/group', function ($r) use ($factory) {
+            $r->get('/id', function () : array {
+                return [];
+            })->setStrategy(new JsonStrategy($factory));
+        })->setStrategy(new Strategy\ApplicationStrategy);
+
+        $router->dispatch($request);
+    }
+
+    /**
      * Asserts that middleware is invoked in the correct order.
      *
      * @return void
