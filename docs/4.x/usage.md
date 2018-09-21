@@ -81,7 +81,7 @@ $request = Zend\Diactoros\ServerRequestFactory::fromGlobals(
     $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
 );
 
-$responseFactory = Http\Factory\Diactoros\ResponseFactory;
+$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
 
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 $router   = (new League\Route\Router)->setStrategy($strategy);
