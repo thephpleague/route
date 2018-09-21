@@ -113,7 +113,7 @@ To make use of the JSON strategy, you will need to provide it with a [PSR-17](ht
 ~~~php
 <?php declare(strict_types=1);
 
-$responseFactory = Http\Factory\Diactoros\ResponseFactory;
+$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 
 $router = (new League\Route\Router)->setStrategy($strategy);
