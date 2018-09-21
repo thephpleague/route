@@ -99,7 +99,7 @@ $route->get('/hello/{name1}/{name2}', function (ServerRequestInterface $request,
 });
 ~~~
 
-When the above controller is invoked, the strategy will reflect on it's parameters, attempt to resolve `ServerRequestInterface` from the container, and pass the dynamic parts of the route to the corresponding parameter names.
+When the above controller is invoked, the strategy will reflect on its parameters, attempt to resolve `ServerRequestInterface` from the container, and pass the dynamic parts of the route to the corresponding parameter names.
 
 ## JSON Strategy
 

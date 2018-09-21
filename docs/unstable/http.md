@@ -71,7 +71,7 @@ Route does not provide any functionality for dealing with globals such as `$_GET
 
 ## The Response
 
-Because Route is built around PSR-15, this means that middleware and controllers are handles in a [single pass](https://www.php-fig.org/psr/psr-15/meta/#52-single-pass-lambda) approach. What this means in practice is that all middleware is passed a request object but is expected to build and return it's own response or pass off to the next middleware in the stack for that to create one. Any controller that is dispatched via Route is wrapped in a middleware that adheres to this.
+Because Route is built around PSR-15, this means that middleware and controllers are handles in a [single pass](https://www.php-fig.org/psr/psr-15/meta/#52-single-pass-lambda) approach. What this means in practice is that all middleware is passed a request object but is expected to build and return its own response or pass off to the next middleware in the stack for that to create one. Any controller that is dispatched via Route is wrapped in a middleware that adheres to this.
 
 Onced wrapped, your controller ultimately becomes the last middleware in the stack (this does not mean that it has to be invoked last, see [middleware](/unstable/middleware) for more on this), it just means that it will only be concerned with creating and returning a response object.
 
