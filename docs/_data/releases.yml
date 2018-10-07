@@ -9,7 +9,6 @@
   menu:
     Getting Started: '/unstable/'
     Basic Usage: '/unstable/usage/'
-    Concepts: '/unstable/concepts/'
     Strategies: '/unstable/strategies/'
 -
   default: true
