@@ -2,3 +2,12 @@ build
 composer.lock
 vendor
 .sass-cache
+
+### Jekyll ###
+docs/_site/
+docs/.sass-cache/
+docs/.jekyll-cache/
+docs/.jekyll-metadata
+
+### PhpStorm ###
+.idea/
