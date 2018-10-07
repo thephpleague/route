@@ -10,7 +10,7 @@ sections:
 
 It is very easy to get up and running with Route. You can use [Composer][composer]
 to install and manage your installation of Route. You'll [need to install][dependencies] 
-both the Route package and an implementation of the [PSR-7 message interface][psr7]. 
+both the Route project and an implementation of the [PSR-7 message interface][psr7]. 
 
 First, install the Route project itself:
 ~~~

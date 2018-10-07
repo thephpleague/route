@@ -103,7 +103,7 @@ $route->map('GET', '/acme/route', 'AcmeController::method')->setHost('example.co
 $route->map('GET', '/acme/route', 'AcmeController::method')->setScheme('https')->setHost('example.com');
 ~~~
 
-Conditions can also be applied across [route groups](/route-groups/).
+Conditions can also be applied across [route groups](#route-groups).
 
 ## Route Groups
 
@@ -129,7 +129,7 @@ GET /admin/acme/route2
 GET /admin/acme/route3
 ~~~
 
-Route [conditions](/route-conditions/) can be applied to a group and will be matched across all routes contained in that group, specific routes within the group can override this functionality as displayed below.
+Route [conditions](#route-conditions) can be applied to a group and will be matched across all routes contained in that group, specific routes within the group can override this functionality as displayed below.
 
 ~~~php
 <?php
