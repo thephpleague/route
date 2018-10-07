@@ -11,7 +11,7 @@ sections:
 ---
 ## Wildcard Routes
 
-Wilcard routes allow a route to respond to dynamic parts of a URI. If a route has dynamic parts, they will be passed in to the controller as an associative array of arguments.
+Wildcard routes allow a route to respond to dynamic parts of a URI. If a route has dynamic parts, they will be passed in to the controller as an associative array of arguments.
 
 ~~~php
 <?php

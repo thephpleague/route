@@ -12,7 +12,7 @@ Route has the ability to use a [PSR-11](https://www.php-fig.org/psr/psr-11/) dep
 
 ## Recommended Reading
 
-It is recommended that if you have limited or no knowledge of dependency injection you should read about the concepts before you attempt to implement it. A good place to get started is with the [Dependency Injection chapter](https://www.phptherightway.com/#dependency_injection) pf PHP The Right Way.
+It is recommended that if you have limited or no knowledge of dependency injection you should read about the concepts before you attempt to implement it. A good place to get started is with the [Dependency Injection chapter](https://www.phptherightway.com/#dependency_injection) of PHP The Right Way.
 
 ## Using a Container
 

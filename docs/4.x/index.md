@@ -18,7 +18,7 @@ sections:
 
 ## What is Route?
 
-Route is a fast PSR-7 routing/dispatcher package including PSR-15 middleware implementation that enabables you to build well designed performant web apps.
+Route is a fast PSR-7 routing/dispatcher package including PSR-15 middleware implementation that enables you to build well designed performant web apps.
 
 At its core is Nikita Popov's [FastRoute](https://github.com/nikic/FastRoute) package allowing this package to concentrate on the dispatch of your controllers.
 
