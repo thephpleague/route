@@ -23,7 +23,7 @@ Next, install an implementation of PSR-7. We recommend the [Zend Diactoros proje
 composer require zendframework/zend-diactoros
 ~~~
 
-Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/4.x/dependency-injection) for more information.
+Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/unstable/dependency-injection) for more information.
 
 ~~~
 composer require league/container
