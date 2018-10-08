@@ -20,6 +20,11 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     protected $responseFactory;
 
     /**
+     * @var string
+     */
+    protected $contentType = 'application/json';
+
+    /**
      * Construct.
      *
      * @param \Psr\Http\Message\ResponseFactoryInterface $responseFactory
@@ -44,7 +49,7 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
         }
 
         if ($response instanceof ResponseInterface && ! $response->hasHeader('content-type')) {
-            $response = $response->withAddedHeader('content-type', 'application/json');
+            $response = $response->withAddedHeader('content-type', $this->getContentType());
         }
 
         return $response;
@@ -65,6 +70,24 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
         }
 
         return (is_array($response) || is_object($response));
+    }
+
+    /**
+     * Get the response content type
+     */
+    public function getContentType(): string
+    {
+        return $this->contentType;
+    }
+
+    /**
+     * Set the response content type
+     */
+    public function setContentType(string $type): JsonStrategy
+    {
+        $this->contentType = $type;
+
+        return $this;
     }
 
     /**

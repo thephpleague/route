@@ -423,4 +423,51 @@ class JsonStrategyTest extends TestCase
 
         $this->assertSame($expectedResponse, $response);
     }
+
+    public function testStrategyAllowsCustomContentType()
+    {
+        $route = $this->createMock(Route::class);
+
+        $expectedResponse = $this->createMock(ResponseInterface::class);
+        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
+        $expectedType     = 'application/vnd.api+json';
+
+        $route
+            ->expects($this->once())
+            ->method('getCallable')
+            ->will($this->returnValue(
+                function (
+                    ServerRequestInterface $request,
+                    array                  $vars = []
+                ) use (
+                    $expectedRequest,
+                    $expectedResponse
+                ) : ResponseInterface {
+                    $this->assertSame($expectedRequest, $request);
+                    return $expectedResponse;
+                }
+            ))
+        ;
+
+        $route
+            ->expects($this->once())
+            ->method('getVars')
+            ->will($this->returnValue([]))
+        ;
+
+        $expectedResponse
+            ->expects($this->once())
+            ->method('withAddedHeader')
+            ->with($this->equalTo('content-type'), $this->equalTo($expectedType))
+            ->will($this->returnSelf())
+        ;
+
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $strategy = new JsonStrategy($factory);
+        $strategy->setContentType($expectedType);
+        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
+
+        $this->assertSame($expectedResponse, $response);
+    }
 }
