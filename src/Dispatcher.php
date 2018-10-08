@@ -77,7 +77,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         // wrap entire dispatch process in exception handler
         $this->prependMiddleware($route->getStrategy()->getExceptionHandler());
 
-        // add group and route specific niddlewares
+        // add group and route specific middleware
         if ($group = $route->getParentGroup()) {
             $this->middlewares($group->getMiddlewareStack());
         }
