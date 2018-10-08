@@ -143,6 +143,17 @@ function arrayController(ServerRequestInterface $request, array $args) : array {
 });
 ~~~
 
+### Custom Content Type
+
+`League\Route\Strategy\JsonStrategy` defaults to using `application/json` for array responses or responses without a `Content-Type` header defined. The default content type can be changed by using the `setContentType` method:
+
+~~~php
+// Use the correct content type for JSON-API responses
+$strategy->setContentType('application/vnd.api+json');
+~~~
+
+Setting the content type will not alter how the response is encoded.
+
 ### Exception Decorators
 
 `League\Route\Strategy\JsonStrategy` will decorate all exceptions, `NotFound`, `MethodNotAllowed`, and any 4xx or 5xx exceptions as a JSON Response, setting the correct HTTP status code and content type header in the process.

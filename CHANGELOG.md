@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.2.0] ???
+
+### Added
+- JSON strategy now allows the content-type header to be modified. (Thanks @shadowhand)
+
 ## [4.1.0] 2018-09
 
 ### Changed
