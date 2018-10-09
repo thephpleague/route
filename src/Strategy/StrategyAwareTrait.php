@@ -10,11 +10,7 @@ trait StrategyAwareTrait
     protected $strategy;
 
     /**
-     * Set the strategy.
-     *
-     * @param \League\Route\Strategy\StrategyInterface $strategy
-     *
-     * @return \League\Route\Strategy\StrategyAwareInterface
+     * {@inheritdoc}
      */
     public function setStrategy(StrategyInterface $strategy) : StrategyAwareInterface
     {
@@ -24,9 +20,7 @@ trait StrategyAwareTrait
     }
 
     /**
-     * Gets the strategy.
-     *
-     * @return \League\Route\Strategy\StrategyInterface
+     * {@inheritdoc}
      */
     public function getStrategy() : ?StrategyInterface
     {
