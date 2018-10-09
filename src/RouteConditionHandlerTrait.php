@@ -5,29 +5,27 @@ namespace League\Route;
 trait RouteConditionHandlerTrait
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $host;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $scheme;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $port;
 
     /**
-     * Get the host.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getHost() : ?string
     {
@@ -35,11 +33,7 @@ trait RouteConditionHandlerTrait
     }
 
     /**
-     * Set the host.
-     *
-     * @param string $host
-     *
-     * @return \League\Route\RouteConditionHandlerInterface
+     * {@inheritdoc}
      */
     public function setHost(string $host) : RouteConditionHandlerInterface
     {
@@ -49,9 +43,7 @@ trait RouteConditionHandlerTrait
     }
 
     /**
-     * Get the name.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getName() : ?string
     {
@@ -59,11 +51,7 @@ trait RouteConditionHandlerTrait
     }
 
     /**
-     * Set the name.
-     *
-     * @param string $name
-     *
-     * @return \League\Route\RouteConditionHandlerInterface
+     * {@inheritdoc}
      */
     public function setName(string $name) : RouteConditionHandlerInterface
     {
@@ -73,9 +61,7 @@ trait RouteConditionHandlerTrait
     }
 
     /**
-     * Get the scheme.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getScheme() : ?string
     {
@@ -83,11 +69,7 @@ trait RouteConditionHandlerTrait
     }
 
     /**
-     * Set the scheme.
-     *
-     * @param string $scheme
-     *
-     * @return \League\Route\RouteConditionHandlerInterface
+     * {@inheritdoc}
      */
     public function setScheme(string $scheme) : RouteConditionHandlerInterface
     {
@@ -97,9 +79,7 @@ trait RouteConditionHandlerTrait
     }
 
     /**
-     * Get the port.
-     *
-     * @return int
+     * {@inheritdoc}
      */
     public function getPort() : ?int
     {
@@ -107,11 +87,7 @@ trait RouteConditionHandlerTrait
     }
 
     /**
-     * Set the port.
-     *
-     * @param int $port
-     *
-     * @return \League\Route\RouteConditionHandlerInterface
+     * {@inheritdoc}
      */
     public function setPort(int $port) : RouteConditionHandlerInterface
     {
