@@ -62,7 +62,7 @@ class RouteGroup implements
      */
     public function __invoke() : void
     {
-        call_user_func_array($this->callback, [$this]);
+        ($this->callback)($this);
     }
 
     /**
