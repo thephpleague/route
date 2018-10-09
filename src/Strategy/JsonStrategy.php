@@ -34,7 +34,8 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
      */
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface
     {
-        $response = call_user_func_array($route->getCallable($this->getContainer()), [$request, $route->getVars()]);
+        $controller = $route->getCallable($this->getContainer());
+        $response = $controller($request, $route->getVars());
 
         if ($this->isJsonEncodable($response)) {
             $body     = json_encode($response);
