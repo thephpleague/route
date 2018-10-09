@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @return \Psr\Http\Message\ResponseInterface
  */
-function namedFunctionCallable(ServerRequestInterface $request, ResponseInterface $response) {
+function namedFunctionCallable(ServerRequestInterface $request, ResponseInterface $response)
+{
     return $response;
 }
