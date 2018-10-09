@@ -32,11 +32,11 @@ class RouteGroup implements
     protected $prefix;
 
     /**
-     * Constructor.
+     * Constructor
      *
-     * @param string                        $prefix
-     * @param callable                      $callback
-     * @param \League\Route\RouteCollection $collection
+     * @param string                                 $prefix
+     * @param callable                               $callback
+     * @param \League\Route\RouteCollectionInterface $collection
      */
     public function __construct(string $prefix, callable $callback, RouteCollectionInterface $collection)
     {
@@ -46,7 +46,7 @@ class RouteGroup implements
     }
 
     /**
-     * Return the prefix of the group.
+     * Return the prefix of the group
      *
      * @return string
      */
@@ -56,7 +56,7 @@ class RouteGroup implements
     }
 
     /**
-     * Process the group and ensure routes are added to the collection.
+     * Process the group and ensure routes are added to the collection
      *
      * @return void
      */
