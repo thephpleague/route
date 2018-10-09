@@ -10,7 +10,7 @@ sections:
 
 It is very easy to get up and running with Route.
 
-Firstly you need to look at our [installation guide](/4.x/installation).
+Firstly you need to look at our [installation guide](/4.x/#installation).
 
 ~~~
 composer require league/route
