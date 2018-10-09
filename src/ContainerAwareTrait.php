@@ -7,14 +7,12 @@ use Psr\Container\ContainerInterface;
 trait ContainerAwareTrait
 {
     /**
-     * @var \Psr\Container\ContainerInterface
+     * @var \Psr\Container\ContainerInterface|null
      */
     protected $container;
 
     /**
-     * Get container.
-     *
-     * @return \Psr\Container\ContainerInterface
+     * {@inheritdoc}
      */
     public function getContainer() : ?ContainerInterface
     {
@@ -22,11 +20,7 @@ trait ContainerAwareTrait
     }
 
     /**
-     * Set container.
-     *
-     * @param \Psr\Container\ContainerInterface $container
-     *
-     * @return \League\Route\ContainerAwareInterface
+     * {@inheritdoc}
      */
     public function setContainer(ContainerInterface $container) : ContainerAwareInterface
     {
