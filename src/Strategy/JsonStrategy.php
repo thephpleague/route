@@ -51,10 +51,11 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     }
 
     /**
-     * Check if the response can be converted to json
+     * Check if the response can be converted to JSON
+     *
      * Arrays can always be converted, objects can be converted if they're not a response already
      *
-     * @param $response
+     * @param mixed $response
      *
      * @return bool
      */
