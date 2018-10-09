@@ -93,7 +93,7 @@ $router = new League\Route\Router;
 $router->map('GET', '/', 'Acme\SomeController::someMethod');
 ~~~
 
-### Lazy Loaded Class Implenting `__invoke` (Proxy)
+### Lazy Loaded Class Implementing `__invoke` (Proxy)
 
 You can define the name of a class that implements the magic `__invoke` method and the object will not be instantiated until it is dispatched.
 

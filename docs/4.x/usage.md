@@ -8,15 +8,17 @@ sections:
 ---
 ## Introduction
 
-It is very easy to get up and running with Route.
+It is very easy to get up and running with Route. You can use [Composer][composer]
+to install and manage your installation of Route. You'll [need to install][dependencies] 
+both the Route project and an implementation of the [PSR-7 message interface][psr7]. 
 
-Firstly you need to look at our [installation guide](/4.x/#installation).
+First, install the Route project itself:
 
 ~~~
 composer require league/route
 ~~~
 
-You will also need to install an implementation of PSR-7.
+Next, install an implementation of PSR-7. We recommend the [Zend Diactoros project][diactoros].
 
 ~~~
 composer require zendframework/zend-diactoros
@@ -108,3 +110,8 @@ The code above will build turn your returned array in to a JSON response.
     "version": 1
 }
 ~~~
+
+[composer]: https://getcomposer.org/
+[dependencies]: https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies
+[psr7]: https://www.php-fig.org/psr/psr-7/
+[diactoros]:https://github.com/zendframework/zend-diactoros/

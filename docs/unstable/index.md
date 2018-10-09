@@ -10,7 +10,7 @@ sections:
 ---
 [![Author](http://img.shields.io/badge/author-@philipobenito-blue.svg?style=flat-square)](https://twitter.com/philipobenito)
 [![Latest Version](https://img.shields.io/github/release/thephpleague/route.svg?style=flat-square)](https://github.com/thephpleague/route/releases)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/thephpleague/route/blob/master/LICENSE.md)
 [![Build Status](https://img.shields.io/travis/thephpleague/route/master.svg?style=flat-square)](https://travis-ci.org/thephpleague/route)
 [![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/thephpleague/route.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/route/code-structure)
 [![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/route.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/route)
@@ -18,7 +18,7 @@ sections:
 
 ## What is Route?
 
-Route is a fast PSR-7 routing/dispatcher package including PSR-15 middleware implementation that enabables you to build well designed performant web apps.
+Route is a fast PSR-7 routing/dispatcher package including PSR-15 middleware implementation that enables you to build well designed performant web apps.
 
 At its core is Nikita Popov's [FastRoute](https://github.com/nikic/FastRoute) package allowing this package to concentrate on the dispatch of your controllers.
 
@@ -26,7 +26,7 @@ At its core is Nikita Popov's [FastRoute](https://github.com/nikic/FastRoute) pa
 
 ## What isn't Route?
 
-Route is not a framework, it will not allow you to build an application out of the box. See [getting-started](/unstable/getting-started) for more information.
+Route is not a framework, it will not allow you to build an application out of the box. See our [usage documentation](/unstable/usage) for more information.
 
 ## Goals
 

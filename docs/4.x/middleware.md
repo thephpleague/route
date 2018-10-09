@@ -16,7 +16,7 @@ sections:
 > A middleware component MAY create and return a response without delegating to
 > a request handler, if sufficient conditions are met.
 
-Route is a [PSR-15](https://www.php-fig.org/psr/psr-15/) server request handler, and as such can handle the invokation of a stack of middlewares.
+Route is a [PSR-15](https://www.php-fig.org/psr/psr-15/) server request handler, and as such can handle the invocation of a stack of middlewares.
 
 ## Example Middleware
 
@@ -108,7 +108,7 @@ $router
 
 Middleware is invoked in a specific order but depending on the logic contained in a middleware, you can control whether your code is run before or after your controller is invoked.
 
-The invokation order is as follows:
+The invocation order is as follows:
 
 1. Exception handler defined by the active strategy. This middleware should wrap the rest of the application and catch any exceptions to be gracefully handled.
 2. Middleware added to the router.

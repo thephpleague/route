@@ -95,7 +95,7 @@ Whilst these are primitive and naive examples, it is good design to handle your 
 
 ### Exception Decorators
 
-The `ApplicationStrategy` simply allows any exceptions to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception decorator methods. See [Custom Strategies](/3.x/custom-strategies).
+The `ApplicationStrategy` simply allows any exceptions to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception decorator methods. See [Custom Strategies](#custom-strategies).
 
 ## Json Strategy
 

@@ -140,7 +140,7 @@ GET http://example.com/admin/acme/route3
 
 ## Wildcard Routes
 
-Wilcard routes allow a route to respond to dynamic segments of a URI. If a route has dynamic URI segments, they will be passed in to the controller as an associative array of arguments.
+Wildcard routes allow a route to respond to dynamic segments of a URI. If a route has dynamic URI segments, they will be passed in to the controller as an associative array of arguments.
 
 ~~~php
 <?php declare(strict_types=1);
