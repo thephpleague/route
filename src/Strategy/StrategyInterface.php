@@ -11,7 +11,7 @@ use Psr\Http\Server\MiddlewareInterface;
 interface StrategyInterface
 {
     /**
-     * Invoke the route callable based on the strategy.
+     * Invoke the route callable based on the strategy
      *
      * @param \League\Route\Route                      $route
      * @param \Psr\Http\Message\ServerRequestInterface $request
@@ -32,15 +32,17 @@ interface StrategyInterface
     /**
      * Get a middleware that will decorate a NotAllowedException
      *
-     * @param \League\Route\Http\Exception\NotFoundException $exception
+     * @param \League\Route\Http\Exception\MethodNotAllowedException $exception
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */
     public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception) : MiddlewareInterface;
 
     /**
-     * Get a middleware that acts as an exception handler, it should wrap the rest of the
-     * middleware stack and catch eny exceptions.
+     * Get a middleware that will act as an exception handler
+     *
+     * The middleware must wrap the rest of the middleware stack and catch any
+     * thrown exceptions.
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */

@@ -86,9 +86,9 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     }
 
     /**
-     * Return a middleware that simply throws and exception.
+     * Return a middleware the creates a JSON response from an HTTP exception
      *
-     * @param \Exception $exception
+     * @param \League\Route\Http\Exception $exception
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */
