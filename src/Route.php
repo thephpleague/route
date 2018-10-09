@@ -62,11 +62,11 @@ class Route implements
     }
 
     /**
-     * Get the callable.
+     * Get the controller callable
      *
-     * @param \Psr\Container\ContainerInterface $container
+     * @param \Psr\Container\ContainerInterface|null $container
      *
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
      * @return callable
      */
@@ -106,7 +106,7 @@ class Route implements
     }
 
     /**
-     * Return vars to be passed to route callable.
+     * Return variables to be passed to route callable
      *
      * @return array
      */
@@ -116,7 +116,7 @@ class Route implements
     }
 
     /**
-     * Set vars to be passed to route callable.
+     * Set variables to be passed to route callable
      *
      * @param array $vars
      *
@@ -130,7 +130,7 @@ class Route implements
     }
 
     /**
-     * Get the parent group.
+     * Get the parent group
      *
      * @return \League\Route\RouteGroup
      */
@@ -140,7 +140,7 @@ class Route implements
     }
 
     /**
-     * Set the parent group.
+     * Set the parent group
      *
      * @param \League\Route\RouteGroup $group
      *
@@ -154,7 +154,7 @@ class Route implements
     }
 
     /**
-     * Get the path.
+     * Get the path
      *
      * @return string
      */
@@ -164,7 +164,7 @@ class Route implements
     }
 
     /**
-     * Get the methods.
+     * Get the HTTP method
      *
      * @return string
      */
