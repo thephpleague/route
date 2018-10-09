@@ -199,7 +199,7 @@ class Router extends RouteCollector implements
     {
         $this->buildNameIndex();
 
-        if (array_key_exists($name, $this->namedRoutes)) {
+        if (isset($this->namedRoutes[$name])) {
             return $this->namedRoutes[$name];
         }
 
