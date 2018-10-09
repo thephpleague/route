@@ -38,7 +38,7 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
     }
 
     /**
-     * Return a middleware that simply throws and exception.
+     * Return a middleware that simply throws an exception
      *
      * @param \Exception $exception
      *
