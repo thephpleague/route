@@ -87,10 +87,6 @@ class RouteGroup implements
             $route->setPort($port);
         }
 
-        foreach ($this->getMiddlewareStack() as $middleware) {
-            $route->middleware($middleware);
-        }
-
         if (is_null($route->getStrategy()) && ! is_null($this->getStrategy())) {
             $route->setStrategy($this->getStrategy());
         }
