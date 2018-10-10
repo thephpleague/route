@@ -5,18 +5,18 @@ namespace League\Route\Strategy;
 interface StrategyAwareInterface
 {
     /**
-     * Set the strategy.
-     *
-     * @param \League\Route\Strategy\StrategyInterface $strategy
-     *
-     * @return \League\Route\Strategy\StrategyAwareInterface
-     */
-    public function setStrategy(StrategyInterface $strategy) : StrategyAwareInterface;
-
-    /**
-     * Gets the strategy.
+     * Get the current strategy
      *
      * @return \League\Route\Strategy\StrategyInterface
      */
     public function getStrategy() : ?StrategyInterface;
+
+    /**
+     * Set the strategy implementation
+     *
+     * @param \League\Route\Strategy\StrategyInterface $strategy
+     *
+     * @return static
+     */
+    public function setStrategy(StrategyInterface $strategy) : StrategyAwareInterface;
 }

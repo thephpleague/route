@@ -20,7 +20,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     use StrategyAwareTrait;
 
     /**
-     * Dispatch the current route.
+     * Dispatch the current route
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      *
@@ -62,7 +62,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     }
 
     /**
-     * Handle dispatching of a found route.
+     * Set up middleware for a found route
      *
      * @param \League\Route\Route $route
      *
@@ -89,7 +89,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     }
 
     /**
-     * Handle a not found route.
+     * Set up middleware for a not found route
      *
      * @return void
      */
@@ -100,7 +100,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     }
 
     /**
-     * Handles a not allowed route.
+     * Set up middleware for a not allowed route
      *
      * @param array $allowed
      *

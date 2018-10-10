@@ -7,18 +7,18 @@ use Psr\Container\ContainerInterface;
 interface ContainerAwareInterface
 {
     /**
-     * Get container.
+     * Get the current container
      *
-     * @return \Psr\Container\ContainerInterface
+     * @return \Psr\Container\ContainerInterface|null
      */
     public function getContainer() : ?ContainerInterface;
 
     /**
-     * Set container.
+     * Set the container implementation
      *
      * @param \Psr\Container\ContainerInterface $container
      *
-     * @return \League\Route\ContainerAwareInterface
+     * @return static
      */
     public function setContainer(ContainerInterface $container) : ContainerAwareInterface;
 }

@@ -62,11 +62,11 @@ class Route implements
     }
 
     /**
-     * Get the callable.
+     * Get the controller callable
      *
-     * @param \Psr\Container\ContainerInterface $container
+     * @param \Psr\Container\ContainerInterface|null $container
      *
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
      * @return callable
      */
@@ -83,19 +83,11 @@ class Route implements
         }
 
         if (is_array($callable) && isset($callable[0]) && is_string($callable[0])) {
-            $class = (! is_null($container) && $container->has($callable[0]))
-                ? $container->get($callable[0])
-                : new $callable[0]
-            ;
-
-            $callable = [$class, $callable[1]];
+            $callable = [$this->resolveClass($container, $callable[0]), $callable[1]];
         }
 
         if (is_string($callable) && method_exists($callable, '__invoke')) {
-            $callable = (! is_null($container) && $container->has($callable))
-                ? $container->get($callable)
-                : new $callable
-            ;
+            $callable = $this->resolveClass($container, $callable);
         }
 
         if (! is_callable($callable)) {
@@ -106,7 +98,24 @@ class Route implements
     }
 
     /**
-     * Return vars to be passed to route callable.
+     * Get an object instance from a class name
+     *
+     * @param \Psr\Container\ContainerInterface|null $container
+     * @param string $class
+     *
+     * @return object
+     */
+    protected function resolveClass(?ContainerInterface $container = null, string $class)
+    {
+        if ($container instanceof ContainerInterface && $container->has($class)) {
+            return $container->get($class);
+        }
+
+        return new $class();
+    }
+
+    /**
+     * Return variables to be passed to route callable
      *
      * @return array
      */
@@ -116,7 +125,7 @@ class Route implements
     }
 
     /**
-     * Set vars to be passed to route callable.
+     * Set variables to be passed to route callable
      *
      * @param array $vars
      *
@@ -130,7 +139,7 @@ class Route implements
     }
 
     /**
-     * Get the parent group.
+     * Get the parent group
      *
      * @return \League\Route\RouteGroup
      */
@@ -140,7 +149,7 @@ class Route implements
     }
 
     /**
-     * Set the parent group.
+     * Set the parent group
      *
      * @param \League\Route\RouteGroup $group
      *
@@ -154,7 +163,7 @@ class Route implements
     }
 
     /**
-     * Get the path.
+     * Get the path
      *
      * @return string
      */
@@ -164,7 +173,7 @@ class Route implements
     }
 
     /**
-     * Get the methods.
+     * Get the HTTP method
      *
      * @return string
      */

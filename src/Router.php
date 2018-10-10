@@ -44,7 +44,7 @@ class Router extends RouteCollector implements
     ];
 
     /**
-     * Constructor.
+     * Constructor
      *
      * @param \FastRoute\RouteParser   $parser
      * @param \FastRoute\DataGenerator $generator
@@ -71,7 +71,7 @@ class Router extends RouteCollector implements
     }
 
     /**
-     * Add a group of routes to the collection.
+     * Add a group of routes to the collection
      *
      * @param string   $prefix
      * @param callable $group
@@ -159,7 +159,10 @@ class Router extends RouteCollector implements
     }
 
     /**
-     * Process all groups, and determine if we are using a group's strategy.
+     * Process all groups
+     *
+     * Adds all of the group routes to the collection and determines if the group
+     * strategy should be be used.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      *
@@ -184,7 +187,7 @@ class Router extends RouteCollector implements
     }
 
     /**
-     * Get named route.
+     * Get a named route
      *
      * @param string $name
      *
@@ -196,7 +199,7 @@ class Router extends RouteCollector implements
     {
         $this->buildNameIndex();
 
-        if (array_key_exists($name, $this->namedRoutes)) {
+        if (isset($this->namedRoutes[$name])) {
             return $this->namedRoutes[$name];
         }
 
@@ -204,7 +207,7 @@ class Router extends RouteCollector implements
     }
 
     /**
-     * Add a convenient pattern matcher to the internal array for use with all routes.
+     * Add a convenient pattern matcher to the internal array for use with all routes
      *
      * @param string $alias
      * @param string $regex
@@ -222,7 +225,7 @@ class Router extends RouteCollector implements
     }
 
     /**
-     * Convenience method to convert pre-defined key words in to regex strings.
+     * Replace word patterns with regex in route path
      *
      * @param string $path
      *

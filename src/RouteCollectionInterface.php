@@ -5,7 +5,7 @@ namespace League\Route;
 interface RouteCollectionInterface
 {
     /**
-     * Add a route to the map.
+     * Add a route to the map
      *
      * @param string          $method
      * @param string          $path
@@ -16,7 +16,7 @@ interface RouteCollectionInterface
     public function map(string $method, string $path, $handler) : Route;
 
     /**
-     * Add a route that responds to GET HTTP method.
+     * Add a route that responds to GET HTTP method
      *
      * @param string          $path
      * @param callable|string $handler
@@ -26,7 +26,7 @@ interface RouteCollectionInterface
     public function get($path, $handler);
 
     /**
-     * Add a route that responds to POST HTTP method.
+     * Add a route that responds to POST HTTP method
      *
      * @param string          $path
      * @param callable|string $handler
@@ -36,7 +36,7 @@ interface RouteCollectionInterface
     public function post($path, $handler);
 
     /**
-     * Add a route that responds to PUT HTTP method.
+     * Add a route that responds to PUT HTTP method
      *
      * @param string          $path
      * @param callable|string $handler
@@ -46,7 +46,7 @@ interface RouteCollectionInterface
     public function put($path, $handler);
 
     /**
-     * Add a route that responds to PATCH HTTP method.
+     * Add a route that responds to PATCH HTTP method
      *
      * @param string          $path
      * @param callable|string $handler
@@ -56,7 +56,7 @@ interface RouteCollectionInterface
     public function patch($path, $handler);
 
     /**
-     * Add a route that responds to DELETE HTTP method.
+     * Add a route that responds to DELETE HTTP method
      *
      * @param string          $path
      * @param callable|string $handler
@@ -66,7 +66,7 @@ interface RouteCollectionInterface
     public function delete($path, $handler);
 
     /**
-     * Add a route that responds to HEAD HTTP method.
+     * Add a route that responds to HEAD HTTP method
      *
      * @param string          $path
      * @param callable|string $handler
@@ -76,7 +76,7 @@ interface RouteCollectionInterface
     public function head($path, $handler);
 
     /**
-     * Add a route that responds to OPTIONS HTTP method.
+     * Add a route that responds to OPTIONS HTTP method
      *
      * @param string          $path
      * @param callable|string $handler

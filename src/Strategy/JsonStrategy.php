@@ -34,7 +34,8 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
      */
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface
     {
-        $response = call_user_func_array($route->getCallable($this->getContainer()), [$request, $route->getVars()]);
+        $controller = $route->getCallable($this->getContainer());
+        $response = $controller($request, $route->getVars());
 
         if ($this->isJsonEncodable($response)) {
             $body     = json_encode($response);
@@ -51,10 +52,11 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     }
 
     /**
-     * Check if the response can be converted to json
+     * Check if the response can be converted to JSON
+     *
      * Arrays can always be converted, objects can be converted if they're not a response already
      *
-     * @param $response
+     * @param mixed $response
      *
      * @return bool
      */
@@ -84,9 +86,9 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     }
 
     /**
-     * Return a middleware that simply throws and exception.
+     * Return a middleware the creates a JSON response from an HTTP exception
      *
-     * @param \Exception $exception
+     * @param \League\Route\Http\Exception $exception
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */

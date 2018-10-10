@@ -5,66 +5,66 @@ namespace League\Route;
 interface RouteConditionHandlerInterface
 {
     /**
-     * Get the host.
+     * Get the host condition
      *
-     * @return string
+     * @return string|null
      */
     public function getHost() : ?string;
 
     /**
-     * Set the host.
+     * Set the host condition
      *
      * @param string $host
      *
-     * @return \League\Route\RouteConditionHandlerInterface
+     * @return static
      */
     public function setHost(string $host) : RouteConditionHandlerInterface;
 
     /**
-     * Get the name.
+     * Get the route name
      *
-     * @return string
+     * @return string|null
      */
     public function getName() : ?string;
 
     /**
-     * Set the name.
+     * Set the route name
      *
      * @param string $name
      *
-     * @return \League\Route\RouteConditionHandlerInterface
+     * @return static
      */
     public function setName(string $name) : RouteConditionHandlerInterface;
 
     /**
-     * Get the scheme.
+     * Get the scheme condition
      *
-     * @return string
+     * @return string|null
      */
     public function getScheme() : ?string;
 
     /**
-     * Set the scheme.
+     * Set the scheme condition
      *
      * @param string $scheme
      *
-     * @return \League\Route\RouteConditionHandlerInterface
+     * @return static
      */
     public function setScheme(string $scheme) : RouteConditionHandlerInterface;
 
     /**
-     * Get the port.
+     * Get the port condition
      *
-     * @return int
+     * @return int|null
      */
     public function getPort() : ?int;
 
     /**
-     * Set the port.
+     * Set the port condition
      *
      * @param int $port
      *
-     * @return \League\Route\RouteConditionHandlerInterface
+     * @return static
      */
     public function setPort(int $port) : RouteConditionHandlerInterface;
 }

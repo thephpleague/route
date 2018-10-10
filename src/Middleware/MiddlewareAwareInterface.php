@@ -7,36 +7,36 @@ use Psr\Http\Server\MiddlewareInterface;
 interface MiddlewareAwareInterface
 {
     /**
-     * Add a middleware to the stack.
+     * Add a middleware to the stack
      *
      * @param \Psr\Http\Server\MiddlewareInterface $middleware
      *
-     * @return self
+     * @return static
      */
     public function middleware(MiddlewareInterface $middleware) : MiddlewareAwareInterface;
 
     /**
-     * Add a middleware to the stack.
+     * Add multiple middleware to the stack
      *
      * @param \Psr\Http\Server\MiddlewareInterface[] $middlewares
      *
-     * @return self
+     * @return static
      */
     public function middlewares(array $middlewares) : MiddlewareAwareInterface;
 
     /**
-     * Add a middleware to the stack.
+     * Prepend a middleware to the stack
      *
      * @param \Psr\Http\Server\MiddlewareInterface $middleware
      *
-     * @return self
+     * @return static
      */
     public function prependMiddleware(MiddlewareInterface $middleware) : MiddlewareAwareInterface;
 
     /**
-     * Shift middleware from beginning of stack.
+     * Shift a middleware from beginning of stack
      *
-     * @return \Psr\Http\Server\MiddlewareInterface
+     * @return \Psr\Http\Server\MiddlewareInterface|null
      */
     public function shiftMiddleware() : MiddlewareInterface;
 

@@ -18,7 +18,8 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
      */
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface
     {
-        return call_user_func_array($route->getCallable($this->getContainer()), [$request, $route->getVars()]);
+        $controller = $route->getCallable($this->getContainer());
+        return $controller($request, $route->getVars());
     }
 
     /**
@@ -38,7 +39,7 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
     }
 
     /**
-     * Return a middleware that simply throws and exception.
+     * Return a middleware that simply throws an exception
      *
      * @param \Exception $exception
      *
