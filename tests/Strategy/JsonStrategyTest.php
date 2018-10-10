@@ -14,6 +14,48 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 class JsonStrategyTest extends TestCase
 {
     /**
+     * Asserts that the strategy includes default headers.
+     *
+     * @return void
+     */
+    public function testStrategyHasDefaultHeaders() : void
+    {
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $strategy = new JsonStrategy($factory);
+
+        $expectedHeaders = [
+            'content-type' => 'application/json',
+        ];
+
+        $this->assertSame($expectedHeaders, $strategy->getDefaultResponseHeaders());
+    }
+
+    /**
+     * Asserts that the strategy default headers can be added to.
+     *
+     * @return void
+     */
+    public function testStrategyCanDefineAdditionalHeaders() : void
+    {
+        $factory = $this->createMock(ResponseFactoryInterface::class);
+
+        $strategy = new JsonStrategy($factory);
+
+        $additionalHeaders = [
+            'cache-control' => 'no-cache',
+        ];
+
+        $strategy->addDefaultResponseHeaders($additionalHeaders);
+
+        $expectedHeaders = array_replace([
+            'content-type' => 'application/json',
+        ], $additionalHeaders);
+
+        $this->assertSame($expectedHeaders, $strategy->getDefaultResponseHeaders());
+    }
+
+    /**
      * Asserts that the strategy properly invokes the route callable.
      *
      * @return void
@@ -53,7 +95,7 @@ class JsonStrategyTest extends TestCase
 
         $expectedResponse
             ->expects($this->once())
-            ->method('withAddedHeader')
+            ->method('withHeader')
             ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
             ->will($this->returnSelf())
         ;
@@ -88,15 +130,8 @@ class JsonStrategyTest extends TestCase
 
         $expectedResponse
             ->expects($this->once())
-            ->method('withAddedHeader')
+            ->method('withHeader')
             ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->will($this->returnSelf())
-        ;
-
-        $expectedResponse
-            ->expects($this->once())
-            ->method('withStatus')
-            ->with($this->equalTo(200))
             ->will($this->returnSelf())
         ;
 
@@ -359,15 +394,8 @@ class JsonStrategyTest extends TestCase
 
         $expectedResponse
             ->expects($this->once())
-            ->method('withAddedHeader')
+            ->method('withHeader')
             ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->will($this->returnSelf())
-        ;
-
-        $expectedResponse
-            ->expects($this->once())
-            ->method('withStatus')
-            ->with($this->equalTo(200))
             ->will($this->returnSelf())
         ;
 
@@ -399,7 +427,6 @@ class JsonStrategyTest extends TestCase
                     $this->assertSame($expectedRequest, $request);
                     return $expectedObject;
                 }
-
             ))
         ;
 

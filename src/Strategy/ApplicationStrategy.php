@@ -9,7 +9,7 @@ use League\Route\Route;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
-class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
+class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -19,7 +19,11 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface
     {
         $controller = $route->getCallable($this->getContainer());
-        return $controller($request, $route->getVars());
+
+        $response = $controller($request, $route->getVars());
+        $response = $this->applyDefaultResponseHeaders($response);
+
+        return $response;
     }
 
     /**

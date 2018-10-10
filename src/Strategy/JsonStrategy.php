@@ -10,7 +10,7 @@ use League\Route\Route;
 use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
-class JsonStrategy implements ContainerAwareInterface, StrategyInterface
+class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -27,6 +27,8 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
     public function __construct(ResponseFactoryInterface $responseFactory)
     {
         $this->responseFactory = $responseFactory;
+
+        $this->addDefaultResponseHeader('content-type', 'application/json');
     }
 
     /**
@@ -39,14 +41,11 @@ class JsonStrategy implements ContainerAwareInterface, StrategyInterface
 
         if ($this->isJsonEncodable($response)) {
             $body     = json_encode($response);
-            $response = $this->responseFactory->createResponse();
-            $response = $response->withStatus(200);
+            $response = $this->responseFactory->createResponse(200);
             $response->getBody()->write($body);
         }
 
-        if ($response instanceof ResponseInterface && ! $response->hasHeader('content-type')) {
-            $response = $response->withAddedHeader('content-type', 'application/json');
-        }
+        $response = $this->applyDefaultResponseHeaders($response);
 
         return $response;
     }
