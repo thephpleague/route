@@ -2,7 +2,6 @@
 
 namespace League\Route;
 
-use League\Route\RouteGroup;
 use PHPUnit\Framework\TestCase;
 
 class RouteGroupTest extends TestCase

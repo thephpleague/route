@@ -4,7 +4,6 @@ namespace League\Route;
 
 use Exception;
 use League\Route\Http\Exception\{BadRequestException, MethodNotAllowedException, NotFoundException};
-use League\Route\Router;
 use League\Route\Strategy\JsonStrategy;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\{

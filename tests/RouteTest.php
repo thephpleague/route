@@ -3,7 +3,7 @@
 namespace League\Route;
 
 use InvalidArgumentException;
-use League\Route\Test\Asset\Controller;
+use League\Route\Fixture\Controller;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
@@ -42,7 +42,7 @@ class RouteTest extends TestCase
      */
     public function testRouteSetsAndResolvesNamedFunctionCallable() : void
     {
-        $callable = 'League\Route\Test\Asset\namedFunctionCallable';
+        $callable = 'League\Route\Fixture\namedFunctionCallable';
         $route    = new Route('GET', '/', $callable);
         $this->assertTrue(is_callable($route->getCallable()));
     }
@@ -70,7 +70,7 @@ class RouteTest extends TestCase
             ->will($this->returnValue(new Controller))
         ;
 
-        $callable = 'League\Route\Test\Asset\Controller::action';
+        $callable = 'League\Route\Fixture\Controller::action';
         $route    = new Route('GET', '/', $callable);
 
         $newCallable = $route->getCallable($container);
@@ -98,7 +98,7 @@ class RouteTest extends TestCase
             ->will($this->returnValue(false))
         ;
 
-        $callable = 'League\Route\Test\Asset\Controller::action';
+        $callable = 'League\Route\Fixture\Controller::action';
         $route    = new Route('GET', '/', $callable);
 
         $newCallable = $route->getCallable($container);

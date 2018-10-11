@@ -46,9 +46,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "League\\Route\\Test\\": "tests"
+            "League\\Route\\": "tests"
         },
-        "files": ["tests/Asset/function.php"]
+        "files": ["tests/Fixture/function.php"]
     },
     "extra": {
         "branch-alias": {
