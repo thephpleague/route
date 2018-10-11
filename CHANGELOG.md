@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 - Allow adding default response headers to strategies.
+- Expand error handling to include Throwable.
 
 ## [4.1.1] 2018-10
 

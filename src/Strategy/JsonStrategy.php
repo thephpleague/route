@@ -2,13 +2,13 @@
 
 namespace League\Route\Strategy;
 
-use Exception;
 use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
 use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
 use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use Throwable;
 
 class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
 {
@@ -118,6 +118,14 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
      */
     public function getExceptionHandler() : MiddlewareInterface
     {
+        return $this->getThrowableHandler();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getThrowableHandler() : MiddlewareInterface
+    {
         return new class($this->responseFactory->createResponse()) implements MiddlewareInterface
         {
             protected $response;
@@ -133,7 +141,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
             ) : ResponseInterface {
                 try {
                     return $requestHandler->handle($request);
-                } catch (Exception $exception) {
+                } catch (Throwable $exception) {
                     $response = $this->response;
 
                     if ($exception instanceof HttpException) {

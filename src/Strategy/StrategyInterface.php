@@ -47,4 +47,12 @@ interface StrategyInterface
      * @return \Psr\Http\Server\MiddlewareInterface
      */
     public function getExceptionHandler() : MiddlewareInterface;
+
+    /**
+     * Get a middleware that acts as a throwable handler, it should wrap the rest of the
+     * middleware stack and catch any throwables.
+     *
+     * @return \Psr\Http\Server\MiddlewareInterface
+     */
+    public function getThrowableHandler() : MiddlewareInterface;
 }
