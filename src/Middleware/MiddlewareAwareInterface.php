@@ -36,9 +36,11 @@ interface MiddlewareAwareInterface
     /**
      * Shift a middleware from beginning of stack
      *
+     * Will return null if the end of the stack has been reached.
+     *
      * @return \Psr\Http\Server\MiddlewareInterface|null
      */
-    public function shiftMiddleware() : MiddlewareInterface;
+    public function shiftMiddleware() : ?MiddlewareInterface;
 
     /**
      * Get the stack of middleware

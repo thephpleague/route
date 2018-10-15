@@ -46,7 +46,7 @@ trait MiddlewareAwareTrait
     /**
      * {@inheritdoc}
      */
-    public function shiftMiddleware() : MiddlewareInterface
+    public function shiftMiddleware() : ?MiddlewareInterface
     {
         return array_shift($this->middleware);
     }
