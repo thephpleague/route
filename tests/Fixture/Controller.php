@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Route\Test\Asset;
+namespace League\Route\Fixture;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
