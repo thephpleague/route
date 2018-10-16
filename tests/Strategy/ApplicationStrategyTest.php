@@ -12,6 +12,40 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 class ApplicationStrategyTest extends TestCase
 {
     /**
+     * Asserts that the strategy includes default headers.
+     *
+     * @return void
+     */
+    public function testStrategyHasDefaultHeaders() : void
+    {
+        $strategy = new ApplicationStrategy();
+
+        $expectedHeaders = [];
+
+        $this->assertSame($expectedHeaders, $strategy->getDefaultResponseHeaders());
+    }
+
+    /**
+     * Asserts that the strategy default headers can be added to.
+     *
+     * @return void
+     */
+    public function testStrategyCanDefineAdditionalHeaders() : void
+    {
+        $strategy = new ApplicationStrategy();
+
+        $additionalHeaders = [
+            'cache-control' => 'no-cache',
+        ];
+
+        $strategy->addDefaultResponseHeaders($additionalHeaders);
+
+        $expectedHeaders = array_replace([], $additionalHeaders);
+
+        $this->assertSame($expectedHeaders, $strategy->getDefaultResponseHeaders());
+    }
+
+    /**
      * Asserts that the strategy properly invokes the route callable
      *
      * @return void

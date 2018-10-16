@@ -712,19 +712,13 @@ class DispatchIntegrationTest extends TestCase
 
         $response
             ->expects($this->once())
-            ->method('withStatus')
-            ->will($this->returnSelf())
-        ;
-
-        $response
-            ->expects($this->once())
             ->method('getBody')
             ->will($this->returnValue($this->createMock(\Psr\Http\Message\StreamInterface::class)))
         ;
 
         $response
             ->expects($this->once())
-            ->method('withAddedHeader')
+            ->method('withHeader')
             ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
             ->will($this->returnSelf())
         ;
@@ -776,19 +770,13 @@ class DispatchIntegrationTest extends TestCase
 
         $response
             ->expects($this->once())
-            ->method('withStatus')
-            ->will($this->returnSelf())
-        ;
-
-        $response
-            ->expects($this->once())
             ->method('getBody')
             ->will($this->returnValue($this->createMock(\Psr\Http\Message\StreamInterface::class)))
         ;
 
         $response
             ->expects($this->once())
-            ->method('withAddedHeader')
+            ->method('withHeader')
             ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
             ->will($this->returnSelf())
         ;

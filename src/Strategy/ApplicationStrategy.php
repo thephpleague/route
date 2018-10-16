@@ -2,14 +2,14 @@
 
 namespace League\Route\Strategy;
 
-use Exception;
 use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use Throwable;
 
-class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
+class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -19,7 +19,11 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface
     {
         $controller = $route->getCallable($this->getContainer());
-        return $controller($request, $route->getVars());
+
+        $response = $controller($request, $route->getVars());
+        $response = $this->applyDefaultResponseHeaders($response);
+
+        return $response;
     }
 
     /**
@@ -27,7 +31,7 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
      */
     public function getNotFoundDecorator(NotFoundException $exception) : MiddlewareInterface
     {
-        return $this->throwExceptionMiddleware($exception);
+        return $this->throwThrowableMiddleware($exception);
     }
 
     /**
@@ -35,32 +39,32 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
      */
     public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception) : MiddlewareInterface
     {
-        return $this->throwExceptionMiddleware($exception);
+        return $this->throwThrowableMiddleware($exception);
     }
 
     /**
-     * Return a middleware that simply throws an exception
+     * Return a middleware that simply throws an error
      *
-     * @param \Exception $exception
+     * @param \Throwable $error
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */
-    protected function throwExceptionMiddleware(Exception $exception) : MiddlewareInterface
+    protected function throwThrowableMiddleware(Throwable $error) : MiddlewareInterface
     {
-        return new class($exception) implements MiddlewareInterface
+        return new class($error) implements MiddlewareInterface
         {
-            protected $exception;
+            protected $error;
 
-            public function __construct(Exception $exception)
+            public function __construct(Throwable $error)
             {
-                $this->exception = $exception;
+                $this->error = $error;
             }
 
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $requestHandler
             ) : ResponseInterface {
-                throw $this->exception;
+                throw $this->error;
             }
         };
     }
@@ -69,6 +73,14 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
      * {@inheritdoc}
      */
     public function getExceptionHandler() : MiddlewareInterface
+    {
+        return $this->getThrowableHandler();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getThrowableHandler() : MiddlewareInterface
     {
         return new class implements MiddlewareInterface
         {
@@ -81,7 +93,7 @@ class ApplicationStrategy implements ContainerAwareInterface, StrategyInterface
             ) : ResponseInterface {
                 try {
                     return $requestHandler->handle($request);
-                } catch (Exception $e) {
+                } catch (Throwable $e) {
                     throw $e;
                 }
             }
