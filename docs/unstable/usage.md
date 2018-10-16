@@ -13,6 +13,7 @@ to install and manage your installation of Route. You'll [need to install][depen
 both the Route project and an implementation of the [PSR-7 message interface][psr7]. 
 
 First, install the Route project itself:
+
 ~~~
 composer require league/route
 ~~~
@@ -23,7 +24,7 @@ Next, install an implementation of PSR-7. We recommend the [Zend Diactoros proje
 composer require zendframework/zend-diactoros
 ~~~
 
-Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/unstable/dependency-injection) for more information.
+Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/4.x/dependency-injection) for more information.
 
 ~~~
 composer require league/container
@@ -64,6 +65,12 @@ $response = $router->dispatch($request);
 
 Only a few changes are needed to create a simple JSON API. We have to change the strategy that the router uses to dispatch a controller, as well as providing a response factory to ensure the JSON Strategy can build the response it needs to.
 
+To provide a response factory, we will need to install a http-interop response factory package, in this case we will use the factory for zend-diactoros.
+
+~~~
+composer require http-interop/http-factory-diactoros
+~~~
+
 ~~~php
 <?php declare(strict_types=1);
 
@@ -76,9 +83,7 @@ $request = Zend\Diactoros\ServerRequestFactory::fromGlobals(
     $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
 );
 
-$responseFactory = function () : ResponseInterface {
-    return new Zend\Diactoros\Response;
-};
+$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
 
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 $router   = (new League\Route\Router)->setStrategy($strategy);

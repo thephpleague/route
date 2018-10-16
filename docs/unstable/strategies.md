@@ -6,6 +6,7 @@ sections:
     Applying Strategies: applying-strategies
     Application Strategy: application-strategy
     JSON Strategy: json-strategy
+    Default Response Behaviour: default-response-behaviour
     Custom Strategies: custom-strategies
 ---
 ## Introduction
@@ -100,20 +101,22 @@ function controller(ServerRequestInterface $request, array $args) : ResponseInte
 });
 ~~~
 
-### Exception Decorators
+### Exception (Throwable) Decorators
 
-The [application strategy](https://github.com/thephpleague/route/blob/master/src/Strategy/ApplicationStrategy.php) simply allows any exceptions to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception decorator methods. See [Custom Strategies](#custom-strategies).
+The application strategy simply allows any `Throwable` to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception/throwable decorator methods. See [Custom Strategies](#custom-strategies).
+
+*Note:* In version `5.x` exception decorators will be replaced completely with throwable decorators, keep this in mind when implementing custom strategies, recommendation is to proxy your exception decorator to the throwable decorator.
 
 ## JSON Strategy
 
-`League\Route\Strategy\JsonStrategy` aims to make building JSON APIs a little easier. It provides a PSR-7 `Psr\Http\Message\ServerRequestInterface` implementation and any route arguments to the controller as with the application strategy, the difference being that you can either build and return a response yourself or return an array and a JSON response will be built for you.
+`League\Route\Strategy\JsonStrategy` aims to make building JSON APIs a little easier. It provides a PSR-7 `Psr\Http\Message\ServerRequestInterface` implementation and any route arguments to the controller as with the application strategy, the difference being that you can either build and return a response yourself or return an array or object, and a JSON response will be built for you.
 
 To make use of the JSON strategy, you will need to provide it with a [PSR-17](https://www.php-fig.org/psr/psr-17/) response factory implementation. Some examples of HTTP Factory packages can be found [here](https://github.com/http-interop?utf8=%E2%9C%93&q=http-factory&type=&language=). We will use the `zend-diactoros` factory as an example.
 
 ~~~php
 <?php declare(strict_types=1);
 
-$responseFactory = Http\Factory\Diactoros\ResponseFactory;
+$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 
 $router = (new League\Route\Router)->setStrategy($strategy);
@@ -194,6 +197,25 @@ $router->post('/acme', function (ServerRequestInterface $request) : ResponseInte
 | 428         | `League\Route\Http\Exception\PreconditionRequiredException`       | The origin server requires the request to be conditional.                                                                                                                                                    |
 | 429         | `League\Route\Http\Exception\TooManyRequestsException`            | The user has sent too many requests in a given amount of time.                                                                                                                                               |
 | 451         | `League\Route\Http\Exception\UnavailableForLegalReasonsException` | The resource is unavailable for legal reasons.                                                                                                                                                               |
+
+## Deafault Response Behaviour
+
+You can define default interactions/behavior for the response before it is sent.
+
+### Headers
+
+You can set a header to be applied to the response on every request, it will only be applied, if the header does not already exist. For example, you may want to set a custom `Content-Type` header.
+
+~~~php
+<?php declare(strict_types=1);
+
+$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
+$strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
+
+$strategy->setDefaultResponseHeader('content-type', 'acme-app/json');
+
+$router = (new League\Route\Router)->setStrategy($strategy);
+~~~
 
 ## Custom Strategies
 

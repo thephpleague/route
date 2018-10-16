@@ -26,7 +26,7 @@ At its core is Nikita Popov's [FastRoute](https://github.com/nikic/FastRoute) pa
 
 ## What isn't Route?
 
-Route is not a framework, it will not allow you to build an application out of the box. See our [usage documentation](/unstable/usage) for more information.
+Route is not a framework, it will not allow you to build an application out of the box.
 
 ## Goals
 

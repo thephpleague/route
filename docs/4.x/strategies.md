@@ -6,6 +6,7 @@ sections:
     Applying Strategies: applying-strategies
     Application Strategy: application-strategy
     JSON Strategy: json-strategy
+    Default Response Behaviour: default-response-behaviour
     Custom Strategies: custom-strategies
 ---
 ## Introduction
@@ -100,9 +101,11 @@ function controller(ServerRequestInterface $request, array $args) : ResponseInte
 });
 ~~~
 
-### Exception Decorators
+### Exception (Throwable) Decorators
 
-The application strategy simply allows any exceptions to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception decorator methods. See [Custom Strategies](#custom-strategies).
+The application strategy simply allows any `Throwable` to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception/throwable decorator methods. See [Custom Strategies](#custom-strategies).
+
+*Note:* In version `5.x` exception decorators will be replaced completely with throwable decorators, keep this in mind when implementing custom strategies, recommendation is to proxy your exception decorator to the throwable decorator.
 
 ## JSON Strategy
 
@@ -194,6 +197,25 @@ $router->post('/acme', function (ServerRequestInterface $request) : ResponseInte
 | 428         | `League\Route\Http\Exception\PreconditionRequiredException`       | The origin server requires the request to be conditional.                                                                                                                                                    |
 | 429         | `League\Route\Http\Exception\TooManyRequestsException`            | The user has sent too many requests in a given amount of time.                                                                                                                                               |
 | 451         | `League\Route\Http\Exception\UnavailableForLegalReasonsException` | The resource is unavailable for legal reasons.                                                                                                                                                               |
+
+## Deafault Response Behaviour
+
+You can define default interactions/behavior for the response before it is sent.
+
+### Headers
+
+You can set a header to be applied to the response on every request, it will only be applied, if the header does not already exist. For example, you may want to set a custom `Content-Type` header.
+
+~~~php
+<?php declare(strict_types=1);
+
+$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
+$strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
+
+$strategy->setDefaultResponseHeader('content-type', 'acme-app/json');
+
+$router = (new League\Route\Router)->setStrategy($strategy);
+~~~
 
 ## Custom Strategies
 

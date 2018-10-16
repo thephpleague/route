@@ -9,9 +9,9 @@ sections:
 ---
 ## Introduction
 
-Every defined route requires a `callable` to invoke when dispatched, something that could be described as a controller in MVC. By default, Route only imposes that the callable is defined with a specific signature, it is given a request object as the first argument, an associative array of wildcard route arguments as the second argument, and expects a response object to be returned. Read more about this in [HTTP](/unstable/http).
+Every defined route requires a `callable` to invoke when dispatched, something that could be described as a controller in MVC. By default, Route only imposes that the callable is defined with a specific signature, it is given a request object as the first argument, an associative array of wildcard route arguments as the second argument, and expects a response object to be returned. Read more about this in [HTTP](/4.x/http).
 
-This behaviour can be changed by creating/using a different strategy, read more about strategies [here](/unstable/strategies).
+This behaviour can be changed by creating/using a different strategy, read more about strategies [here](/4.x/strategies).
 
 ## Defining Controllers
 
@@ -266,4 +266,4 @@ $router->map('GET', '/', 'Acme\controller');
 
 ## Dependency Injection
 
-Where Route is instantiating the objects for your defined controller, a dependency injection container can be used to resolve those objects. Read more on dependency injection [here](/unstable/dependency-injection).
+Where Route is instantiating the objects for your defined controller, a dependency injection container can be used to resolve those objects. Read more on dependency injection [here](/4.x/dependency-injection).
