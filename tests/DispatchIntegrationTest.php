@@ -898,17 +898,23 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->at(4))
             ->method('withRequestTarget')
-            ->with($this->equalTo('middleware2'))
+            ->with($this->equalTo('middleware4'))
         ;
 
         $request
             ->expects($this->at(5))
             ->method('withRequestTarget')
-            ->with($this->equalTo('middleware3'))
+            ->with($this->equalTo('middleware2'))
         ;
 
         $request
             ->expects($this->at(6))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware3'))
+        ;
+
+        $request
+            ->expects($this->at(7))
             ->method('withRequestTarget')
             ->with($this->equalTo('middleware4'))
         ;
@@ -921,7 +927,10 @@ class DispatchIntegrationTest extends TestCase
 
         $router = new Router;
 
-        $router->middleware($middlewareOne);
+        $router
+            ->middleware($middlewareOne)
+            ->lazyMiddleware($middlewareFour)
+        ;
 
         $router->group('/group', function ($r) use ($response, $middlewareThree, $middlewareFour) : void {
             $r->get('/route', function (ServerRequestInterface $request) use ($response) : ResponseInterface {

@@ -76,8 +76,8 @@ class Dispatcher extends GroupCountBasedDispatcher implements
 
         $container = $route->getStrategy()->getContainer();
 
-        foreach ($this->getMiddlewareStack() as &$middleware) {
-            $middleware = $this->resolveMiddleware($middleware);
+        foreach ($this->getMiddlewareStack() as $key => $middleware) {
+            $this->middleware[$key] = $this->resolveMiddleware($middleware);
         }
 
         // wrap entire dispatch process in exception handler
