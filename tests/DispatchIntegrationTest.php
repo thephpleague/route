@@ -3,6 +3,7 @@
 namespace League\Route;
 
 use Exception;
+use League\Route\Fixture\Middleware;
 use League\Route\Http\Exception\{BadRequestException, MethodNotAllowedException, NotFoundException};
 use League\Route\Strategy\JsonStrategy;
 use PHPUnit\Framework\TestCase;
@@ -824,7 +825,7 @@ class DispatchIntegrationTest extends TestCase
 
         $middlewareOne = new class($counter, $this) implements MiddlewareInterface
         {
-            public function __consttruct($counter, $phpunit)
+            public function __construct($counter, $phpunit)
             {
                 $phpunit->assertSame($counter->getCounter(), 1);
             }
@@ -833,13 +834,14 @@ class DispatchIntegrationTest extends TestCase
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
             ) : ResponseInterface {
+                $request->withRequestTarget('middleware1');
                 return $handler->handle($request);
             }
         };
 
         $middlewareTwo = new class($counter, $this) implements MiddlewareInterface
         {
-            public function __consttruct($counter, $phpunit)
+            public function __construct($counter, $phpunit)
             {
                 $phpunit->assertSame($counter->getCounter(), 2);
             }
@@ -848,13 +850,14 @@ class DispatchIntegrationTest extends TestCase
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
             ) : ResponseInterface {
+                $request->withRequestTarget('middleware2');
                 return $handler->handle($request);
             }
         };
 
         $middlewareThree = new class($counter, $this) implements MiddlewareInterface
         {
-            public function __consttruct($counter, $phpunit)
+            public function __construct($counter, $phpunit)
             {
                 $phpunit->assertSame($counter->getCounter(), 3);
             }
@@ -863,13 +866,16 @@ class DispatchIntegrationTest extends TestCase
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
             ) : ResponseInterface {
+                $request->withRequestTarget('middleware3');
                 return $handler->handle($request);
             }
         };
 
-        $response = $this->createMock(ResponseInterface::class);
-        $request  = $this->createMock(ServerRequestInterface::class);
-        $uri      = $this->createMock(UriInterface::class);
+        $middlewareFour = Middleware::class;
+
+        $response  = $this->createMock(ResponseInterface::class);
+        $request   = $this->createMock(ServerRequestInterface::class);
+        $uri       = $this->createMock(UriInterface::class);
 
         $request
             ->expects($this->once())
@@ -883,6 +889,30 @@ class DispatchIntegrationTest extends TestCase
             ->will($this->returnValue($uri))
         ;
 
+        $request
+            ->expects($this->at(3))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware1'))
+        ;
+
+        $request
+            ->expects($this->at(4))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware2'))
+        ;
+
+        $request
+            ->expects($this->at(5))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware3'))
+        ;
+
+        $request
+            ->expects($this->at(6))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware4'))
+        ;
+
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
@@ -893,10 +923,10 @@ class DispatchIntegrationTest extends TestCase
 
         $router->middleware($middlewareOne);
 
-        $router->group('/group', function ($r) use ($response, $middlewareThree) : void {
+        $router->group('/group', function ($r) use ($response, $middlewareThree, $middlewareFour) : void {
             $r->get('/route', function (ServerRequestInterface $request) use ($response) : ResponseInterface {
                 return $response;
-            })->middleware($middlewareThree);
+            })->middleware($middlewareThree)->lazyMiddleware($middlewareFour);
         })->middleware($middlewareTwo);
 
         $router->dispatch($request);
