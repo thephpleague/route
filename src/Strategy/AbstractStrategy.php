@@ -24,6 +24,7 @@ abstract class AbstractStrategy implements StrategyInterface
      *
      * @param string $name
      * @param string $value
+     *
      * @return static
      */
     public function addDefaultResponseHeader(string $name, string $value) : AbstractStrategy
@@ -37,6 +38,7 @@ abstract class AbstractStrategy implements StrategyInterface
      * Add multiple default response headers
      *
      * @param array $headers
+     *
      * @return static
      */
     public function addDefaultResponseHeaders(array $headers) : AbstractStrategy
@@ -54,6 +56,7 @@ abstract class AbstractStrategy implements StrategyInterface
      * Headers that already exist on the response will NOT be replaced.
      *
      * @param \Psr\Http\Message\ResponseInterface $response
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     protected function applyDefaultResponseHeaders(ResponseInterface $response) : ResponseInterface
