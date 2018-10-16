@@ -198,7 +198,7 @@ $router->post('/acme', function (ServerRequestInterface $request) : ResponseInte
 | 429         | `League\Route\Http\Exception\TooManyRequestsException`            | The user has sent too many requests in a given amount of time.                                                                                                                                               |
 | 451         | `League\Route\Http\Exception\UnavailableForLegalReasonsException` | The resource is unavailable for legal reasons.                                                                                                                                                               |
 
-## Deafault Response Behaviour
+## Default Response Behaviour
 
 You can define default interactions/behavior for the response before it is sent.
 
