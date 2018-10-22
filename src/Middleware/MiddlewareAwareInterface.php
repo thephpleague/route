@@ -38,7 +38,7 @@ interface MiddlewareAwareInterface
      *
      * @return \Psr\Http\Server\MiddlewareInterface|null
      */
-    public function shiftMiddleware() : MiddlewareInterface;
+    public function shiftMiddleware() : ?MiddlewareInterface;
 
     /**
      * Get the stack of middleware
