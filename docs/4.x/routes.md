@@ -96,10 +96,10 @@ Route groups are a way of organising your route definitions, they allow us to pr
 
 $router = new League\Route\Router;
 
-$router->group('/admin', function ($route) {
-    $router->map('GET', '/acme/route1', 'AcmeController::actionOne');
-    $router->map('GET', '/acme/route2', 'AcmeController::actionTwo');
-    $router->map('GET', '/acme/route3', 'AcmeController::actionThree');
+$router->group('/admin', function (\League\Route\RouteGroup $route) {
+    $route->map('GET', '/acme/route1', 'AcmeController::actionOne');
+    $route->map('GET', '/acme/route2', 'AcmeController::actionTwo');
+    $route->map('GET', '/acme/route3', 'AcmeController::actionThree');
 });
 ~~~
 
@@ -120,10 +120,10 @@ As mentioned above, route conditions can be applied to a group and will be match
 
 $router = new League\Route\Router;
 
-$router->group('/admin', function ($route) {
-    $router->map('GET', '/acme/route1', 'AcmeController::actionOne');
-    $router->map('GET', '/acme/route2', 'AcmeController::actionTwo')->setScheme('https');
-    $router->map('GET', '/acme/route3', 'AcmeController::actionThree');
+$router->group('/admin', function (\League\Route\RouteGroup $route) {
+    $route->map('GET', '/acme/route1', 'AcmeController::actionOne');
+    $route->map('GET', '/acme/route2', 'AcmeController::actionTwo')->setScheme('https');
+    $route->map('GET', '/acme/route3', 'AcmeController::actionThree');
 })
     ->setScheme('http')
     ->setHost('example.com')
