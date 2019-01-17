@@ -102,7 +102,7 @@ $response = $router->dispatch($request);
 (new Zend\Diactoros\Response\SapiEmitter)->emit($response);
 ~~~
 
-The code above will turn your returned array in to a JSON response.
+The code above will convert your returned array in to a JSON response.
 
 ~~~json
 {
