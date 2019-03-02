@@ -54,8 +54,6 @@ Please see [CONTRIBUTING](https://github.com/thephpleague/route/blob/master/CONT
 - [Nikita Popov](https://github.com/nikic) (FastRoute)
 - [All Contributors](https://github.com/thephpleague/route/contributors)
 
-All `Orno\Route` contributions can be found [here](https://github.com/orno/route/graphs/contributors).
-
 ## License
 
 The MIT License (MIT). Please see [License File](https://github.com/thephpleague/route/blob/master/LICENSE.md) for more information.
