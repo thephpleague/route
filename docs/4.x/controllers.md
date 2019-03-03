@@ -266,4 +266,4 @@ $router->map('GET', '/', 'Acme\controller');
 
 ## Dependency Injection
 
-Where Route is instantiating the objects for your defined controller, a dependency injection container can be used to resolve those objects. Read more on dependency injection [here](/4.x/dependency-injection).
+Where Route is instantiating the objects for your defined controller, a dependency injection container can be used to resolve those objects. Read more on dependency injection [here](/docs/4.x/dependency-injection).
