@@ -87,7 +87,7 @@ $router
     ->group('/admin', function ($router) {
         // ... add routes
     })
-    ->middle(new Acme\AuthMiddleware)
+    ->middleware(new Acme\AuthMiddleware)
 ;
 ~~~
 
