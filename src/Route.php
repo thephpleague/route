@@ -158,6 +158,12 @@ class Route implements
     public function setParentGroup(RouteGroup $group) : self
     {
         $this->group = $group;
+        $prefix = $group->getPrefix();
+        $path = $this->getPath();
+        if (strcmp($prefix, substr($path, 0, strlen($prefix))) != 0) {
+            $path = $prefix . $path;
+            $this->path = $path;
+        }
 
         return $this;
     }
