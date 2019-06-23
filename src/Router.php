@@ -97,10 +97,14 @@ class Router extends RouteCollector implements
 
         $this->prepRoutes($request);
 
-        return (new Dispatcher($this->getData()))
-            ->middlewares($this->getMiddlewareStack())
-            ->setStrategy($this->getStrategy())
-            ->dispatchRequest($request)
+        $data = $this->getData();
+        $dispatcher= new Dispatcher($data);
+        $dispatcher->middlewares($this->getMiddlewareStack());
+        $dispatcher->setStrategy($this->getStrategy());
+        $response = $dispatcher->dispatchRequest($request);
+
+        return ($response);
+
         ;
     }
 
