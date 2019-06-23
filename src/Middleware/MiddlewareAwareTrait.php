@@ -2,6 +2,7 @@
 
 namespace League\Route\Middleware;
 
+use OutOfBoundsException;
 use Psr\Http\Server\MiddlewareInterface;
 
 trait MiddlewareAwareTrait
@@ -44,11 +45,17 @@ trait MiddlewareAwareTrait
     }
 
     /**
-     * {@inheritdoc}
+     *{@inheritdoc}
      */
     public function shiftMiddleware() : MiddlewareInterface
     {
-        return array_shift($this->middleware);
+        $middleware =  array_shift($this->middleware);
+
+        if (is_null($middleware)) {
+            throw new OutOfBoundsException('Reached end of middleware stack. Does your controller return a response?');
+        }
+
+        return $middleware;
     }
 
     /**

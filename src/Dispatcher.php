@@ -54,10 +54,6 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     {
         $middleware = $this->shiftMiddleware();
 
-        if (is_null($middleware)) {
-            throw new OutOfBoundsException('Reached end of middleware stack. Does your controller return a response?');
-        }
-
         return $middleware->process($request, $this);
     }
 
