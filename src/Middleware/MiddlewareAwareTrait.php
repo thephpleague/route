@@ -45,7 +45,7 @@ trait MiddlewareAwareTrait
     }
 
     /**
-     *{@inheritdoc}
+     * {@inheritdoc}
      */
     public function shiftMiddleware() : MiddlewareInterface
     {
