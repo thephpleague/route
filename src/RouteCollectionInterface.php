@@ -13,7 +13,7 @@ interface RouteCollectionInterface
      *
      * @return Route
      */
-    public function map(string $method, string $path, $handler) : Route;
+    public function map(string $method, string $path, $handler): Route;
 
     /**
      * Add a route that responds to GET HTTP method

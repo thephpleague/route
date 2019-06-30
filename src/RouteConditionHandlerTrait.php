@@ -27,7 +27,7 @@ trait RouteConditionHandlerTrait
     /**
      * {@inheritdoc}
      */
-    public function getHost() : ?string
+    public function getHost(): ?string
     {
         return $this->host;
     }
@@ -35,7 +35,7 @@ trait RouteConditionHandlerTrait
     /**
      * {@inheritdoc}
      */
-    public function setHost(string $host) : RouteConditionHandlerInterface
+    public function setHost(string $host): RouteConditionHandlerInterface
     {
         $this->host = $host;
 
@@ -45,7 +45,7 @@ trait RouteConditionHandlerTrait
     /**
      * {@inheritdoc}
      */
-    public function getName() : ?string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -53,7 +53,7 @@ trait RouteConditionHandlerTrait
     /**
      * {@inheritdoc}
      */
-    public function setName(string $name) : RouteConditionHandlerInterface
+    public function setName(string $name): RouteConditionHandlerInterface
     {
         $this->name = $name;
 
@@ -63,7 +63,7 @@ trait RouteConditionHandlerTrait
     /**
      * {@inheritdoc}
      */
-    public function getScheme() : ?string
+    public function getScheme(): ?string
     {
         return $this->scheme;
     }
@@ -71,7 +71,7 @@ trait RouteConditionHandlerTrait
     /**
      * {@inheritdoc}
      */
-    public function setScheme(string $scheme) : RouteConditionHandlerInterface
+    public function setScheme(string $scheme): RouteConditionHandlerInterface
     {
         $this->scheme = $scheme;
 
@@ -81,7 +81,7 @@ trait RouteConditionHandlerTrait
     /**
      * {@inheritdoc}
      */
-    public function getPort() : ?int
+    public function getPort(): ?int
     {
         return $this->port;
     }
@@ -89,7 +89,7 @@ trait RouteConditionHandlerTrait
     /**
      * {@inheritdoc}
      */
-    public function setPort(int $port) : RouteConditionHandlerInterface
+    public function setPort(int $port): RouteConditionHandlerInterface
     {
         $this->port = $port;
 

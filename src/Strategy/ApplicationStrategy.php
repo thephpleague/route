@@ -16,7 +16,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
     /**
      * {@inheritdoc}
      */
-    public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface
+    public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface
     {
         $controller = $route->getCallable($this->getContainer());
 
@@ -29,7 +29,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
     /**
      * {@inheritdoc}
      */
-    public function getNotFoundDecorator(NotFoundException $exception) : MiddlewareInterface
+    public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface
     {
         return $this->throwThrowableMiddleware($exception);
     }
@@ -37,7 +37,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
     /**
      * {@inheritdoc}
      */
-    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception) : MiddlewareInterface
+    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface
     {
         return $this->throwThrowableMiddleware($exception);
     }
@@ -49,7 +49,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */
-    protected function throwThrowableMiddleware(Throwable $error) : MiddlewareInterface
+    protected function throwThrowableMiddleware(Throwable $error): MiddlewareInterface
     {
         return new class($error) implements MiddlewareInterface
         {
@@ -63,7 +63,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $requestHandler
-            ) : ResponseInterface {
+            ): ResponseInterface {
                 throw $this->error;
             }
         };
@@ -72,7 +72,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
     /**
      * {@inheritdoc}
      */
-    public function getExceptionHandler() : MiddlewareInterface
+    public function getExceptionHandler(): MiddlewareInterface
     {
         return $this->getThrowableHandler();
     }
@@ -80,7 +80,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
     /**
      * {@inheritdoc}
      */
-    public function getThrowableHandler() : MiddlewareInterface
+    public function getThrowableHandler(): MiddlewareInterface
     {
         return new class implements MiddlewareInterface
         {
@@ -92,7 +92,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $requestHandler
-            ) : ResponseInterface {
+            ): ResponseInterface {
                 try {
                     return $requestHandler->handle($request);
                 } catch (Throwable $e) {

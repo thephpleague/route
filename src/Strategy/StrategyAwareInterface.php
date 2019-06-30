@@ -9,7 +9,7 @@ interface StrategyAwareInterface
      *
      * @return StrategyInterface
      */
-    public function getStrategy() : ?StrategyInterface;
+    public function getStrategy(): ?StrategyInterface;
 
     /**
      * Set the strategy implementation
@@ -18,5 +18,5 @@ interface StrategyAwareInterface
      *
      * @return static
      */
-    public function setStrategy(StrategyInterface $strategy) : StrategyAwareInterface;
+    public function setStrategy(StrategyInterface $strategy): StrategyAwareInterface;
 }

@@ -16,7 +16,7 @@ class ApplicationStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyHasDefaultHeaders() : void
+    public function testStrategyHasDefaultHeaders(): void
     {
         $strategy = new ApplicationStrategy();
 
@@ -30,7 +30,7 @@ class ApplicationStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyCanDefineAdditionalHeaders() : void
+    public function testStrategyCanDefineAdditionalHeaders(): void
     {
         $strategy = new ApplicationStrategy();
 
@@ -50,7 +50,7 @@ class ApplicationStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyInvokesRouteCallable() : void
+    public function testStrategyInvokesRouteCallable(): void
     {
         $route = $this->createMock(Route::class);
 
@@ -68,7 +68,7 @@ class ApplicationStrategyTest extends TestCase
                 $expectedRequest,
                 $expectedResponse,
                 $expectedVars
-            ) : ResponseInterface {
+            ): ResponseInterface {
                 $this->assertSame($expectedRequest, $request);
                 $this->assertSame($expectedVars, $vars);
                 return $expectedResponse;
@@ -92,7 +92,7 @@ class ApplicationStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyReturnsCorrectNotFoundDecorator() : void
+    public function testStrategyReturnsCorrectNotFoundDecorator(): void
     {
         $this->expectException(NotFoundException::class);
 
@@ -113,7 +113,7 @@ class ApplicationStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyReturnsCorrectMethodNotAllowedDecorator() : void
+    public function testStrategyReturnsCorrectMethodNotAllowedDecorator(): void
     {
         $this->expectException(MethodNotAllowedException::class);
 
@@ -134,7 +134,7 @@ class ApplicationStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyReturnsCorrectExceptionHandler() : void
+    public function testStrategyReturnsCorrectExceptionHandler(): void
     {
         $this->expectException(Exception::class);
 

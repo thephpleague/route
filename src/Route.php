@@ -65,7 +65,7 @@ class Route implements
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $requestHandler
-    ) : ResponseInterface {
+    ): ResponseInterface {
         return $this->getStrategy()->invokeRouteCallable($this, $request);
     }
 
@@ -78,7 +78,7 @@ class Route implements
      *
      * @throws InvalidArgumentException
      */
-    public function getCallable(?ContainerInterface $container = null) : callable
+    public function getCallable(?ContainerInterface $container = null): callable
     {
         $callable = $this->handler;
 
@@ -127,7 +127,7 @@ class Route implements
      *
      * @return array
      */
-    public function getVars() : array
+    public function getVars(): array
     {
         return $this->vars;
     }
@@ -139,7 +139,7 @@ class Route implements
      *
      * @return Route
      */
-    public function setVars(array $vars) : self
+    public function setVars(array $vars): self
     {
         $this->vars = $vars;
 
@@ -151,7 +151,7 @@ class Route implements
      *
      * @return RouteGroup
      */
-    public function getParentGroup() : ?RouteGroup
+    public function getParentGroup(): ?RouteGroup
     {
         return $this->group;
     }
@@ -163,7 +163,7 @@ class Route implements
      *
      * @return Route
      */
-    public function setParentGroup(RouteGroup $group) : self
+    public function setParentGroup(RouteGroup $group): self
     {
         $this->group = $group;
         $prefix      = $this->group->getPrefix();
@@ -182,7 +182,7 @@ class Route implements
      *
      * @return string
      */
-    public function getPath() : string
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -192,7 +192,7 @@ class Route implements
      *
      * @return string
      */
-    public function getMethod() : string
+    public function getMethod(): string
     {
         return $this->method;
     }

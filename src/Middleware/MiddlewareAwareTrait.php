@@ -17,7 +17,7 @@ trait MiddlewareAwareTrait
     /**
      * {@inheritdoc}
      */
-    public function middleware(MiddlewareInterface $middleware) : MiddlewareAwareInterface
+    public function middleware(MiddlewareInterface $middleware): MiddlewareAwareInterface
     {
         $this->middleware[] = $middleware;
 
@@ -27,7 +27,7 @@ trait MiddlewareAwareTrait
     /**
      * {@inheritdoc}
      */
-    public function middlewares(array $middlewares) : MiddlewareAwareInterface
+    public function middlewares(array $middlewares): MiddlewareAwareInterface
     {
         foreach ($middlewares as $middleware) {
             $this->middleware($middleware);
@@ -39,7 +39,7 @@ trait MiddlewareAwareTrait
     /**
      * {@inheritdoc}
      */
-    public function prependMiddleware(MiddlewareInterface $middleware) : MiddlewareAwareInterface
+    public function prependMiddleware(MiddlewareInterface $middleware): MiddlewareAwareInterface
     {
         array_unshift($this->middleware, $middleware);
 
@@ -53,7 +53,7 @@ trait MiddlewareAwareTrait
      *
      * @return static
      */
-    public function lazyMiddleware(string $middleware) : MiddlewareAwareInterface
+    public function lazyMiddleware(string $middleware): MiddlewareAwareInterface
     {
         $this->middleware[] = $middleware;
 
@@ -67,7 +67,7 @@ trait MiddlewareAwareTrait
      *
      * @return static
      */
-    public function lazyMiddlewares(array $middlewares) : MiddlewareAwareInterface
+    public function lazyMiddlewares(array $middlewares): MiddlewareAwareInterface
     {
         foreach ($middlewares as $middleware) {
             $this->lazyMiddleware($middleware);
@@ -83,7 +83,7 @@ trait MiddlewareAwareTrait
      *
      * @return static
      */
-    public function lazyPrependMiddleware(string $middleware) : MiddlewareAwareInterface
+    public function lazyPrependMiddleware(string $middleware): MiddlewareAwareInterface
     {
         array_unshift($this->middleware, $middleware);
 
@@ -93,7 +93,7 @@ trait MiddlewareAwareTrait
     /**
      * {@inheritdoc}
      */
-    public function shiftMiddleware() : MiddlewareInterface
+    public function shiftMiddleware(): MiddlewareInterface
     {
         $middleware =  array_shift($this->middleware);
 
@@ -107,7 +107,7 @@ trait MiddlewareAwareTrait
     /**
      * {@inheritdoc}
      */
-    public function getMiddlewareStack() : iterable
+    public function getMiddlewareStack(): iterable
     {
         return $this->middleware;
     }
@@ -120,7 +120,7 @@ trait MiddlewareAwareTrait
      *
      * @return MiddlewareInterface
      */
-    protected function resolveMiddleware($middleware, ?ContainerInterface $container = null) : MiddlewareInterface
+    protected function resolveMiddleware($middleware, ?ContainerInterface $container = null): MiddlewareInterface
     {
         if ($container === null && is_string($middleware) && class_exists($middleware)) {
             $middleware = new $middleware;

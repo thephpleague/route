@@ -25,7 +25,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      *
      * @return ResponseInterface
      */
-    public function dispatchRequest(ServerRequestInterface $request) : ResponseInterface
+    public function dispatchRequest(ServerRequestInterface $request): ResponseInterface
     {
         $httpMethod = $request->getMethod();
         $uri        = $request->getUri()->getPath();
@@ -58,7 +58,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      * @return Route
      *
      */
-    private function ensureHandlerIsRoute($matchingHandler, $httpMethod, $uri) : Route
+    private function ensureHandlerIsRoute($matchingHandler, $httpMethod, $uri): Route
     {
         if (is_a($matchingHandler, Route::class)) {
             return $matchingHandler;
@@ -69,7 +69,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     /**
      * {@inheritdoc}
      */
-    public function handle(ServerRequestInterface $request) : ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $middleware = $this->shiftMiddleware();
 
@@ -83,7 +83,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      *
      * @return void
      */
-    protected function setFoundMiddleware(Route $route) : void
+    protected function setFoundMiddleware(Route $route): void
     {
         if ($route->getStrategy() === null) {
             $route->setStrategy($this->getStrategy());
@@ -118,7 +118,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      *
      * @return void
      */
-    protected function setNotFoundDecoratorMiddleware() : void
+    protected function setNotFoundDecoratorMiddleware(): void
     {
         $middleware = $this->getStrategy()->getNotFoundDecorator(new NotFoundException);
         $this->prependMiddleware($middleware);
@@ -131,7 +131,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      *
      * @return void
      */
-    protected function setMethodNotAllowedDecoratorMiddleware(array $allowed) : void
+    protected function setMethodNotAllowedDecoratorMiddleware(array $allowed): void
     {
         $middleware = $this->getStrategy()->getMethodNotAllowedDecorator(
             new MethodNotAllowedException($allowed)

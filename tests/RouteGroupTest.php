@@ -11,7 +11,7 @@ class RouteGroupTest extends TestCase
      *
      * @return void
      */
-    public function testGroupIsInvokedAndAddsRoutesToCollection() : void
+    public function testGroupIsInvokedAndAddsRoutesToCollection(): void
     {
         $callback = function () {
         };
@@ -115,7 +115,7 @@ class RouteGroupTest extends TestCase
      *
      * @return void
      */
-    public function testGroupAddsStrategyToRoute() : void
+    public function testGroupAddsStrategyToRoute(): void
     {
         $callback = function () {
         };

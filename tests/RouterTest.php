@@ -13,7 +13,7 @@ class RouterTest extends TestCase
      *
      * @return void
      */
-    public function testCRouterMapsAndReturnsRoute() : void
+    public function testCRouterMapsAndReturnsRoute(): void
     {
         $router   = new Router;
         $path     = '/something';
@@ -36,7 +36,7 @@ class RouterTest extends TestCase
      *
      * @return void
      */
-    public function testCollectionMapsAndReturnsGroup() : void
+    public function testCollectionMapsAndReturnsGroup(): void
     {
         $router   = new Router;
         $prefix   = '/something';
@@ -53,7 +53,7 @@ class RouterTest extends TestCase
      *
      * @return void
      */
-    public function testCollectionCanSetAndGetNamedRoute() : void
+    public function testCollectionCanSetAndGetNamedRoute(): void
     {
         $router = new Router;
         $name   = 'route';

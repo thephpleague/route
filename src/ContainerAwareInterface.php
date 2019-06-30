@@ -11,7 +11,7 @@ interface ContainerAwareInterface
      *
      * @return ContainerInterface|null
      */
-    public function getContainer() : ?ContainerInterface;
+    public function getContainer(): ?ContainerInterface;
 
     /**
      * Set the container implementation
@@ -20,5 +20,5 @@ interface ContainerAwareInterface
      *
      * @return static
      */
-    public function setContainer(ContainerInterface $container) : ContainerAwareInterface;
+    public function setContainer(ContainerInterface $container): ContainerAwareInterface;
 }

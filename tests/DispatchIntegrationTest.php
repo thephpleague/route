@@ -19,7 +19,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesFoundRoute() : void
+    public function testDispatchesFoundRoute(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -50,7 +50,7 @@ class DispatchIntegrationTest extends TestCase
             array $args
         ) use (
             $response
-        ) : ResponseInterface {
+        ): ResponseInterface {
             $this->assertSame([
                 'something' => 'route'
             ], $args);
@@ -68,7 +68,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesExceptionRoute() : void
+    public function testDispatchesExceptionRoute(): void
     {
         $this->expectException(Exception::class);
 
@@ -107,7 +107,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesExceptionWithJsonStrategyRoute() : void
+    public function testDispatchesExceptionWithJsonStrategyRoute(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -187,7 +187,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesHttpExceptionWithJsonStrategyRoute() : void
+    public function testDispatchesHttpExceptionWithJsonStrategyRoute(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -271,7 +271,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesNotFoundRoute() : void
+    public function testDispatchesNotFoundRoute(): void
     {
         $this->expectException(NotFoundException::class);
 
@@ -306,7 +306,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesNotFoundRouteWithJsonStrategy() : void
+    public function testDispatchesNotFoundRouteWithJsonStrategy(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -386,7 +386,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesNotAllowedRoute() : void
+    public function testDispatchesNotAllowedRoute(): void
     {
         $this->expectException(MethodNotAllowedException::class);
 
@@ -425,7 +425,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testDispatchesNotAllowedRouteWithJsonStrategy() : void
+    public function testDispatchesNotAllowedRouteWithJsonStrategy(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -517,7 +517,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRoutesDoesNotPrepMismatchedScheme() : void
+    public function testRoutesDoesNotPrepMismatchedScheme(): void
     {
         $this->expectException(Http\Exception\NotFoundException::class);
 
@@ -561,7 +561,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRoutesDoesNotPrepMismatchedHost() : void
+    public function testRoutesDoesNotPrepMismatchedHost(): void
     {
         $this->expectException(Http\Exception\NotFoundException::class);
 
@@ -605,7 +605,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRoutesDoesNotPrepMismatchedPort() : void
+    public function testRoutesDoesNotPrepMismatchedPort(): void
     {
         $this->expectException(Http\Exception\NotFoundException::class);
 
@@ -649,7 +649,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRouterSetsGroupStrategyOnGroupUriMatchButNoRouteMatch() : void
+    public function testRouterSetsGroupStrategyOnGroupUriMatchButNoRouteMatch(): void
     {
         $this->expectException(Http\Exception\NotFoundException::class);
 
@@ -694,7 +694,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRouteStrategyOverridesGlobalStrategy() : void
+    public function testRouteStrategyOverridesGlobalStrategy(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -735,7 +735,7 @@ class DispatchIntegrationTest extends TestCase
         /** @var Router $router */
         $router = (new Router)->setStrategy(new Strategy\ApplicationStrategy);
 
-        $router->map('GET', '/', function () : array {
+        $router->map('GET', '/', function (): array {
             return [];
         })->setStrategy(new JsonStrategy($factory));
 
@@ -747,7 +747,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRouteStrategyOverridesGroupStrategy() : void
+    public function testRouteStrategyOverridesGroupStrategy(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -788,7 +788,7 @@ class DispatchIntegrationTest extends TestCase
         $router = new Router;
 
         $router->group('/group', function ($r) use ($factory) {
-            $r->get('/id', function () : array {
+            $r->get('/id', function (): array {
                 return [];
             })->setStrategy(new JsonStrategy($factory));
         })->setStrategy(new Strategy\ApplicationStrategy);
@@ -801,7 +801,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testMiddlewareIsOrderedCorrectly() : void
+    public function testMiddlewareIsOrderedCorrectly(): void
     {
         $counter = new class
         {
@@ -833,7 +833,7 @@ class DispatchIntegrationTest extends TestCase
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
-            ) : ResponseInterface {
+            ): ResponseInterface {
                 $request->withRequestTarget('middleware1');
                 return $handler->handle($request);
             }
@@ -859,7 +859,7 @@ class DispatchIntegrationTest extends TestCase
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
-            ) : ResponseInterface {
+            ): ResponseInterface {
                 $request->withRequestTarget('middleware2');
                 return $handler->handle($request);
             }
@@ -885,7 +885,7 @@ class DispatchIntegrationTest extends TestCase
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
-            ) : ResponseInterface {
+            ): ResponseInterface {
                 $request->withRequestTarget('middleware3');
                 return $handler->handle($request);
             }
@@ -952,8 +952,8 @@ class DispatchIntegrationTest extends TestCase
             ->lazyMiddleware($middlewareFour)
         ;
 
-        $router->group('/group', function ($r) use ($response, $middlewareThree, $middlewareFour) : void {
-            $r->get('/route', function (ServerRequestInterface $request) use ($response) : ResponseInterface {
+        $router->group('/group', function ($r) use ($response, $middlewareThree, $middlewareFour): void {
+            $r->get('/route', function (ServerRequestInterface $request) use ($response): ResponseInterface {
                 return $response;
             })->middleware($middlewareThree)->lazyMiddleware($middlewareFour);
         })->middleware($middlewareTwo);
@@ -964,7 +964,7 @@ class DispatchIntegrationTest extends TestCase
     /**
      * Asserts that dispatcher always creates a Route object
      */
-    public function testDispatchDoesNotThrowWhenUsingAddRoute() : void
+    public function testDispatchDoesNotThrowWhenUsingAddRoute(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -995,7 +995,7 @@ class DispatchIntegrationTest extends TestCase
             array $args
         ) use (
             $response
-        ) : ResponseInterface {
+        ): ResponseInterface {
             $this->assertSame([
                 'something' => 'route'
             ], $args);

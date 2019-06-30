@@ -18,7 +18,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyHasDefaultHeaders() : void
+    public function testStrategyHasDefaultHeaders(): void
     {
         $factory = $this->createMock(ResponseFactoryInterface::class);
 
@@ -36,7 +36,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyCanDefineAdditionalHeaders() : void
+    public function testStrategyCanDefineAdditionalHeaders(): void
     {
         $factory = $this->createMock(ResponseFactoryInterface::class);
 
@@ -60,7 +60,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyInvokesRouteCallable() : void
+    public function testStrategyInvokesRouteCallable(): void
     {
         $route = $this->createMock(Route::class);
 
@@ -78,7 +78,7 @@ class JsonStrategyTest extends TestCase
                 $expectedRequest,
                 $expectedResponse,
                 $expectedVars
-            ) : ResponseInterface {
+            ): ResponseInterface {
                 $this->assertSame($expectedRequest, $request);
                 $this->assertSame($expectedVars, $vars);
                 return $expectedResponse;
@@ -118,7 +118,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyInvokesRouteCallableWithArrayReturn() : void
+    public function testStrategyInvokesRouteCallableWithArrayReturn(): void
     {
         $route = $this->createMock(Route::class);
 
@@ -162,7 +162,7 @@ class JsonStrategyTest extends TestCase
             ) use (
                 $expectedRequest,
                 $expectedVars
-            ) : array {
+            ): array {
                 $this->assertSame($expectedRequest, $request);
                 $this->assertSame($expectedVars, $vars);
                 return [$vars[0] => $vars[1]];
@@ -195,7 +195,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyReturnsCorrectNotFoundDecorator() : void
+    public function testStrategyReturnsCorrectNotFoundDecorator(): void
     {
         $exception      = $this->createMock(NotFoundException::class);
         $request        = $this->createMock(ServerRequestInterface::class);
@@ -229,7 +229,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyReturnsCorrectMethodNotAllowedDecorator() : void
+    public function testStrategyReturnsCorrectMethodNotAllowedDecorator(): void
     {
         $exception      = $this->createMock(MethodNotAllowedException::class);
         $request        = $this->createMock(ServerRequestInterface::class);
@@ -264,7 +264,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyReturnsCorrectExceptionHandler() : void
+    public function testStrategyReturnsCorrectExceptionHandler(): void
     {
         $request        = $this->createMock(ServerRequestInterface::class);
         $requestHandler = $this->createMock(RequestHandlerInterface::class);
@@ -328,7 +328,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyReturnsCorrectHttpExceptionHandler() : void
+    public function testStrategyReturnsCorrectHttpExceptionHandler(): void
     {
         $exception      = $this->createMock(HttpException::class);
         $request        = $this->createMock(ServerRequestInterface::class);
@@ -370,7 +370,7 @@ class JsonStrategyTest extends TestCase
      *
      * @return void
      */
-    public function testStrategyInvokesRouteCallableWithObjectReturn() : void
+    public function testStrategyInvokesRouteCallableWithObjectReturn(): void
     {
         $route = $this->createMock(Route::class);
 
@@ -416,7 +416,7 @@ class JsonStrategyTest extends TestCase
             ) use (
                 $expectedRequest,
                 $expectedObject
-            ) : stdClass {
+            ): stdClass {
                 $this->assertSame($expectedRequest, $request);
                 return $expectedObject;
             })

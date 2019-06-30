@@ -50,7 +50,7 @@ class RouteGroup implements
      *
      * @return string
      */
-    public function getPrefix() : string
+    public function getPrefix(): string
     {
         return $this->prefix;
     }
@@ -60,7 +60,7 @@ class RouteGroup implements
      *
      * @return void
      */
-    public function __invoke() : void
+    public function __invoke(): void
     {
         ($this->callback)($this);
     }
@@ -68,7 +68,7 @@ class RouteGroup implements
     /**
      * {@inheritdoc}
      */
-    public function map(string $method, string $path, $handler) : Route
+    public function map(string $method, string $path, $handler): Route
     {
         $path  = ($path === '/') ? $this->prefix : $this->prefix . sprintf('/%s', ltrim($path, '/'));
         $route = $this->collection->map($method, $path, $handler);
