@@ -10,11 +10,11 @@ class Controller
     /**
      * Invokable callable.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface      $response
-     * @param callable                                 $next
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface      $response
+     * @param callable               $next
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
@@ -26,11 +26,11 @@ class Controller
     /**
      * Class method callable.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface      $response
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
      * @param callable                                 $next
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function action(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {

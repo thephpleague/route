@@ -7,14 +7,14 @@ interface StrategyAwareInterface
     /**
      * Get the current strategy
      *
-     * @return \League\Route\Strategy\StrategyInterface
+     * @return StrategyInterface
      */
     public function getStrategy() : ?StrategyInterface;
 
     /**
      * Set the strategy implementation
      *
-     * @param \League\Route\Strategy\StrategyInterface $strategy
+     * @param StrategyInterface $strategy
      *
      * @return static
      */

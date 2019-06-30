@@ -61,26 +61,24 @@ class ApplicationStrategyTest extends TestCase
         $route
             ->expects($this->once())
             ->method('getCallable')
-            ->will($this->returnValue(
-                function (
-                    ServerRequestInterface $request,
-                    array                  $vars = []
-                ) use (
-                    $expectedRequest,
-                    $expectedResponse,
-                    $expectedVars
-                ) : ResponseInterface {
-                    $this->assertSame($expectedRequest, $request);
-                    $this->assertSame($expectedVars, $vars);
-                    return $expectedResponse;
-                }
-            ))
+            ->willReturn(function (
+                ServerRequestInterface $request,
+                array $vars = []
+            ) use (
+                $expectedRequest,
+                $expectedResponse,
+                $expectedVars
+            ) : ResponseInterface {
+                $this->assertSame($expectedRequest, $request);
+                $this->assertSame($expectedVars, $vars);
+                return $expectedResponse;
+            })
         ;
 
         $route
             ->expects($this->once())
             ->method('getVars')
-            ->will($this->returnValue($expectedVars))
+            ->willReturn($expectedVars)
         ;
 
         $strategy = new ApplicationStrategy;

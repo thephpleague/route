@@ -25,7 +25,7 @@ class Route implements
     protected $handler;
 
     /**
-     * @var \League\Route\RouteGroup
+     * @var RouteGroup
      */
     protected $group;
 
@@ -44,6 +44,14 @@ class Route implements
      */
     protected $vars = [];
 
+
+    /**
+     * Construct.
+     *
+     * @param string          $method
+     * @param string          $path
+     * @param callable|string $handler
+     */
     public function __construct(string $method, string $path, $handler)
     {
         $this->method  = $method;
@@ -64,11 +72,11 @@ class Route implements
     /**
      * Get the controller callable
      *
-     * @param \Psr\Container\ContainerInterface|null $container
-     *
-     * @throws \InvalidArgumentException
+     * @param ContainerInterface|null $container
      *
      * @return callable
+     *
+     * @throws InvalidArgumentException
      */
     public function getCallable(?ContainerInterface $container = null) : callable
     {
@@ -100,8 +108,8 @@ class Route implements
     /**
      * Get an object instance from a class name
      *
-     * @param \Psr\Container\ContainerInterface|null $container
-     * @param string $class
+     * @param ContainerInterface|null $container
+     * @param string                  $class
      *
      * @return object
      */
@@ -129,7 +137,7 @@ class Route implements
      *
      * @param array $vars
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function setVars(array $vars) : self
     {
@@ -141,7 +149,7 @@ class Route implements
     /**
      * Get the parent group
      *
-     * @return \League\Route\RouteGroup
+     * @return RouteGroup
      */
     public function getParentGroup() : ?RouteGroup
     {
@@ -151,16 +159,17 @@ class Route implements
     /**
      * Set the parent group
      *
-     * @param \League\Route\RouteGroup $group
+     * @param RouteGroup $group
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function setParentGroup(RouteGroup $group) : self
     {
         $this->group = $group;
-        $prefix = $group->getPrefix();
-        $path = $this->getPath();
-        if (strcmp($prefix, substr($path, 0, strlen($prefix))) != 0) {
+        $prefix      = $this->group->getPrefix();
+        $path        = $this->getPath();
+
+        if (strcmp($prefix, substr($path, 0, strlen($prefix))) !== 0) {
             $path = $prefix . $path;
             $this->path = $path;
         }

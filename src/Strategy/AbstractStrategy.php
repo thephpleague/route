@@ -55,14 +55,14 @@ abstract class AbstractStrategy implements StrategyInterface
      *
      * Headers that already exist on the response will NOT be replaced.
      *
-     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param ResponseInterface $response
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     protected function applyDefaultResponseHeaders(ResponseInterface $response) : ResponseInterface
     {
         foreach ($this->defaultResponseHeaders as $name => $value) {
-            if (! $response->hasHeader($name)) {
+            if (false === $response->hasHeader($name)) {
                 $response = $response->withHeader($name, $value);
             }
         }

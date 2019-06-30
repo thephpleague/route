@@ -8,10 +8,10 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Named function callable.
  *
- * @param \Psr\Http\Message\ServerRequestInterface $request
- * @param \Psr\Http\Message\ResponseInterface      $response
+ * @param ServerRequestInterface $request
+ * @param ResponseInterface      $response
  *
- * @return \Psr\Http\Message\ResponseInterface
+ * @return ResponseInterface
  */
 function namedFunctionCallable(ServerRequestInterface $request, ResponseInterface $response)
 {

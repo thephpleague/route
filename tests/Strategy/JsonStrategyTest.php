@@ -71,26 +71,31 @@ class JsonStrategyTest extends TestCase
         $route
             ->expects($this->once())
             ->method('getCallable')
-            ->will($this->returnValue(
-                function (
-                    ServerRequestInterface $request,
-                    array                  $vars = []
-                ) use (
-                    $expectedRequest,
-                    $expectedResponse,
-                    $expectedVars
-                ) : ResponseInterface {
-                    $this->assertSame($expectedRequest, $request);
-                    $this->assertSame($expectedVars, $vars);
-                    return $expectedResponse;
-                }
-            ))
+            ->willReturn(function (
+                ServerRequestInterface $request,
+                array $vars = []
+            ) use (
+                $expectedRequest,
+                $expectedResponse,
+                $expectedVars
+            ) : ResponseInterface {
+                $this->assertSame($expectedRequest, $request);
+                $this->assertSame($expectedVars, $vars);
+                return $expectedResponse;
+            })
         ;
 
         $route
             ->expects($this->once())
             ->method('getVars')
-            ->will($this->returnValue($expectedVars))
+            ->willReturn($expectedVars)
+        ;
+
+        $expectedResponse
+            ->expects($this->once())
+            ->method('hasHeader')
+            ->with($this->equalTo('content-type'))
+            ->willReturn(false)
         ;
 
         $expectedResponse
@@ -125,7 +130,7 @@ class JsonStrategyTest extends TestCase
         $expectedResponse
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($body))
+            ->willReturn($body)
         ;
 
         $expectedResponse
@@ -139,7 +144,7 @@ class JsonStrategyTest extends TestCase
             ->expects($this->once())
             ->method('hasHeader')
             ->with($this->equalTo('content-type'))
-            ->will($this->returnValue(false))
+            ->willReturn(false)
         ;
 
         $body
@@ -151,25 +156,23 @@ class JsonStrategyTest extends TestCase
         $route
             ->expects($this->once())
             ->method('getCallable')
-            ->will($this->returnValue(
-                function (
-                    ServerRequestInterface $request,
-                    array                  $vars = []
-                ) use (
-                    $expectedRequest,
-                    $expectedVars
-                ) : array {
-                    $this->assertSame($expectedRequest, $request);
-                    $this->assertSame($expectedVars, $vars);
-                    return [$vars[0] => $vars[1]];
-                }
-            ))
+            ->willReturn(function (
+                ServerRequestInterface $request,
+                array $vars = []
+            ) use (
+                $expectedRequest,
+                $expectedVars
+            ) : array {
+                $this->assertSame($expectedRequest, $request);
+                $this->assertSame($expectedVars, $vars);
+                return [$vars[0] => $vars[1]];
+            })
         ;
 
         $route
             ->expects($this->once())
             ->method('getVars')
-            ->will($this->returnValue($expectedVars))
+            ->willReturn($expectedVars)
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
@@ -177,7 +180,7 @@ class JsonStrategyTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($expectedResponse))
+            ->willReturn($expectedResponse)
         ;
 
         $strategy = new JsonStrategy($factory);
@@ -203,7 +206,7 @@ class JsonStrategyTest extends TestCase
             ->expects($this->once())
             ->method('buildJsonResponse')
             ->with($this->equalTo($response))
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
@@ -211,16 +214,13 @@ class JsonStrategyTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $strategy = new JsonStrategy($factory);
 
         $handler = $strategy->getNotFoundDecorator($exception);
-        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
-
         $actualResponse = $handler->process($request, $requestHandler);
-        $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
         $this->assertSame($response, $actualResponse);
     }
 
@@ -240,7 +240,7 @@ class JsonStrategyTest extends TestCase
             ->expects($this->once())
             ->method('buildJsonResponse')
             ->with($this->equalTo($response))
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
@@ -248,16 +248,14 @@ class JsonStrategyTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $strategy = new JsonStrategy($factory);
 
         $handler = $strategy->getMethodNotAllowedDecorator($exception);
-        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
 
         $actualResponse = $handler->process($request, $requestHandler);
-        $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
         $this->assertSame($response, $actualResponse);
     }
 
@@ -283,7 +281,7 @@ class JsonStrategyTest extends TestCase
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($body))
+            ->willReturn($body)
         ;
 
         $response
@@ -314,16 +312,14 @@ class JsonStrategyTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $strategy = new JsonStrategy($factory);
 
         $handler = $strategy->getExceptionHandler();
-        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
 
         $actualResponse = $handler->process($request, $requestHandler);
-        $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
         $this->assertSame($response, $actualResponse);
     }
 
@@ -343,7 +339,7 @@ class JsonStrategyTest extends TestCase
             ->expects($this->once())
             ->method('buildJsonResponse')
             ->with($this->equalTo($response))
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $requestHandler
@@ -358,16 +354,14 @@ class JsonStrategyTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $strategy = new JsonStrategy($factory);
 
         $handler = $strategy->getExceptionHandler();
-        $this->assertInstanceOf(MiddlewareInterface::class, $handler);
 
         $actualResponse = $handler->process($request, $requestHandler);
-        $this->assertInstanceOf(ResponseInterface::class, $actualResponse);
         $this->assertSame($response, $actualResponse);
     }
 
@@ -389,7 +383,7 @@ class JsonStrategyTest extends TestCase
         $expectedResponse
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($body))
+            ->willReturn($body)
         ;
 
         $expectedResponse
@@ -403,7 +397,7 @@ class JsonStrategyTest extends TestCase
             ->expects($this->once())
             ->method('hasHeader')
             ->with($this->equalTo('content-type'))
-            ->will($this->returnValue(false))
+            ->willReturn(false)
         ;
 
         $expectedObject->something = 'else';
@@ -417,23 +411,21 @@ class JsonStrategyTest extends TestCase
         $route
             ->expects($this->once())
             ->method('getCallable')
-            ->will($this->returnValue(
-                function (
-                    ServerRequestInterface $request
-                ) use (
-                    $expectedRequest,
-                    $expectedObject
-                ) : stdClass {
-                    $this->assertSame($expectedRequest, $request);
-                    return $expectedObject;
-                }
-            ))
+            ->willReturn(function (
+                ServerRequestInterface $request
+            ) use (
+                $expectedRequest,
+                $expectedObject
+            ) : stdClass {
+                $this->assertSame($expectedRequest, $request);
+                return $expectedObject;
+            })
         ;
 
         $route
             ->expects($this->once())
             ->method('getVars')
-            ->will($this->returnValue($expectedVars))
+            ->willReturn($expectedVars)
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
@@ -441,7 +433,7 @@ class JsonStrategyTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($expectedResponse))
+            ->willReturn($expectedResponse)
         ;
 
         $strategy = new JsonStrategy($factory);

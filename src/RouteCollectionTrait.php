@@ -11,7 +11,7 @@ trait RouteCollectionTrait
      * @param string          $path
      * @param callable|string $handler
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     abstract public function map(string $method, string $path, $handler);
 
@@ -21,7 +21,7 @@ trait RouteCollectionTrait
      * @param string          $path
      * @param callable|string $handler
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function get($path, $handler)
     {
@@ -34,7 +34,7 @@ trait RouteCollectionTrait
      * @param string          $path
      * @param callable|string $handler
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function post($path, $handler)
     {
@@ -47,7 +47,7 @@ trait RouteCollectionTrait
      * @param string          $path
      * @param callable|string $handler
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function put($path, $handler)
     {
@@ -60,7 +60,7 @@ trait RouteCollectionTrait
      * @param string          $path
      * @param callable|string $handler
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function patch($path, $handler)
     {
@@ -73,7 +73,7 @@ trait RouteCollectionTrait
      * @param string          $path
      * @param callable|string $handler
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function delete($path, $handler)
     {
@@ -86,7 +86,7 @@ trait RouteCollectionTrait
      * @param string          $path
      * @param callable|string $handler
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function head($path, $handler)
     {
@@ -99,7 +99,7 @@ trait RouteCollectionTrait
      * @param string          $path
      * @param callable|string $handler
      *
-     * @return \League\Route\Route
+     * @return Route
      */
     public function options($path, $handler)
     {

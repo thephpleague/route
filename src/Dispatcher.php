@@ -21,15 +21,15 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     /**
      * Dispatch the current route
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function dispatchRequest(ServerRequestInterface $request) : ResponseInterface
     {
         $httpMethod = $request->getMethod();
-        $uri = $request->getUri()->getPath();
-        $match = $this->dispatch($httpMethod, $uri);
+        $uri        = $request->getUri()->getPath();
+        $match      = $this->dispatch($httpMethod, $uri);
 
         switch ($match[0]) {
             case FastRoute::NOT_FOUND:
@@ -52,8 +52,8 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      * Ensure handler is a Route, honoring the contract of dispatchRequest.
      *
      * @param Route|mixed $matchingHandler
-     * @param string $httpMethod
-     * @param string $uri
+     * @param string      $httpMethod
+     * @param string      $uri
      *
      * @return Route
      *
@@ -79,13 +79,13 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     /**
      * Set up middleware for a found route
      *
-     * @param \League\Route\Route $route
+     * @param Route $route
      *
      * @return void
      */
     protected function setFoundMiddleware(Route $route) : void
     {
-        if (is_null($route->getStrategy())) {
+        if ($route->getStrategy() === null) {
             $route->setStrategy($this->getStrategy());
         }
 

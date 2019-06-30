@@ -25,15 +25,15 @@ class Exception extends \Exception implements HttpExceptionInterface
     /**
      * Constructor.
      *
-     * @param integer    $status
+     * @param int        $status
      * @param string     $message
      * @param \Exception $previous
      * @param array      $headers
-     * @param integer    $code
+     * @param int        $code
      */
     public function __construct(
-        int $status,
-        string $message = null,
+        int        $status,
+        string     $message = null,
         \Exception $previous = null,
         array      $headers = [],
         int        $code = 0

@@ -28,19 +28,19 @@ class DispatchIntegrationTest extends TestCase
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $router = new Router;
@@ -78,26 +78,25 @@ class DispatchIntegrationTest extends TestCase
             throw new Exception;
         });
 
-        $request  = $this->createMock(ServerRequestInterface::class);
-        $response = $this->createMock(ResponseInterface::class);
-        $uri      = $this->createMock(UriInterface::class);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $uri     = $this->createMock(UriInterface::class);
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $router->dispatch($request);
@@ -118,19 +117,19 @@ class DispatchIntegrationTest extends TestCase
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $body
@@ -145,7 +144,7 @@ class DispatchIntegrationTest extends TestCase
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($body))
+            ->willReturn($body)
         ;
 
         $response
@@ -167,9 +166,10 @@ class DispatchIntegrationTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
+        /** @var Router $router */
         $router = (new Router)->setStrategy(new JsonStrategy($factory));
 
         $router->map('GET', '/example/route', function () {
@@ -197,25 +197,25 @@ class DispatchIntegrationTest extends TestCase
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $body
             ->expects($this->once())
             ->method('isWritable')
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
 
         $body
@@ -230,7 +230,7 @@ class DispatchIntegrationTest extends TestCase
         $response
             ->expects($this->exactly(2))
             ->method('getBody')
-            ->will($this->returnValue($body))
+            ->willReturn($body)
         ;
 
         $response
@@ -252,7 +252,7 @@ class DispatchIntegrationTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $router = (new Router)->setStrategy(new JsonStrategy($factory));
@@ -277,26 +277,25 @@ class DispatchIntegrationTest extends TestCase
 
         $router = new Router;
 
-        $request  = $this->createMock(ServerRequestInterface::class);
-        $response = $this->createMock(ResponseInterface::class);
-        $uri      = $this->createMock(UriInterface::class);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $uri     = $this->createMock(UriInterface::class);
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $router->dispatch($request);
@@ -317,13 +316,13 @@ class DispatchIntegrationTest extends TestCase
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $body
             ->expects($this->once())
             ->method('isWritable')
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
 
         $body
@@ -338,13 +337,13 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $response
@@ -364,7 +363,7 @@ class DispatchIntegrationTest extends TestCase
         $response
             ->expects($this->exactly(2))
             ->method('getBody')
-            ->will($this->returnValue($body))
+            ->willReturn($body)
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
@@ -372,7 +371,7 @@ class DispatchIntegrationTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $router = (new Router)->setStrategy(new JsonStrategy($factory));
@@ -394,29 +393,28 @@ class DispatchIntegrationTest extends TestCase
         $router = new Router;
 
         $router->map('GET', '/example/{something}', function (ServerRequestInterface $request, array $args) {
-            return $response;
+            //
         });
 
-        $request  = $this->createMock(ServerRequestInterface::class);
-        $response = $this->createMock(ResponseInterface::class);
-        $uri      = $this->createMock(UriInterface::class);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $uri     = $this->createMock(UriInterface::class);
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('POST'))
+            ->willReturn('POST')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $router->dispatch($request);
@@ -437,13 +435,13 @@ class DispatchIntegrationTest extends TestCase
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $body
             ->expects($this->once())
             ->method('isWritable')
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
 
         $body
@@ -458,13 +456,13 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('POST'))
+            ->willReturn('POST')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $response
@@ -491,7 +489,7 @@ class DispatchIntegrationTest extends TestCase
         $response
             ->expects($this->exactly(2))
             ->method('getBody')
-            ->will($this->returnValue($body))
+            ->willReturn($body)
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
@@ -499,9 +497,10 @@ class DispatchIntegrationTest extends TestCase
         $factory
             ->expects($this->once())
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
+        /** @var Router $router */
         $router = (new Router)->setStrategy(new JsonStrategy($factory));
 
         $router->map('GET', '/example/{something}', function (ServerRequestInterface $request, array $args) {
@@ -518,7 +517,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRoutesDoesNotPrepMismatchedScheme()
+    public function testRoutesDoesNotPrepMismatchedScheme() : void
     {
         $this->expectException(Http\Exception\NotFoundException::class);
 
@@ -528,25 +527,25 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(3))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/something'))
+            ->willReturn('/something')
         ;
 
         $uri
             ->expects($this->once())
             ->method('getScheme')
-            ->will($this->returnValue('http'))
+            ->willReturn('http')
         ;
 
         $router = new Router;
@@ -562,7 +561,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRoutesDoesNotPrepMismatchedHost()
+    public function testRoutesDoesNotPrepMismatchedHost() : void
     {
         $this->expectException(Http\Exception\NotFoundException::class);
 
@@ -572,25 +571,25 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(3))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/something'))
+            ->willReturn('/something')
         ;
 
         $uri
             ->expects($this->once())
             ->method('getHost')
-            ->will($this->returnValue('example.com'))
+            ->willReturn('example.com')
         ;
 
         $router = new Router;
@@ -606,7 +605,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRoutesDoesNotPrepMismatchedPort()
+    public function testRoutesDoesNotPrepMismatchedPort() : void
     {
         $this->expectException(Http\Exception\NotFoundException::class);
 
@@ -616,25 +615,25 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(3))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/something'))
+            ->willReturn('/something')
         ;
 
         $uri
             ->expects($this->once())
             ->method('getPort')
-            ->will($this->returnValue(80))
+            ->willReturn(80)
         ;
 
         $router = new Router;
@@ -650,7 +649,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRouterSetsGroupStrategyOnGroupUriMatchButNoRouteMatch()
+    public function testRouterSetsGroupStrategyOnGroupUriMatchButNoRouteMatch() : void
     {
         $this->expectException(Http\Exception\NotFoundException::class);
 
@@ -660,23 +659,25 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/group/something'))
+            ->willReturn('/group/something')
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
 
+
+        /** @var Router $router */
         $router = (new Router)->setStrategy(new JsonStrategy($factory));
 
         $router->group('/group', function ($r) {
@@ -693,7 +694,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRouteStrategyOverridesGlobalStrategy()
+    public function testRouteStrategyOverridesGlobalStrategy() : void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -702,41 +703,36 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($this->createMock(\Psr\Http\Message\StreamInterface::class)))
-        ;
-
-        $response
-            ->expects($this->once())
-            ->method('withHeader')
-            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->will($this->returnSelf())
+            ->willReturn($this->createMock(StreamInterface::class))
         ;
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/'))
+            ->willReturn('/')
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
+
         $factory
             ->expects($this->exactly(2))
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
+        /** @var Router $router */
         $router = (new Router)->setStrategy(new Strategy\ApplicationStrategy);
 
         $router->map('GET', '/', function () : array {
@@ -751,7 +747,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testRouteStrategyOverridesGroupStrategy()
+    public function testRouteStrategyOverridesGroupStrategy() : void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -760,39 +756,33 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($this->createMock(\Psr\Http\Message\StreamInterface::class)))
-        ;
-
-        $response
-            ->expects($this->once())
-            ->method('withHeader')
-            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->will($this->returnSelf())
+            ->willReturn($this->createMock(StreamInterface::class))
         ;
 
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/group/id'))
+            ->willReturn('/group/id')
         ;
 
         $factory = $this->createMock(ResponseFactoryInterface::class);
+
         $factory
             ->expects($this->exactly(2))
             ->method('createResponse')
-            ->will($this->returnValue($response))
+            ->willReturn($response)
         ;
 
         $router = new Router;
@@ -811,7 +801,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
-    public function testMiddlewareIsOrderedCorrectly()
+    public function testMiddlewareIsOrderedCorrectly() : void
     {
         $counter = new class
         {
@@ -825,11 +815,21 @@ class DispatchIntegrationTest extends TestCase
 
         $middlewareOne = new class($counter, $this) implements MiddlewareInterface
         {
+            /**
+             * @param object   $counter
+             * @param TestCase $phpunit
+             */
             public function __construct($counter, $phpunit)
             {
                 $phpunit->assertSame($counter->getCounter(), 1);
             }
 
+            /**
+             * @param ServerRequestInterface  $request
+             * @param RequestHandlerInterface $handler
+             *
+             * @return ResponseInterface
+             */
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
@@ -841,11 +841,21 @@ class DispatchIntegrationTest extends TestCase
 
         $middlewareTwo = new class($counter, $this) implements MiddlewareInterface
         {
+            /**
+             * @param object   $counter
+             * @param TestCase $phpunit
+             */
             public function __construct($counter, $phpunit)
             {
                 $phpunit->assertSame($counter->getCounter(), 2);
             }
 
+            /**
+             * @param ServerRequestInterface  $request
+             * @param RequestHandlerInterface $handler
+             *
+             * @return ResponseInterface
+             */
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
@@ -857,11 +867,21 @@ class DispatchIntegrationTest extends TestCase
 
         $middlewareThree = new class($counter, $this) implements MiddlewareInterface
         {
+            /**
+             * @param object   $counter
+             * @param TestCase $phpunit
+             */
             public function __construct($counter, $phpunit)
             {
                 $phpunit->assertSame($counter->getCounter(), 3);
             }
 
+            /**
+             * @param ServerRequestInterface  $request
+             * @param RequestHandlerInterface $handler
+             *
+             * @return ResponseInterface
+             */
             public function process(
                 ServerRequestInterface $request,
                 RequestHandlerInterface $handler
@@ -880,13 +900,13 @@ class DispatchIntegrationTest extends TestCase
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $request
@@ -922,7 +942,7 @@ class DispatchIntegrationTest extends TestCase
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/group/route'))
+            ->willReturn('/group/route')
         ;
 
         $router = new Router;
@@ -941,7 +961,10 @@ class DispatchIntegrationTest extends TestCase
         $router->dispatch($request);
     }
 
-    public function testDispatchDoesNotThrowWhenUsingAddRoute()
+    /**
+     * Asserts that dispatcher always creates a Route object
+     */
+    public function testDispatchDoesNotThrowWhenUsingAddRoute() : void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -950,19 +973,19 @@ class DispatchIntegrationTest extends TestCase
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
-            ->will($this->returnValue('/example/route'))
+            ->willReturn('/example/route')
         ;
 
         $request
             ->expects($this->once())
             ->method('getMethod')
-            ->will($this->returnValue('GET'))
+            ->willReturn('GET')
         ;
 
         $request
             ->expects($this->exactly(2))
             ->method('getUri')
-            ->will($this->returnValue($uri))
+            ->willReturn($uri)
         ;
 
         $router = new Router;

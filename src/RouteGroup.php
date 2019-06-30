@@ -22,7 +22,7 @@ class RouteGroup implements
     protected $callback;
 
     /**
-     * @var \League\Route\RouteCollectionInterface
+     * @var RouteCollectionInterface
      */
     protected $collection;
 
@@ -34,9 +34,9 @@ class RouteGroup implements
     /**
      * Constructor
      *
-     * @param string                                 $prefix
-     * @param callable                               $callback
-     * @param \League\Route\RouteCollectionInterface $collection
+     * @param string                   $prefix
+     * @param callable                 $callback
+     * @param RouteCollectionInterface $collection
      */
     public function __construct(string $prefix, callable $callback, RouteCollectionInterface $collection)
     {
@@ -87,7 +87,7 @@ class RouteGroup implements
             $route->setPort($port);
         }
 
-        if (is_null($route->getStrategy()) && ! is_null($this->getStrategy())) {
+        if ($route->getStrategy() === null && $this->getStrategy() !== null) {
             $route->setStrategy($this->getStrategy());
         }
 

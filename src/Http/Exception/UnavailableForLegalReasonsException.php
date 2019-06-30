@@ -10,9 +10,9 @@ class UnavailableForLegalReasonsException extends HttpException
     /**
      * Constructor
      *
-     * @param string      $message
-     * @param \Exception $previous
-     * @param integer     $code
+     * @param string    $message
+     * @param Exception $previous
+     * @param int $code
      */
     public function __construct(
         string     $message = 'Unavailable For Legal Reasons',

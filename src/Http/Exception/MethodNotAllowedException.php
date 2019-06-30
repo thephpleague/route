@@ -10,10 +10,10 @@ class MethodNotAllowedException extends HttpException
     /**
      * Constructor
      *
-     * @param array       $allowed
-     * @param string      $message
-     * @param \Exception $previous
-     * @param integer     $code
+     * @param array     $allowed
+     * @param string    $message
+     * @param Exception $previous
+     * @param int $code
      */
     public function __construct(
         array      $allowed = [],

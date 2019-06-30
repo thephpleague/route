@@ -10,9 +10,9 @@ class NotFoundException extends HttpException
     /**
      * Constructor
      *
-     * @param string      $message
-     * @param \Exception $previous
-     * @param integer     $code
+     * @param string    $message
+     * @param Exception $previous
+     * @param int $code
      */
     public function __construct(string $message = 'Not Found', ?Exception $previous = null, int $code = 0)
     {

@@ -10,7 +10,7 @@ class ExceptionTest extends TestCase
     /**
      * Abstraction test for building of response.
      *
-     * @param \League\Route\Http\Exception $e
+     * @param Exception $e
      *
      * @return void
      */
@@ -26,7 +26,7 @@ class ExceptionTest extends TestCase
         $body
             ->expects($this->once())
             ->method('isWritable')
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
 
         $body
@@ -46,7 +46,7 @@ class ExceptionTest extends TestCase
         $response
             ->expects($this->exactly(2))
             ->method('getBody')
-            ->will($this->returnValue($body))
+            ->willReturn($body)
         ;
 
         $response

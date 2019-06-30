@@ -20,7 +20,7 @@ class RouteTest extends TestCase
     {
         $callable = new Controller;
         $route    = new Route('GET', '/', $callable);
-        $this->assertTrue(is_callable($route->getCallable()));
+        $this->assertInternalType('callable', $route->getCallable());
     }
 
     /**
@@ -32,7 +32,7 @@ class RouteTest extends TestCase
     {
         $callable = [new Controller, 'action'];
         $route    = new Route('GET', '/', $callable);
-        $this->assertTrue(is_callable($route->getCallable()));
+        $this->assertInternalType('callable', $route->getCallable());
     }
 
     /**
@@ -44,7 +44,7 @@ class RouteTest extends TestCase
     {
         $callable = 'League\Route\Fixture\namedFunctionCallable';
         $route    = new Route('GET', '/', $callable);
-        $this->assertTrue(is_callable($route->getCallable()));
+        $this->assertInternalType('callable', $route->getCallable());
     }
 
     /**
@@ -60,23 +60,20 @@ class RouteTest extends TestCase
             ->expects($this->once())
             ->method('has')
             ->with($this->equalTo(Controller::class))
-            ->will($this->returnValue(true))
+            ->willReturn(true)
         ;
 
         $container
             ->expects($this->once())
             ->method('get')
             ->with($this->equalTo(Controller::class))
-            ->will($this->returnValue(new Controller))
+            ->willReturn(new Controller)
         ;
 
         $callable = 'League\Route\Fixture\Controller::action';
         $route    = new Route('GET', '/', $callable);
 
         $newCallable = $route->getCallable($container);
-
-        $this->assertTrue(is_callable($newCallable));
-        $this->assertTrue(is_array($newCallable));
         $this->assertCount(2, $newCallable);
         $this->assertInstanceOf(Controller::class, $newCallable[0]);
         $this->assertEquals('action', $newCallable[1]);
@@ -95,16 +92,13 @@ class RouteTest extends TestCase
             ->expects($this->once())
             ->method('has')
             ->with($this->equalTo(Controller::class))
-            ->will($this->returnValue(false))
+            ->willReturn(false)
         ;
 
         $callable = 'League\Route\Fixture\Controller::action';
         $route    = new Route('GET', '/', $callable);
 
         $newCallable = $route->getCallable($container);
-
-        $this->assertTrue(is_callable($newCallable));
-        $this->assertTrue(is_array($newCallable));
         $this->assertCount(2, $newCallable);
         $this->assertInstanceOf(Controller::class, $newCallable[0]);
         $this->assertEquals('action', $newCallable[1]);
@@ -115,7 +109,7 @@ class RouteTest extends TestCase
      *
      * @return void
      */
-    public function testRouteThrowsExceptionWhenSettingAndResolvingNonCallable()
+    public function testRouteThrowsExceptionWhenSettingAndResolvingNonCallable(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $route = new Route('GET', '/', new \stdClass);

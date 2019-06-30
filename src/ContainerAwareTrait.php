@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 trait ContainerAwareTrait
 {
     /**
-     * @var \Psr\Container\ContainerInterface|null
+     * @var ContainerInterface|null
      */
     protected $container;
 

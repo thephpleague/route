@@ -23,9 +23,9 @@ interface HttpExceptionInterface
     /**
      * Accepts a response object and builds it in to a json representation of the exception.
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
+     * @param ResponseInterface $response
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function buildJsonResponse(ResponseInterface $response) : ResponseInterface;
 }

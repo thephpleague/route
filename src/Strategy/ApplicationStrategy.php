@@ -2,9 +2,9 @@
 
 namespace League\Route\Strategy;
 
-use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
+use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Throwable;
@@ -86,6 +86,8 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
         {
             /**
              * {@inheritdoc}
+             *
+             * @throws Throwable
              */
             public function process(
                 ServerRequestInterface $request,

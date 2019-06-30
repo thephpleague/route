@@ -44,49 +44,49 @@ class RouteGroupTest extends TestCase
             ->expects($this->at(0))
             ->method('map')
             ->with($this->equalTo('GET'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->will($this->returnValue($route))
+            ->willReturn($route)
         ;
 
         $router
             ->expects($this->at(1))
             ->method('map')
             ->with($this->equalTo('POST'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->will($this->returnValue($route))
+            ->willReturn($route)
         ;
 
         $router
             ->expects($this->at(2))
             ->method('map')
             ->with($this->equalTo('PUT'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->will($this->returnValue($route))
+            ->willReturn($route)
         ;
 
         $router
             ->expects($this->at(3))
             ->method('map')
             ->with($this->equalTo('PATCH'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->will($this->returnValue($route))
+            ->willReturn($route)
         ;
 
         $router
             ->expects($this->at(4))
             ->method('map')
             ->with($this->equalTo('DELETE'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->will($this->returnValue($route))
+            ->willReturn($route)
         ;
 
         $router
             ->expects($this->at(5))
             ->method('map')
             ->with($this->equalTo('OPTIONS'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->will($this->returnValue($route))
+            ->willReturn($route)
         ;
 
         $router
             ->expects($this->at(6))
             ->method('map')
             ->with($this->equalTo('HEAD'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->will($this->returnValue($route))
+            ->willReturn($route)
         ;
 
 
@@ -128,7 +128,7 @@ class RouteGroupTest extends TestCase
             ->expects($this->once())
             ->method('map')
             ->with($this->equalTo('GET'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->will($this->returnValue($route))
+            ->willReturn($route)
         ;
 
         $route

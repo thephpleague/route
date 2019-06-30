@@ -15,14 +15,14 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
     use ContainerAwareTrait;
 
     /**
-     * @var \Psr\Http\Message\ResponseFactoryInterface
+     * @var ResponseFactoryInterface
      */
     protected $responseFactory;
 
     /**
      * Construct.
      *
-     * @param \Psr\Http\Message\ResponseFactoryInterface $responseFactory
+     * @param ResponseFactoryInterface $responseFactory
      */
     public function __construct(ResponseFactoryInterface $responseFactory)
     {
@@ -41,7 +41,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
 
         if ($this->isJsonEncodable($response)) {
             $body     = json_encode($response);
-            $response = $this->responseFactory->createResponse(200);
+            $response = $this->responseFactory->createResponse();
             $response->getBody()->write($body);
         }
 
@@ -87,9 +87,9 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
     /**
      * Return a middleware the creates a JSON response from an HTTP exception
      *
-     * @param \League\Route\Http\Exception $exception
+     * @param HttpException $exception
      *
-     * @return \Psr\Http\Server\MiddlewareInterface
+     * @return MiddlewareInterface
      */
     protected function buildJsonResponseMiddleware(HttpException $exception) : MiddlewareInterface
     {

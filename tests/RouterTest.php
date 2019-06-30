@@ -25,7 +25,6 @@ class RouterTest extends TestCase
         ] as $method) {
             $route = $router->map($method, $path, $callable);
 
-            $this->assertInstanceOf(Route::class, $route);
             $this->assertSame($method, $route->getMethod());
             $this->assertSame($path, $route->getPath());
             $this->assertSame($callable, $route->getCallable());
@@ -46,7 +45,7 @@ class RouterTest extends TestCase
 
         $group = $router->group($prefix, $callable);
 
-        $this->assertInstanceOf(RouteGroup::class, $group);
+        $this->assertSame($prefix, $group->getPrefix());
     }
 
     /**
@@ -75,7 +74,7 @@ class RouterTest extends TestCase
      *
      * @return void
      */
-    public function testCollectionThrowsExceptionWhenAttemptingToGetNamedRouteThstDoesNotExist()
+    public function testCollectionThrowsExceptionWhenAttemptingToGetNamedRouteThatDoesNotExist(): void
     {
         $this->expectException(InvalidArgumentException::class);
         (new Router)->getNamedRoute('umm');
@@ -86,7 +85,7 @@ class RouterTest extends TestCase
      *
      * @return void
      */
-    public function testNewPatternMatchesCanBeAddedAtRuntime()
+    public function testNewPatternMatchesCanBeAddedAtRuntime(): void
     {
         $router = new Router;
         $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');

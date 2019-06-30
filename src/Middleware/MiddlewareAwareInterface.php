@@ -9,7 +9,7 @@ interface MiddlewareAwareInterface
     /**
      * Add a middleware to the stack
      *
-     * @param \Psr\Http\Server\MiddlewareInterface $middleware
+     * @param MiddlewareInterface $middleware
      *
      * @return static
      */
@@ -18,7 +18,7 @@ interface MiddlewareAwareInterface
     /**
      * Add multiple middleware to the stack
      *
-     * @param \Psr\Http\Server\MiddlewareInterface[] $middlewares
+     * @param MiddlewareInterface[] $middlewares
      *
      * @return static
      */
@@ -27,7 +27,7 @@ interface MiddlewareAwareInterface
     /**
      * Prepend a middleware to the stack
      *
-     * @param \Psr\Http\Server\MiddlewareInterface $middleware
+     * @param MiddlewareInterface $middleware
      *
      * @return static
      */
@@ -36,14 +36,14 @@ interface MiddlewareAwareInterface
     /**
      * Shift a middleware from beginning of stack
      *
-     * @return \Psr\Http\Server\MiddlewareInterface|null
+     * @return MiddlewareInterface|null
      */
     public function shiftMiddleware() : MiddlewareInterface;
 
     /**
      * Get the stack of middleware
      *
-     * @return \Psr\Http\Server\MiddlewareInterface[]
+     * @return MiddlewareInterface[]
      */
     public function getMiddlewareStack() : iterable;
 }

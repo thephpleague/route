@@ -5,7 +5,7 @@ namespace League\Route\Strategy;
 trait StrategyAwareTrait
 {
     /**
-     * @var \League\Route\Strategy\StrategyInterface
+     * @var StrategyInterface
      */
     protected $strategy;
 
