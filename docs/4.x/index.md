@@ -8,7 +8,7 @@ sections:
     Questions?: questions
     Installation: installation
 ---
-[![Author](http://img.shields.io/badge/author-@philipobenito-blue.svg?style=flat-square)](https://twitter.com/philipobenito)
+[![Author](https://img.shields.io/badge/author-@philipobenito-blue.svg?style=flat-square)](https://twitter.com/philipobenito)
 [![Latest Version](https://img.shields.io/github/release/thephpleague/route.svg?style=flat-square)](https://github.com/thephpleague/route/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/thephpleague/route/blob/master/LICENSE.md)
 [![Build Status](https://img.shields.io/travis/thephpleague/route/master.svg?style=flat-square)](https://travis-ci.org/thephpleague/route)

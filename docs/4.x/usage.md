@@ -23,6 +23,11 @@ Next, install an implementation of PSR-7. We recommend the [Zend Diactoros proje
 ~~~
 composer require zendframework/zend-diactoros
 ~~~
+If you use [Zend Diactoros project][diactoros] you will also need
+
+~~~
+composer require zendframework/zend-httphandlerrunner
+~~~
 
 Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/4.x/dependency-injection) for more information.
 
@@ -58,7 +63,7 @@ $router->map('GET', '/', function (ServerRequestInterface $request) : ResponseIn
 $response = $router->dispatch($request);
 
 // send the response to the browser
-(new Zend\Diactoros\Response\SapiEmitter)->emit($response);
+(new Zend\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);
 ~~~
 
 ## APIs
@@ -99,10 +104,10 @@ $router->map('GET', '/', function (ServerRequestInterface $request) : array {
 $response = $router->dispatch($request);
 
 // send the response to the browser
-(new Zend\Diactoros\Response\SapiEmitter)->emit($response);
+(new Zend\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);
 ~~~
 
-The code above will build turn your returned array in to a JSON response.
+The code above will convert your returned array in to a JSON response.
 
 ~~~json
 {

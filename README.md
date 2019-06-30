@@ -1,6 +1,6 @@
 # Route
 
-[![Author](http://img.shields.io/badge/author-@philipobenito-blue.svg?style=flat-square)](https://twitter.com/philipobenito)
+[![Author](https://img.shields.io/badge/author-@philipobenito-blue.svg?style=flat-square)](https://twitter.com/philipobenito)
 [![Latest Version](https://img.shields.io/github/release/thephpleague/route.svg?style=flat-square)](https://github.com/thephpleague/route/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/thephpleague/route/master.svg?style=flat-square)](https://travis-ci.org/thephpleague/route)
@@ -53,8 +53,6 @@ Please see [CONTRIBUTING](https://github.com/thephpleague/route/blob/master/CONT
 - [Phil Bennett](https://github.com/philipobenito)
 - [Nikita Popov](https://github.com/nikic) (FastRoute)
 - [All Contributors](https://github.com/thephpleague/route/contributors)
-
-All `Orno\Route` contributions can be found [here](https://github.com/orno/route/graphs/contributors).
 
 ## License
 
