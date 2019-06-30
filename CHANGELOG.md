@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.3.0] 2019-06
+
+### Added
+- Ability to add middleware to the stack as a class name so it is only instantiated when used.
+
+### Changed
+- Switch to use `zendframework/zend-httphandlerrunner` as removed from `diactoros` (@JohnstonCode)
+
+### Fixed
+- When adding a prefix to a group after adding routes, it is now applied to those routes. (@delboy1978uk)
+- Fix to how shifting middleware is handled to prevent error triggering. (@delboy1978uk)
+- Fix to ensure that when invoking FastRoute methods on League\Route all callables are converted to League\Route objects (@pgk)
+- Various documentation fixes.
+
 ## [4.2.0] 2018-10
 
 ### Added
