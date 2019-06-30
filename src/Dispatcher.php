@@ -7,7 +7,6 @@ use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait};
-use OutOfBoundsException;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -53,10 +52,6 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     public function handle(ServerRequestInterface $request) : ResponseInterface
     {
         $middleware = $this->shiftMiddleware();
-
-        if (is_null($middleware)) {
-            throw new OutOfBoundsException('Reached end of middleware stack. Does your controller return a response?');
-        }
 
         return $middleware->process($request, $this);
     }
