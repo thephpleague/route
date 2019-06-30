@@ -901,4 +901,48 @@ class DispatchIntegrationTest extends TestCase
 
         $router->dispatch($request);
     }
+
+    public function testDispatchDoesNotThrowWhenUsingAddRoute()
+    {
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->will($this->returnValue('/example/route'))
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('GET'))
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->will($this->returnValue($uri))
+        ;
+
+        $router = new Router;
+
+        $router->addRoute(['GET', 'POST'], '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args
+        ) use (
+            $response
+        ) : ResponseInterface {
+            $this->assertSame([
+                'something' => 'route'
+            ], $args);
+
+            return $response;
+        });
+
+        $returnedResponse = $router->dispatch($request);
+
+        $this->assertSame($response, $returnedResponse);
+    }
 }
