@@ -3,6 +3,7 @@
 namespace League\Route\Middleware;
 
 use InvalidArgumentException;
+use OutOfBoundsException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 
@@ -94,7 +95,13 @@ trait MiddlewareAwareTrait
      */
     public function shiftMiddleware() : MiddlewareInterface
     {
-        return array_shift($this->middleware);
+        $middleware =  array_shift($this->middleware);
+
+        if ($middleware === null) {
+            throw new OutOfBoundsException('Reached end of middleware stack. Does your controller return a response?');
+        }
+
+        return $middleware;
     }
 
     /**
@@ -108,18 +115,18 @@ trait MiddlewareAwareTrait
     /**
      * Resolve a middleware implementation, optionally from a container
      *
-     * @param \Psr\Http\Server\MiddlewareInterface|string $middleware
-     * @param \Psr\Container\ContainerInterface|null      $container
+     * @param MiddlewareInterface|string $middleware
+     * @param ContainerInterface|null    $container
      *
-     * @return \Psr\Http\Server\MiddlewareInterface
+     * @return MiddlewareInterface
      */
     protected function resolveMiddleware($middleware, ?ContainerInterface $container = null) : MiddlewareInterface
     {
-        if (is_null($container) && is_string($middleware) && class_exists($middleware)) {
+        if ($container === null && is_string($middleware) && class_exists($middleware)) {
             $middleware = new $middleware;
         }
 
-        if (! is_null($container) && is_string($middleware) && $container->has($middleware)) {
+        if ($container !== null && is_string($middleware) && $container->has($middleware)) {
             $middleware = $container->get($middleware);
         }
 

@@ -7,7 +7,6 @@ use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait};
-use OutOfBoundsException;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -28,7 +27,9 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      */
     public function dispatchRequest(ServerRequestInterface $request) : ResponseInterface
     {
-        $match = $this->dispatch($request->getMethod(), $request->getUri()->getPath());
+        $httpMethod = $request->getMethod();
+        $uri = $request->getUri()->getPath();
+        $match = $this->dispatch($httpMethod, $uri);
 
         switch ($match[0]) {
             case FastRoute::NOT_FOUND:
@@ -39,12 +40,30 @@ class Dispatcher extends GroupCountBasedDispatcher implements
                 $this->setMethodNotAllowedDecoratorMiddleware($allowed);
                 break;
             case FastRoute::FOUND:
-                $match[1]->setVars($match[2]);
-                $this->setFoundMiddleware($match[1]);
+                $route = $this->ensureHandlerIsRoute($match[1], $httpMethod, $uri)->setVars($match[2]);
+                $this->setFoundMiddleware($route);
                 break;
         }
 
         return $this->handle($request);
+    }
+
+    /**
+     * Ensure handler is a Route, honoring the contract of dispatchRequest.
+     *
+     * @param Route|mixed $matchingHandler
+     * @param string $httpMethod
+     * @param string $uri
+     *
+     * @return Route
+     *
+     */
+    private function ensureHandlerIsRoute($matchingHandler, $httpMethod, $uri) : Route
+    {
+        if (is_a($matchingHandler, Route::class)) {
+            return $matchingHandler;
+        }
+        return new Route($httpMethod, $uri, $matchingHandler);
     }
 
     /**
@@ -53,10 +72,6 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     public function handle(ServerRequestInterface $request) : ResponseInterface
     {
         $middleware = $this->shiftMiddleware();
-
-        if (is_null($middleware)) {
-            throw new OutOfBoundsException('Reached end of middleware stack. Does your controller return a response?');
-        }
 
         return $middleware->process($request, $this);
     }

@@ -2,10 +2,10 @@
 
 namespace League\Route;
 
-use InvalidArgumentException;
 use FastRoute\{DataGenerator, RouteCollector, RouteParser};
-use League\Route\Strategy\{ApplicationStrategy, StrategyAwareInterface, StrategyAwareTrait};
+use InvalidArgumentException;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
+use League\Route\Strategy\{ApplicationStrategy, StrategyAwareInterface, StrategyAwareTrait};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class Router extends RouteCollector implements
@@ -18,17 +18,17 @@ class Router extends RouteCollector implements
     use StrategyAwareTrait;
 
     /**
-     * @var \League\Route\Route[]
+     * @var Route[]
      */
     protected $routes = [];
 
     /**
-     * @var \League\Route\Route[]
+     * @var Route[]
      */
     protected $namedRoutes = [];
 
     /**
-     * @var \League\Route\RouteGroup[]
+     * @var RouteGroup[]
      */
     protected $groups = [];
 
@@ -46,14 +46,14 @@ class Router extends RouteCollector implements
     /**
      * Constructor
      *
-     * @param \FastRoute\RouteParser   $parser
-     * @param \FastRoute\DataGenerator $generator
+     * @param RouteParser $parser
+     * @param DataGenerator $generator
      */
     public function __construct(?RouteParser $parser = null, ?DataGenerator $generator = null)
     {
         // build parent route collector
-        $parser    = ($parser) ?? new RouteParser\Std;
-        $generator = ($generator) ?? new DataGenerator\GroupCountBased;
+        $parser    = $parser ?? new RouteParser\Std;
+        $generator = $generator ?? new DataGenerator\GroupCountBased;
         parent::__construct($parser, $generator);
     }
 
@@ -76,7 +76,7 @@ class Router extends RouteCollector implements
      * @param string   $prefix
      * @param callable $group
      *
-     * @return \League\Route\RouteGroup
+     * @return RouteGroup
      */
     public function group(string $prefix, callable $group) : RouteGroup
     {
@@ -91,12 +91,13 @@ class Router extends RouteCollector implements
      */
     public function dispatch(ServerRequestInterface $request) : ResponseInterface
     {
-        if (is_null($this->getStrategy())) {
+        if ($this->getStrategy() === null) {
             $this->setStrategy(new ApplicationStrategy);
         }
 
         $this->prepRoutes($request);
 
+        /** @var Dispatcher $dispatcher */
         $dispatcher = (new Dispatcher($this->getData()))->setStrategy($this->getStrategy());
 
         foreach ($this->getMiddlewareStack() as $middleware) {
@@ -115,7 +116,7 @@ class Router extends RouteCollector implements
      * Prepare all routes, build name index and filter out none matching
      * routes before being passed off to the parser.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
      * @return void
      */
@@ -126,23 +127,27 @@ class Router extends RouteCollector implements
 
         $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
 
+        /** @var Route $route */
         foreach ($routes as $key => $route) {
             // check for scheme condition
-            if (! is_null($route->getScheme()) && $route->getScheme() !== $request->getUri()->getScheme()) {
+            $scheme = $route->getScheme();
+            if ($scheme !== null && $scheme !== $request->getUri()->getScheme()) {
                 continue;
             }
 
             // check for domain condition
-            if (! is_null($route->getHost()) && $route->getHost() !== $request->getUri()->getHost()) {
+            $host = $route->getHost();
+            if ($host !== null && $host !== $request->getUri()->getHost()) {
                 continue;
             }
 
             // check for port condition
-            if (! is_null($route->getPort()) && $route->getPort() !== $request->getUri()->getPort()) {
+            $port = $route->getPort();
+            if ($port !== null && $port !== $request->getUri()->getPort()) {
                 continue;
             }
 
-            if (is_null($route->getStrategy())) {
+            if ($route->getStrategy() === null) {
                 $route->setStrategy($this->getStrategy());
             }
 
@@ -158,7 +163,7 @@ class Router extends RouteCollector implements
     protected function buildNameIndex() : void
     {
         foreach ($this->routes as $key => $route) {
-            if (! is_null($route->getName())) {
+            if ($route->getName() !== null) {
                 unset($this->routes[$key]);
                 $this->namedRoutes[$route->getName()] = $route;
             }
@@ -171,7 +176,7 @@ class Router extends RouteCollector implements
      * Adds all of the group routes to the collection and determines if the group
      * strategy should be be used.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param ServerRequestInterface $request
      *
      * @return void
      */
@@ -182,8 +187,8 @@ class Router extends RouteCollector implements
         foreach ($this->groups as $key => $group) {
             // we want to determine if we are technically in a group even if the
             // route is not matched so exceptions are handled correctly
-            if (strncmp($activePath, $group->getPrefix(), strlen($group->getPrefix())) === 0
-                && ! is_null($group->getStrategy())
+            if ($group->getStrategy() !== null
+                && strncmp($activePath, $group->getPrefix(), strlen($group->getPrefix())) === 0
             ) {
                 $this->setStrategy($group->getStrategy());
             }
@@ -198,9 +203,9 @@ class Router extends RouteCollector implements
      *
      * @param string $name
      *
-     * @throws \InvalidArgumentException when no route of the provided name exists.
+     * @return Route
      *
-     * @return \League\Route\Route
+     * @throws InvalidArgumentException when no route of the provided name exists
      */
     public function getNamedRoute(string $name) : Route
     {
