@@ -89,14 +89,15 @@ class Dispatcher extends GroupCountBasedDispatcher implements
             $route->setStrategy($this->getStrategy());
         }
 
-        $container = $route->getStrategy()->getContainer();
+        $strategy   = $route->getStrategy();
+        $container = $strategy instanceof ContainerAwareInterface ? $strategy->getContainer() : null;
 
         foreach ($this->getMiddlewareStack() as $key => $middleware) {
             $this->middleware[$key] = $this->resolveMiddleware($middleware, $container);
         }
 
         // wrap entire dispatch process in exception handler
-        $this->prependMiddleware($route->getStrategy()->getExceptionHandler());
+        $this->prependMiddleware($strategy->getExceptionHandler());
 
         // add group and route specific middleware
         if ($group = $route->getParentGroup()) {
