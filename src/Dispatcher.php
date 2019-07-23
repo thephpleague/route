@@ -56,8 +56,8 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      */
     private function requestWithRouteVars(ServerRequestInterface $request, Route $route): ServerRequestInterface
     {
-        $queryParams = $request->getQueryParams();
-        $routerParams = $route->getVars();
+        $queryParams = $request->getQueryParams() ?: [];
+        $routerParams = $route->getVars() ?: [];
         $params = array_merge($queryParams, $routerParams);
 
         return $request->withQueryParams($params);
