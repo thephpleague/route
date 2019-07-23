@@ -947,40 +947,45 @@ class DispatchIntegrationTest extends TestCase
 
         $request
             ->expects($this->at(3))
-            ->method('withRequestTarget')
-            ->with($this->equalTo('middleware1'))
+            ->method('getQueryParams')
+            ->willReturn([])
         ;
 
         $request
             ->expects($this->at(4))
-            ->method('withRequestTarget')
-            ->with($this->equalTo('middleware4'))
+            ->method('withQueryParams')
+            ->willReturn($request)
         ;
 
         $request
             ->expects($this->at(5))
             ->method('withRequestTarget')
-            ->with($this->equalTo('middleware2'))
+            ->with($this->equalTo('middleware1'))
         ;
 
         $request
             ->expects($this->at(6))
             ->method('withRequestTarget')
-            ->with($this->equalTo('middleware3'))
+            ->with($this->equalTo('middleware4'))
         ;
 
         $request
             ->expects($this->at(7))
             ->method('withRequestTarget')
-            ->with($this->equalTo('middleware4'))
+            ->with($this->equalTo('middleware2'))
         ;
 
         $request
-            ->expects($this->any())
-            ->method('withQueryParams')
-            ->willReturn($request)
+            ->expects($this->at(8))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware3'))
         ;
 
+        $request
+            ->expects($this->at(9))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware4'))
+        ;
 
         $uri
             ->expects($this->exactly(2))
