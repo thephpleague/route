@@ -38,6 +38,12 @@ class DispatchIntegrationTest extends TestCase
         ;
 
         $request
+            ->expects($this->once())
+            ->method('withQueryParams')
+            ->willReturn($request)
+        ;
+
+        $request
             ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri)
@@ -94,6 +100,12 @@ class DispatchIntegrationTest extends TestCase
         ;
 
         $request
+            ->expects($this->once())
+            ->method('withQueryParams')
+            ->willReturn($request)
+        ;
+
+        $request
             ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri)
@@ -130,6 +142,12 @@ class DispatchIntegrationTest extends TestCase
             ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri)
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('withQueryParams')
+            ->willReturn($request)
         ;
 
         $body
@@ -210,6 +228,12 @@ class DispatchIntegrationTest extends TestCase
             ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri)
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('withQueryParams')
+            ->willReturn($request)
         ;
 
         $body
@@ -718,6 +742,12 @@ class DispatchIntegrationTest extends TestCase
             ->willReturn($this->createMock(StreamInterface::class))
         ;
 
+        $request
+            ->expects($this->once())
+            ->method('withQueryParams')
+            ->willReturn($request)
+        ;
+
         $uri
             ->expects($this->exactly(2))
             ->method('getPath')
@@ -763,6 +793,12 @@ class DispatchIntegrationTest extends TestCase
             ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri)
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('withQueryParams')
+            ->willReturn($request)
         ;
 
         $response
@@ -911,30 +947,42 @@ class DispatchIntegrationTest extends TestCase
 
         $request
             ->expects($this->at(3))
-            ->method('withRequestTarget')
-            ->with($this->equalTo('middleware1'))
+            ->method('getQueryParams')
+            ->willReturn([])
         ;
 
         $request
             ->expects($this->at(4))
-            ->method('withRequestTarget')
-            ->with($this->equalTo('middleware4'))
+            ->method('withQueryParams')
+            ->willReturn($request)
         ;
 
         $request
             ->expects($this->at(5))
             ->method('withRequestTarget')
-            ->with($this->equalTo('middleware2'))
+            ->with($this->equalTo('middleware1'))
         ;
 
         $request
             ->expects($this->at(6))
             ->method('withRequestTarget')
-            ->with($this->equalTo('middleware3'))
+            ->with($this->equalTo('middleware4'))
         ;
 
         $request
             ->expects($this->at(7))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware2'))
+        ;
+
+        $request
+            ->expects($this->at(8))
+            ->method('withRequestTarget')
+            ->with($this->equalTo('middleware3'))
+        ;
+
+        $request
+            ->expects($this->at(9))
             ->method('withRequestTarget')
             ->with($this->equalTo('middleware4'))
         ;
@@ -986,6 +1034,12 @@ class DispatchIntegrationTest extends TestCase
             ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri)
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('withQueryParams')
+            ->willReturn($request)
         ;
 
         $router = new Router;
