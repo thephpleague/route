@@ -42,7 +42,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
             case FastRoute::FOUND:
                 $route = $this->ensureHandlerIsRoute($match[1], $httpMethod, $uri)->setVars($match[2]);
                 $this->setFoundMiddleware($route);
-                $request = $this->requestWithRouteVars($request, $route);
+                $request = $this->requestWithRouteAttributes($request, $route);
                 break;
         }
 
@@ -54,13 +54,15 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      * @param Route $route
      * @return ServerRequestInterface
      */
-    private function requestWithRouteVars(ServerRequestInterface $request, Route $route): ServerRequestInterface
+    private function requestWithRouteAttributes(ServerRequestInterface $request, Route $route): ServerRequestInterface
     {
-        $queryParams = $request->getQueryParams();
         $routerParams = $route->getVars();
-        $params = array_merge($queryParams, $routerParams);
 
-        return $request->withQueryParams($params);
+        foreach ($routerParams as $key => $value) {
+            $request = $request->withAttribute($key, $value);
+        }
+
+        return $request;
     }
 
     /**
