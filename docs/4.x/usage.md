@@ -70,11 +70,7 @@ $response = $router->dispatch($request);
 
 Only a few changes are needed to create a simple JSON API. We have to change the strategy that the router uses to dispatch a controller, as well as providing a response factory to ensure the JSON Strategy can build the response it needs to.
 
-To provide a response factory, we will need to install a http-interop response factory package, in this case we will use the factory for zend-diactoros.
-
-~~~
-composer require http-interop/http-factory-diactoros
-~~~
+To provide a response factory, we will need to install a package that provides a response factory, such as Zend Diactoros.
 
 ~~~php
 <?php declare(strict_types=1);
@@ -88,7 +84,7 @@ $request = Zend\Diactoros\ServerRequestFactory::fromGlobals(
     $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
 );
 
-$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
+$responseFactory = new Zend\Diactoros\ResponseFactory;
 
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 $router   = (new League\Route\Router)->setStrategy($strategy);
