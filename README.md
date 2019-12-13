@@ -37,7 +37,7 @@ The following versions of PHP are supported by this version.
 
 Route has [full documentation](http://route.thephpleague.com), powered by [Jekyll](http://jekyllrb.com/).
 
-Contribute to this documentation in the [gh-pages branch](https://github.com/thephpleague/route/tree/gh-pages/).
+Contribute to this documentation in the [docs directory](https://github.com/thephpleague/route/tree/master/docs/).
 
 ## Testing
 
