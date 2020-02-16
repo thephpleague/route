@@ -107,7 +107,7 @@ class RouterTest extends TestCase
         $router = new Router;
         $router->addRoute('GET', '/route-we-dont-want-or-need', 'someController::someAction');
         $routes = $router->getRoutes();
-        $route = $router->getRoutes();
+        $route = $routes[0];
         $router->removeRoute($route);
         $routes = $router->getRoutes();
         $this->assertEmpty($routes);
