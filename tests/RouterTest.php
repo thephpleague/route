@@ -105,7 +105,7 @@ class RouterTest extends TestCase
     public function testRemoveRoute(): void
     {
         $router = new Router;
-        $router->addRoute('GET', '/route-we-dont-want-or-need', 'someController::someAction');
+        $router->map('GET', '/route-we-dont-want-or-need', 'someController::someAction');
         $routes = $router->getRoutes();
         $route = $routes[0];
         $router->removeRoute($route);
