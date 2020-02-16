@@ -6,12 +6,14 @@ use FastRoute\{DataGenerator, RouteCollector, RouteParser};
 use InvalidArgumentException;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{ApplicationStrategy, StrategyAwareInterface, StrategyAwareTrait};
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class Router extends RouteCollector implements
     MiddlewareAwareInterface,
     RouteCollectionInterface,
-    StrategyAwareInterface
+    StrategyAwareInterface,
+    RequestHandlerInterface
 {
     use MiddlewareAwareTrait;
     use RouteCollectionTrait;
@@ -88,8 +90,19 @@ class Router extends RouteCollector implements
 
     /**
      * {@inheritdoc}
+     * @deprecated use handle() method
      */
     public function dispatch(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->handle($request);
+    }
+
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->getStrategy() === null) {
             $this->setStrategy(new ApplicationStrategy);
