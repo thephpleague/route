@@ -94,4 +94,22 @@ class RouterTest extends TestCase
         $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
         $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
     }
+
+
+
+    /**
+     * Asserts that appropriately configured regex strings are added to patternMatchers.
+     *
+     * @return void
+     */
+    public function testRemoveRoute(): void
+    {
+        $router = new Router;
+        $router->addRoute('GET', '/route-we-dont-want-or-need', 'someController::someAction');
+        $routes = $router->getRoutes();
+        $route = $router->getRoutes();
+        $router->removeRoute($route);
+        $routes = $router->getRoutes();
+        $this->assertEmpty($routes);
+    }
 }

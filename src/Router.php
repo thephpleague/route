@@ -247,4 +247,24 @@ class Router extends RouteCollector implements
     {
         return preg_replace(array_keys($this->patternMatchers), array_values($this->patternMatchers), $path);
     }
+
+    /**
+     * @return Route[]
+     */
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
+    /**
+     * @param Route $route
+     */
+    public function removeRoute(Route $routeToRemove): void
+    {
+        foreach ($this->routes as $index => $route) {
+            if ($route === $routeToRemove) {
+                unset($this->routes[$index]);
+            }
+        }
+    }
 }
