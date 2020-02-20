@@ -90,19 +90,8 @@ class Router extends RouteCollector implements
 
     /**
      * {@inheritdoc}
-     * @deprecated use handle() method
      */
     public function dispatch(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->handle($request);
-    }
-
-
-    /**
-     * @param ServerRequestInterface $request
-     * @return ResponseInterface
-     */
-    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->getStrategy() === null) {
             $this->setStrategy(new ApplicationStrategy);
@@ -123,6 +112,15 @@ class Router extends RouteCollector implements
         }
 
         return $dispatcher->dispatchRequest($request);
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->dispatch($request);
     }
 
     /**
