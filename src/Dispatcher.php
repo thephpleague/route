@@ -50,8 +50,11 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     }
 
     /**
+     *  Adds routing variables as Request Attributes
+     *
      * @param ServerRequestInterface $request
      * @param Route $route
+     *
      * @return ServerRequestInterface
      */
     protected function requestWithRouteAttributes(ServerRequestInterface $request, Route $route): ServerRequestInterface
