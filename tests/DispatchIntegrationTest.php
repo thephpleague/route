@@ -38,15 +38,15 @@ class DispatchIntegrationTest extends TestCase
         ;
 
         $request
-            ->expects($this->once())
-            ->method('withQueryParams')
-            ->willReturn($request)
-        ;
-
-        $request
             ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri)
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('withAttribute')
+            ->willReturn($request)
         ;
 
         $router = new Router;
