@@ -19,7 +19,7 @@ class DispatchIntegrationTest extends TestCase
      *
      * @return void
      */
- /*   public function testDispatchesFoundRoute(): void
+    public function testDispatchesFoundRoute(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -68,7 +68,7 @@ class DispatchIntegrationTest extends TestCase
 
         $this->assertSame($response, $returnedResponse);
     }
-*/
+
     /**
      * Asserts that the collection/dispatcher can filter through to exception decorator.
      *

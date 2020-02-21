@@ -54,7 +54,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
      * @param Route $route
      * @return ServerRequestInterface
      */
-    private function requestWithRouteAttributes(ServerRequestInterface $request, Route $route): ServerRequestInterface
+    protected function requestWithRouteAttributes(ServerRequestInterface $request, Route $route): ServerRequestInterface
     {
         $routerParams = $route->getVars();
 
