@@ -87,9 +87,14 @@ class RouterTest extends TestCase
      */
     public function testNewPatternMatchesCanBeAddedAtRuntime(): void
     {
-        $router = new Router;
+        $router = new class extends Router {
+            public function getPatternMatchers(): array
+            {
+                return $this->patternMatchers;
+            }
+        };
         $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');
-        $matchers = $this->getObjectAttribute($router, 'patternMatchers');
+        $matchers = $router->getPatternMatchers();
 
         $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
         $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
