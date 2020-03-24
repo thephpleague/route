@@ -3,8 +3,9 @@
 namespace League\Route;
 
 use Psr\Container\ContainerInterface;
+use League\Route\Strategy\StrategyInterface;
 
-interface ContainerAwareInterface
+interface ContainerAwareInterface extends StrategyInterface
 {
     /**
      * Get the current container
