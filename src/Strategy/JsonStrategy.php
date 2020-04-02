@@ -10,6 +10,10 @@ use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequest
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Throwable;
 
+use function is_array;
+use function is_object;
+use function json_encode;
+
 class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
@@ -20,13 +24,19 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
     protected $responseFactory;
 
     /**
+     * @var int
+     */
+    protected $jsonFlags;
+
+    /**
      * Construct.
      *
      * @param ResponseFactoryInterface $responseFactory
      */
-    public function __construct(ResponseFactoryInterface $responseFactory)
+    public function __construct(ResponseFactoryInterface $responseFactory, int $jsonFlags = 0)
     {
         $this->responseFactory = $responseFactory;
+        $this->jsonFlags = $jsonFlags;
 
         $this->addDefaultResponseHeader('content-type', 'application/json');
     }
@@ -40,7 +50,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
         $response = $controller($request, $route->getVars());
 
         if ($this->isJsonEncodable($response)) {
-            $body     = json_encode($response);
+            $body     = json_encode($response, $this->jsonFlags);
             $response = $this->responseFactory->createResponse();
             $response->getBody()->write($body);
         }
@@ -151,7 +161,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
                     $response->getBody()->write(json_encode([
                         'status_code'   => 500,
                         'reason_phrase' => $exception->getMessage()
-                    ]));
+                    ], $this->jsonFlags));
 
                     $response = $response->withAddedHeader('content-type', 'application/json');
                     return $response->withStatus(500, strtok($exception->getMessage(), "\n"));
