@@ -43,6 +43,12 @@ class DispatchIntegrationTest extends TestCase
             ->willReturn($uri)
         ;
 
+        $request
+            ->expects($this->once())
+            ->method('withAttribute')
+            ->willReturn($request)
+        ;
+
         $router = new Router;
 
         $router->map('GET', '/example/{something}', function (
@@ -91,6 +97,18 @@ class DispatchIntegrationTest extends TestCase
             ->expects($this->once())
             ->method('getMethod')
             ->willReturn('GET')
+        ;
+
+        $request
+            ->expects($this->any())
+            ->method('withQueryParams')
+            ->willReturn($request)
+        ;
+
+        $request
+            ->expects($this->any())
+            ->method('withAttribute')
+            ->willReturn($request)
         ;
 
         $request
@@ -986,6 +1004,12 @@ class DispatchIntegrationTest extends TestCase
             ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri)
+        ;
+
+        $request
+            ->expects($this->any())
+            ->method('withAttribute')
+            ->willReturn($request)
         ;
 
         $router = new Router;
