@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.4.0] 2020-05
+
+### Added
+- Ability to pass JSON flags to JsonStrategy. (@pine3ree)
+- Router is now a RequestHandlerInterface so can be used as a middleware itself. (@delboy1978uk)
+- Route params now added as Request attributes. (@delboy1978uk)
+
+### Fixed
+- Exception moved to more appropriate place when shifting no middleware. (@delboy1978uk)
+- Ensure group prefix is always added when adding a parent group. (@delboy1978uk)
+
+
 ## [4.3.1] 2019-07
 
 ### Fixed

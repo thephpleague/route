@@ -32,6 +32,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface
      * Construct.
      *
      * @param ResponseFactoryInterface $responseFactory
+     * @param int $jsonFlags
      */
     public function __construct(ResponseFactoryInterface $responseFactory, int $jsonFlags = 0)
     {

@@ -16,7 +16,7 @@
   name: League\Route 4.x
   type: Current
   requires: PHP >= 7.1.0
-  release: 4.3.1 - 2019-07
+  release: 4.4.0 - 2020-05
   support: Ongoing
   url: /4.x/
   menu:

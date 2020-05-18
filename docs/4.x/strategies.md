@@ -146,6 +146,20 @@ function arrayController(ServerRequestInterface $request, array $args) : array {
 });
 ~~~
 
+### JSON Flags
+
+You can pass an optional second argument to the `JsonStrategy` to define the JSON flags to use when encoding the response.
+
+~~~php
+<?php declare(strict_types=1);
+
+$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
+$strategy = new League\Route\Strategy\JsonStrategy($responseFactory, JSON_BIGINT_AS_STRING);
+
+$router = (new League\Route\Router)->setStrategy($strategy);
+~~~
+
+
 ### Exception Decorators
 
 `League\Route\Strategy\JsonStrategy` will decorate all exceptions, `NotFound`, `MethodNotAllowed`, and any 4xx or 5xx exceptions as a JSON Response, setting the correct HTTP status code and content type header in the process.
