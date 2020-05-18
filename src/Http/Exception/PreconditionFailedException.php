@@ -1,19 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route\Http\Exception;
 
 use Exception;
-use League\Route\Http\Exception as HttpException;
+use League\Route\Http;
 
-class PreconditionFailedException extends HttpException
+class PreconditionFailedException extends Http\Exception
 {
-    /**
-     * Constructor
-     *
-     * @param string    $message
-     * @param Exception $previous
-     * @param int $code
-     */
     public function __construct(string $message = 'Precondition Failed', ?Exception $previous = null, int $code = 0)
     {
         parent::__construct(412, $message, $previous, [], $code);

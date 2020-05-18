@@ -1,25 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route\Http\Exception;
 
 use Exception;
-use League\Route\Http\Exception as HttpException;
+use League\Route\Http;
 
-class MethodNotAllowedException extends HttpException
+class MethodNotAllowedException extends Http\Exception
 {
-    /**
-     * Constructor
-     *
-     * @param array     $allowed
-     * @param string    $message
-     * @param Exception $previous
-     * @param int $code
-     */
     public function __construct(
-        array      $allowed = [],
-        string     $message = 'Method Not Allowed',
+        array $allowed = [],
+        string $message = 'Method Not Allowed',
         ?Exception $previous = null,
-        int        $code = 0
+        int $code = 0
     ) {
         $headers = [
             'Allow' => implode(', ', $allowed)

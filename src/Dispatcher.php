@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route;
 
@@ -6,9 +8,10 @@ use FastRoute\Dispatcher as FastRoute;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
-use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait};
+use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait, StrategyInterface};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 
 class Dispatcher extends GroupCountBasedDispatcher implements
     MiddlewareAwareInterface,
@@ -18,18 +21,11 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     use MiddlewareAwareTrait;
     use StrategyAwareTrait;
 
-    /**
-     * Dispatch the current route
-     *
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
-     */
     public function dispatchRequest(ServerRequestInterface $request): ResponseInterface
     {
-        $httpMethod = $request->getMethod();
-        $uri        = $request->getUri()->getPath();
-        $match      = $this->dispatch($httpMethod, $uri);
+        $method = $request->getMethod();
+        $uri    = $request->getUri()->getPath();
+        $match  = $this->dispatch($method, $uri);
 
         switch ($match[0]) {
             case FastRoute::NOT_FOUND:
@@ -40,23 +36,59 @@ class Dispatcher extends GroupCountBasedDispatcher implements
                 $this->setMethodNotAllowedDecoratorMiddleware($allowed);
                 break;
             case FastRoute::FOUND:
-                $route = $this->ensureHandlerIsRoute($match[1], $httpMethod, $uri)->setVars($match[2]);
-                $this->setFoundMiddleware($route);
-                $request = $this->requestWithRouteAttributes($request, $route);
+                $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setVars($match[2]);
+
+                if ($this->isExtraConditionMatch($route, $request)) {
+                    $this->setFoundMiddleware($route);
+                    $request = $this->requestWithRouteAttributes($request, $route);
+                    break;
+                }
+
+                $this->setNotFoundDecoratorMiddleware();
                 break;
         }
 
         return $this->handle($request);
     }
 
-    /**
-     *  Adds routing variables as Request Attributes
-     *
-     * @param ServerRequestInterface $request
-     * @param Route $route
-     *
-     * @return ServerRequestInterface
-     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        $middleware = $this->shiftMiddleware();
+        return $middleware->process($request, $this);
+    }
+
+    protected function ensureHandlerIsRoute($matchingHandler, $httpMethod, $uri): Route
+    {
+        if ($matchingHandler instanceof Route) {
+            return $matchingHandler;
+        }
+
+        return new Route($httpMethod, $uri, $matchingHandler);
+    }
+
+    protected function isExtraConditionMatch(Route $route, ServerRequestInterface $request): bool
+    {
+        // check for scheme condition
+        $scheme = $route->getScheme();
+        if ($scheme !== null && $scheme !== $request->getUri()->getScheme()) {
+            return false;
+        }
+
+        // check for domain condition
+        $host = $route->getHost();
+        if ($host !== null && $host !== $request->getUri()->getHost()) {
+            return false;
+        }
+
+        // check for port condition
+        $port = $route->getPort();
+        if ($port !== null && $port !== $request->getUri()->getPort()) {
+            return false;
+        }
+
+        return true;
+    }
+
     protected function requestWithRouteAttributes(ServerRequestInterface $request, Route $route): ServerRequestInterface
     {
         $routerParams = $route->getVars();
@@ -68,48 +100,19 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         return $request;
     }
 
-    /**
-     * Ensure handler is a Route, honoring the contract of dispatchRequest.
-     *
-     * @param Route|mixed $matchingHandler
-     * @param string      $httpMethod
-     * @param string      $uri
-     *
-     * @return Route
-     *
-     */
-    private function ensureHandlerIsRoute($matchingHandler, $httpMethod, $uri): Route
-    {
-        if (is_a($matchingHandler, Route::class)) {
-            return $matchingHandler;
-        }
-        return new Route($httpMethod, $uri, $matchingHandler);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        $middleware = $this->shiftMiddleware();
-
-        return $middleware->process($request, $this);
-    }
-
-    /**
-     * Set up middleware for a found route
-     *
-     * @param Route $route
-     *
-     * @return void
-     */
     protected function setFoundMiddleware(Route $route): void
     {
         if ($route->getStrategy() === null) {
-            $route->setStrategy($this->getStrategy());
+            $strategy = $this->getStrategy();
+
+            if (!($strategy instanceof StrategyInterface)) {
+                throw new RuntimeException('Cannot determine strategy to use for dispatch of found route');
+            }
+
+            $route->setStrategy($strategy);
         }
 
-        $strategy   = $route->getStrategy();
+        $strategy  = $route->getStrategy();
         $container = $strategy instanceof ContainerAwareInterface ? $strategy->getContainer() : null;
 
         foreach ($this->getMiddlewareStack() as $key => $middleware) {
@@ -117,7 +120,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         }
 
         // wrap entire dispatch process in exception handler
-        $this->prependMiddleware($strategy->getExceptionHandler());
+        $this->prependMiddleware($strategy->getThrowableHandler());
 
         // add group and route specific middleware
         if ($group = $route->getParentGroup()) {
@@ -134,30 +137,27 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         $this->middleware($route);
     }
 
-    /**
-     * Set up middleware for a not found route
-     *
-     * @return void
-     */
-    protected function setNotFoundDecoratorMiddleware(): void
+    protected function setMethodNotAllowedDecoratorMiddleware(array $allowed): void
     {
-        $middleware = $this->getStrategy()->getNotFoundDecorator(new NotFoundException);
+        $strategy = $this->getStrategy();
+
+        if (!($strategy instanceof StrategyInterface)) {
+            throw new RuntimeException('Cannot determine strategy to use for dispatch of method not allowed route');
+        }
+
+        $middleware = $strategy->getMethodNotAllowedDecorator(new MethodNotAllowedException($allowed));
         $this->prependMiddleware($middleware);
     }
 
-    /**
-     * Set up middleware for a not allowed route
-     *
-     * @param array $allowed
-     *
-     * @return void
-     */
-    protected function setMethodNotAllowedDecoratorMiddleware(array $allowed): void
+    protected function setNotFoundDecoratorMiddleware(): void
     {
-        $middleware = $this->getStrategy()->getMethodNotAllowedDecorator(
-            new MethodNotAllowedException($allowed)
-        );
+        $strategy = $this->getStrategy();
 
+        if (!($strategy instanceof StrategyInterface)) {
+            throw new RuntimeException('Cannot determine strategy to use for dispatch of not found route');
+        }
+
+        $middleware = $strategy->getNotFoundDecorator(new NotFoundException());
         $this->prependMiddleware($middleware);
     }
 }

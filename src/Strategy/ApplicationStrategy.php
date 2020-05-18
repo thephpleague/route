@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route\Strategy;
 
@@ -13,45 +15,43 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
 {
     use ContainerAwareTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface
-    {
-        $controller = $route->getCallable($this->getContainer());
-
-        $response = $controller($request, $route->getVars());
-        $response = $this->applyDefaultResponseHeaders($response);
-
-        return $response;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface
-    {
-        return $this->throwThrowableMiddleware($exception);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface
     {
         return $this->throwThrowableMiddleware($exception);
     }
 
-    /**
-     * Return a middleware that simply throws an error
-     *
-     * @param \Throwable $error
-     *
-     * @return \Psr\Http\Server\MiddlewareInterface
-     */
+    public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface
+    {
+        return $this->throwThrowableMiddleware($exception);
+    }
+
+    public function getThrowableHandler(): MiddlewareInterface
+    {
+        return new class implements MiddlewareInterface
+        {
+            public function process(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $requestHandler
+            ): ResponseInterface {
+                try {
+                    return $requestHandler->handle($request);
+                } catch (Throwable $e) {
+                    throw $e;
+                }
+            }
+        };
+    }
+
+    public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface
+    {
+        $controller = $route->getCallable($this->getContainer());
+        $response = $controller($request, $route->getVars());
+        return $this->decorateResponse($response);
+    }
+
     protected function throwThrowableMiddleware(Throwable $error): MiddlewareInterface
     {
-        return new class($error) implements MiddlewareInterface
+        return new class ($error) implements MiddlewareInterface
         {
             protected $error;
 
@@ -65,39 +65,6 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
                 RequestHandlerInterface $requestHandler
             ): ResponseInterface {
                 throw $this->error;
-            }
-        };
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getExceptionHandler(): MiddlewareInterface
-    {
-        return $this->getThrowableHandler();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getThrowableHandler(): MiddlewareInterface
-    {
-        return new class implements MiddlewareInterface
-        {
-            /**
-             * {@inheritdoc}
-             *
-             * @throws Throwable
-             */
-            public function process(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $requestHandler
-            ): ResponseInterface {
-                try {
-                    return $requestHandler->handle($request);
-                } catch (Throwable $e) {
-                    throw $e;
-                }
             }
         };
     }

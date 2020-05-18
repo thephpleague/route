@@ -1,108 +1,45 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route;
 
 trait RouteCollectionTrait
 {
-    /**
-     * Add a route to the map.
-     *
-     * @param string          $method
-     * @param string          $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    abstract public function map(string $method, string $path, $handler);
+    abstract public function map(string $method, string $path, $handler): Route;
 
-    /**
-     * Add a route that responds to GET HTTP method.
-     *
-     * @param string          $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    public function get($path, $handler)
-    {
-        return $this->map('GET', $path, $handler);
-    }
-
-    /**
-     * Add a route that responds to POST HTTP method.
-     *
-     * @param string          $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    public function post($path, $handler)
-    {
-        return $this->map('POST', $path, $handler);
-    }
-
-    /**
-     * Add a route that responds to PUT HTTP method.
-     *
-     * @param string          $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    public function put($path, $handler)
-    {
-        return $this->map('PUT', $path, $handler);
-    }
-
-    /**
-     * Add a route that responds to PATCH HTTP method.
-     *
-     * @param string          $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    public function patch($path, $handler)
-    {
-        return $this->map('PATCH', $path, $handler);
-    }
-
-    /**
-     * Add a route that responds to DELETE HTTP method.
-     *
-     * @param string          $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    public function delete($path, $handler)
+    public function delete(string $path, $handler): Route
     {
         return $this->map('DELETE', $path, $handler);
     }
 
-    /**
-     * Add a route that responds to HEAD HTTP method.
-     *
-     * @param string          $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    public function head($path, $handler)
+    public function get(string $path, $handler): Route
+    {
+        return $this->map('GET', $path, $handler);
+    }
+
+    public function head(string $path, $handler): Route
     {
         return $this->map('HEAD', $path, $handler);
     }
 
-    /**
-     * Add a route that responds to OPTIONS HTTP method.
-     *
-     * @param string          $path
-     * @param callable|string $handler
-     *
-     * @return Route
-     */
-    public function options($path, $handler)
+    public function options(string $path, $handler): Route
     {
         return $this->map('OPTIONS', $path, $handler);
+    }
+
+    public function patch(string $path, $handler): Route
+    {
+        return $this->map('PATCH', $path, $handler);
+    }
+
+    public function post(string $path, $handler): Route
+    {
+        return $this->map('POST', $path, $handler);
+    }
+
+    public function put(string $path, $handler): Route
+    {
+        return $this->map('PUT', $path, $handler);
     }
 }

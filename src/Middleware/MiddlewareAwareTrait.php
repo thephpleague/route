@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route\Middleware;
 
@@ -14,59 +16,17 @@ trait MiddlewareAwareTrait
      */
     protected $middleware = [];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function middleware(MiddlewareInterface $middleware): MiddlewareAwareInterface
+    public function getMiddlewareStack(): iterable
     {
-        $this->middleware[] = $middleware;
-
-        return $this;
+        return $this->middleware;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function middlewares(array $middlewares): MiddlewareAwareInterface
-    {
-        foreach ($middlewares as $middleware) {
-            $this->middleware($middleware);
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function prependMiddleware(MiddlewareInterface $middleware): MiddlewareAwareInterface
-    {
-        array_unshift($this->middleware, $middleware);
-
-        return $this;
-    }
-
-    /**
-     * Add a middleware as a class name to the stack
-     *
-     * @param string $middleware
-     *
-     * @return static
-     */
     public function lazyMiddleware(string $middleware): MiddlewareAwareInterface
     {
         $this->middleware[] = $middleware;
-
         return $this;
     }
 
-    /**
-     * Add multiple middlewares as class names to the stack
-     *
-     * @param string[] $middlewares
-     *
-     * @return static
-     */
     public function lazyMiddlewares(array $middlewares): MiddlewareAwareInterface
     {
         foreach ($middlewares as $middleware) {
@@ -76,23 +36,33 @@ trait MiddlewareAwareTrait
         return $this;
     }
 
-    /**
-     * Prepend a middleware as a class name to the stack
-     *
-     * @param string $middleware
-     *
-     * @return static
-     */
     public function lazyPrependMiddleware(string $middleware): MiddlewareAwareInterface
     {
         array_unshift($this->middleware, $middleware);
+        return $this;
+    }
+
+    public function middleware(MiddlewareInterface $middleware): MiddlewareAwareInterface
+    {
+        $this->middleware[] = $middleware;
+        return $this;
+    }
+
+    public function middlewares(array $middlewares): MiddlewareAwareInterface
+    {
+        foreach ($middlewares as $middleware) {
+            $this->middleware($middleware);
+        }
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function prependMiddleware(MiddlewareInterface $middleware): MiddlewareAwareInterface
+    {
+        array_unshift($this->middleware, $middleware);
+        return $this;
+    }
+
     public function shiftMiddleware(): MiddlewareInterface
     {
         $middleware =  array_shift($this->middleware);
@@ -104,26 +74,10 @@ trait MiddlewareAwareTrait
         return $middleware;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getMiddlewareStack(): iterable
-    {
-        return $this->middleware;
-    }
-
-    /**
-     * Resolve a middleware implementation, optionally from a container
-     *
-     * @param MiddlewareInterface|string $middleware
-     * @param ContainerInterface|null    $container
-     *
-     * @return MiddlewareInterface
-     */
     protected function resolveMiddleware($middleware, ?ContainerInterface $container = null): MiddlewareInterface
     {
         if ($container === null && is_string($middleware) && class_exists($middleware)) {
-            $middleware = new $middleware;
+            $middleware = new $middleware();
         }
 
         if ($container !== null && is_string($middleware) && $container->has($middleware)) {

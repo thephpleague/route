@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route;
 
@@ -31,13 +33,6 @@ class RouteGroup implements
      */
     protected $prefix;
 
-    /**
-     * Constructor
-     *
-     * @param string                   $prefix
-     * @param callable                 $callback
-     * @param RouteCollectionInterface $collection
-     */
     public function __construct(string $prefix, callable $callback, RouteCollectionInterface $collection)
     {
         $this->callback   = $callback;
@@ -45,29 +40,16 @@ class RouteGroup implements
         $this->prefix     = sprintf('/%s', ltrim($prefix, '/'));
     }
 
-    /**
-     * Return the prefix of the group
-     *
-     * @return string
-     */
-    public function getPrefix(): string
-    {
-        return $this->prefix;
-    }
-
-    /**
-     * Process the group and ensure routes are added to the collection
-     *
-     * @return void
-     */
     public function __invoke(): void
     {
         ($this->callback)($this);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function getPrefix(): string
+    {
+        return $this->prefix;
+    }
+
     public function map(string $method, string $path, $handler): Route
     {
         $path  = ($path === '/') ? $this->prefix : $this->prefix . sprintf('/%s', ltrim($path, '/'));
