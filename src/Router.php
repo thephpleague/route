@@ -6,12 +6,14 @@ use FastRoute\{DataGenerator, RouteCollector, RouteParser};
 use InvalidArgumentException;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{ApplicationStrategy, StrategyAwareInterface, StrategyAwareTrait};
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 class Router extends RouteCollector implements
     MiddlewareAwareInterface,
     RouteCollectionInterface,
-    StrategyAwareInterface
+    StrategyAwareInterface,
+    RequestHandlerInterface
 {
     use MiddlewareAwareTrait;
     use RouteCollectionTrait;
@@ -110,6 +112,15 @@ class Router extends RouteCollector implements
         }
 
         return $dispatcher->dispatchRequest($request);
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->dispatch($request);
     }
 
     /**
