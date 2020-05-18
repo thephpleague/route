@@ -180,11 +180,19 @@ class Route implements
     /**
      * Get the path
      *
+     * @param array $replacements
+     *
      * @return string
      */
-    public function getPath(): string
+    public function getPath(array $replacements = []): string
     {
-        return $this->path;
+        $toReplace = [];
+
+        foreach ($replacements as $wildcard => $actual) {
+            $toReplace['/{' . preg_quote($wildcard, '/') . '(:.*?)?}/'] = $actual;
+        }
+
+        return preg_replace(array_keys($toReplace), array_values($toReplace), $this->path);
     }
 
     /**

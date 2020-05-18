@@ -167,4 +167,22 @@ class RouteTest extends TestCase
             $middleware, $middleware
         ], $route->getMiddlewareStack());
     }
+
+    /**
+     * Asserts that passing actual values to getPath replaces the wildcards.
+     *
+     * @return void
+     */
+    public function testGetPathReplacesWildcards()
+    {
+        $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}', function () {
+        });
+
+        $path = $route->getPath([
+            'wildcard'            => 'replaced-wildcard',
+            'wildcardWithMatcher' => 'replaced-wildcard-with-matcher',
+        ]);
+
+        $this->assertSame('/a/replaced-wildcard/and/replaced-wildcard-with-matcher', $path);
+    }
 }
