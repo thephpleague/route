@@ -1,19 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace League\Route\Fixture;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
-/**
- * Named function callable.
- *
- * @param ServerRequestInterface $request
- * @param ResponseInterface      $response
- *
- * @return ResponseInterface
- */
-function namedFunctionCallable(ServerRequestInterface $request, ResponseInterface $response)
+function namedFunctionCallable(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 {
     return $response;
 }

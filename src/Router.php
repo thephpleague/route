@@ -1,13 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route;
 
 use FastRoute\{DataGenerator, RouteCollector, RouteParser};
 use InvalidArgumentException;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
-use League\Route\Strategy\{ApplicationStrategy, StrategyAwareInterface, StrategyAwareTrait};
-use Psr\Http\Server\RequestHandlerInterface;
+use League\Route\Strategy\{ApplicationStrategy, OptionsHandlerInterface, StrategyAwareInterface, StrategyAwareTrait};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 
 class Router implements
     MiddlewareAwareInterface,
@@ -18,6 +21,8 @@ class Router implements
     use MiddlewareAwareTrait;
     use RouteCollectionTrait;
     use StrategyAwareTrait;
+
+    protected const IDENTIFIER_SEPARATOR = "\t";
 
     /**
      * @var RouteGroup[]
@@ -80,13 +85,9 @@ class Router implements
     {
         $group = new RouteGroup($prefix, $group, $this);
         $this->groups[] = $group;
-
         return $group;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
         if (false === $this->routesPrepared) {
@@ -119,9 +120,6 @@ class Router implements
         throw new InvalidArgumentException(sprintf('No route of the name (%s) exists', $name));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->dispatch($request);
@@ -147,6 +145,7 @@ class Router implements
         $this->buildNameIndex();
 
         $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
+        $options = [];
 
         /** @var Route $route */
         foreach ($routes as $key => $route) {
@@ -155,7 +154,30 @@ class Router implements
             }
 
             $this->routeCollector->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $route);
+
+            // global strategy must be an OPTIONS handler to automatically generate OPTIONS route
+            if (!($this->getStrategy() instanceof OptionsHandlerInterface)) {
+                continue;
+            }
+
+            // need a messy but useful identifier for to determine what methods to respond with on OPTIONS
+            $identifier = $route->getScheme() . static::IDENTIFIER_SEPARATOR . $route->getHost()
+                . static::IDENTIFIER_SEPARATOR . $route->getPort() . static::IDENTIFIER_SEPARATOR . $route->getPath();
+
+            // if there is a defined OPTIONS route, do not generate one
+            if ('OPTIONS' === $route->getMethod()) {
+                unset($options[$identifier]);
+                continue;
+            }
+
+            if (!isset($options[$identifier])) {
+                $options[$identifier] = [];
+            }
+
+            $options[$identifier][] = $route->getMethod();
         }
+
+        $this->buildOptionsRoutes($options);
 
         $this->routesPrepared = true;
         $this->routesData = $this->routeCollector->getData();
@@ -168,6 +190,35 @@ class Router implements
                 unset($this->routes[$key]);
                 $this->namedRoutes[$route->getName()] = $route;
             }
+        }
+    }
+
+    protected function buildOptionsRoutes(array $options): void
+    {
+        if (!($this->getStrategy() instanceof OptionsHandlerInterface)) {
+            return;
+        }
+
+        /** @var OptionsHandlerInterface $strategy */
+        $strategy = $this->getStrategy();
+
+        foreach ($options as $identifier => $methods) {
+            [$scheme, $host, $port, $path] = explode(static::IDENTIFIER_SEPARATOR, $identifier);
+            $route = new Route('OPTIONS', $path, $strategy->getOptionsCallable($methods));
+
+            if (!empty($scheme)) {
+                $route->setScheme($scheme);
+            }
+
+            if (!empty($host)) {
+                $route->setHost($host);
+            }
+
+            if (!empty($port)) {
+                $route->setPort($port);
+            }
+
+            $this->routeCollector->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $route);
         }
     }
 

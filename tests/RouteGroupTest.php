@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route;
 
@@ -6,14 +8,9 @@ use PHPUnit\Framework\TestCase;
 
 class RouteGroupTest extends TestCase
 {
-    /**
-     * Asserts that a route group is created and it registeres routes with collection.
-     *
-     * @return void
-     */
     public function testGroupIsInvokedAndAddsRoutesToCollection(): void
     {
-        $callback = function () {
+        $callback = static function () {
         };
 
         $router = $this->createMock(Router::class);
@@ -110,14 +107,9 @@ class RouteGroupTest extends TestCase
         $group();
     }
 
-    /**
-     * Asserts that a group adds strategy to route.
-     *
-     * @return void
-     */
     public function testGroupAddsStrategyToRoute(): void
     {
-        $callback = function () {
+        $callback = static function () {
         };
 
         $router   = $this->createMock(RouteCollectionInterface::class);

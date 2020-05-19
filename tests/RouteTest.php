@@ -1,57 +1,39 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route;
 
-use InvalidArgumentException;
 use League\Route\Fixture\Controller;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use RuntimeException;
 
 class RouteTest extends TestCase
 {
-    /**
-     * Asserts that the route can set and resolve an invokable class callable.
-     *
-     * @return void
-     */
     public function testRouteSetsAndResolvesInvokableClassCallable(): void
     {
-        $callable = new Controller;
-        $route    = new Route('GET', '/', $callable);
-        $this->assertInternalType('callable', $route->getCallable());
+        $callable = new Controller();
+        $route = new Route('GET', '/', $callable);
+        $this->assertIsCallable($route->getCallable());
     }
 
-    /**
-     * Asserts that the route can set and resolve a class method callable.
-     *
-     * @return void
-     */
     public function testRouteSetsAndResolvesClassMethodCallable(): void
     {
-        $callable = [new Controller, 'action'];
-        $route    = new Route('GET', '/', $callable);
-        $this->assertInternalType('callable', $route->getCallable());
+        $callable = [new Controller(), 'action'];
+        $route = new Route('GET', '/', $callable);
+        $this->assertIsCallable($route->getCallable());
     }
 
-    /**
-     * Asserts that the route can set and resolve a named function callable.
-     *
-     * @return void
-     */
     public function testRouteSetsAndResolvesNamedFunctionCallable(): void
     {
         $callable = 'League\Route\Fixture\namedFunctionCallable';
-        $route    = new Route('GET', '/', $callable);
-        $this->assertInternalType('callable', $route->getCallable());
+        $route = new Route('GET', '/', $callable);
+        $this->assertIsCallable($route->getCallable());
     }
 
-    /**
-     * Asserts that the route can set and resolve a class method callable via the container.
-     *
-     * @return void
-     */
     public function testRouteSetsAndResolvesClassMethodCallableAsStringViaContainer(): void
     {
         $container = $this->createMock(ContainerInterface::class);
@@ -67,23 +49,18 @@ class RouteTest extends TestCase
             ->expects($this->once())
             ->method('get')
             ->with($this->equalTo(Controller::class))
-            ->willReturn(new Controller)
+            ->willReturn(new Controller())
         ;
 
         $callable = 'League\Route\Fixture\Controller::action';
         $route    = new Route('GET', '/', $callable);
 
         $newCallable = $route->getCallable($container);
-        $this->assertCount(2, $newCallable);
+        $this->assertIsArray($newCallable);
         $this->assertInstanceOf(Controller::class, $newCallable[0]);
         $this->assertEquals('action', $newCallable[1]);
     }
 
-    /**
-     * Asserts that the route can set and resolve a class method callable without the container.
-     *
-     * @return void
-     */
     public function testRouteSetsAndResolvesClassMethodCallableAsStringWithoutContainer(): void
     {
         $container = $this->createMock(ContainerInterface::class);
@@ -99,31 +76,21 @@ class RouteTest extends TestCase
         $route    = new Route('GET', '/', $callable);
 
         $newCallable = $route->getCallable($container);
-        $this->assertCount(2, $newCallable);
+        $this->assertIsArray($newCallable);
         $this->assertInstanceOf(Controller::class, $newCallable[0]);
         $this->assertEquals('action', $newCallable[1]);
     }
 
-    /**
-     * Asserts that the route throws an exception when trying to set and resolve a non callable.
-     *
-     * @return void
-     */
     public function testRouteThrowsExceptionWhenSettingAndResolvingNonCallable(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $route = new Route('GET', '/', new \stdClass);
+        $this->expectException(RuntimeException::class);
+        $route = new Route('GET', '/', new \stdClass());
         $route->getCallable();
     }
 
-    /**
-     * Asserts that the route can set and get all properties.
-     *
-     * @return void
-     */
     public function testRouteCanSetAndGetAllProperties(): void
     {
-        $route = new Route('GET', '/something', function () {
+        $route = new Route('GET', '/something', static function () {
         });
 
         $group = $this
@@ -132,9 +99,15 @@ class RouteTest extends TestCase
             ->getMock()
         ;
 
+        $group
+            ->expects($this->once())
+            ->method('getPrefix')
+            ->willReturn('/group')
+        ;
+
         $this->assertSame($group, $route->setParentGroup($group)->getParentGroup());
 
-        $this->assertSame('/something', $route->getPath());
+        $this->assertSame('/group/something', $route->getPath());
         $this->assertSame('GET', $route->getMethod());
 
         $name = 'a.name';
@@ -168,14 +141,9 @@ class RouteTest extends TestCase
         ], $route->getMiddlewareStack());
     }
 
-    /**
-     * Asserts that passing actual values to getPath replaces the wildcards.
-     *
-     * @return void
-     */
-    public function testGetPathReplacesWildcards()
+    public function testGetPathReplacesWildcards(): void
     {
-        $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}', function () {
+        $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}', static function () {
         });
 
         $path = $route->getPath([
@@ -184,5 +152,14 @@ class RouteTest extends TestCase
         ]);
 
         $this->assertSame('/a/replaced-wildcard/and/replaced-wildcard-with-matcher', $path);
+    }
+
+    public function testRouteThrowsWithNoStrategy(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+        (new Route('GET', '/something', static function () {
+        }))->process($request, $requestHandler);
     }
 }

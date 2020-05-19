@@ -1,65 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace League\Route\Strategy;
 
 use Exception;
-use stdClass;
 use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface, StreamInterface};
-use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use Psr\Http\Server\RequestHandlerInterface;
+use stdClass;
 
 class JsonStrategyTest extends TestCase
 {
-    /**
-     * Asserts that the strategy includes default headers.
-     *
-     * @return void
-     */
-    public function testStrategyHasDefaultHeaders(): void
-    {
-        $factory = $this->createMock(ResponseFactoryInterface::class);
-
-        $strategy = new JsonStrategy($factory);
-
-        $expectedHeaders = [
-            'content-type' => 'application/json',
-        ];
-
-        $this->assertSame($expectedHeaders, $strategy->getDefaultResponseHeaders());
-    }
-
-    /**
-     * Asserts that the strategy default headers can be added to.
-     *
-     * @return void
-     */
-    public function testStrategyCanDefineAdditionalHeaders(): void
-    {
-        $factory = $this->createMock(ResponseFactoryInterface::class);
-
-        $strategy = new JsonStrategy($factory);
-
-        $additionalHeaders = [
-            'cache-control' => 'no-cache',
-        ];
-
-        $strategy->addDefaultResponseHeaders($additionalHeaders);
-
-        $expectedHeaders = array_replace([
-            'content-type' => 'application/json',
-        ], $additionalHeaders);
-
-        $this->assertSame($expectedHeaders, $strategy->getDefaultResponseHeaders());
-    }
-
-    /**
-     * Asserts that the strategy properly invokes the route callable.
-     *
-     * @return void
-     */
     public function testStrategyInvokesRouteCallable(): void
     {
         $route = $this->createMock(Route::class);
@@ -109,15 +64,9 @@ class JsonStrategyTest extends TestCase
 
         $strategy = new JsonStrategy($factory);
         $response = $strategy->invokeRouteCallable($route, $expectedRequest);
-
         $this->assertSame($expectedResponse, $response);
     }
 
-    /**
-     * Asserts that the strategy properly invokes the route callable with an array return.
-     *
-     * @return void
-     */
     public function testStrategyInvokesRouteCallableWithArrayReturn(): void
     {
         $route = $this->createMock(Route::class);
@@ -184,9 +133,7 @@ class JsonStrategyTest extends TestCase
         ;
 
         $strategy = new JsonStrategy($factory);
-
         $response = $strategy->invokeRouteCallable($route, $expectedRequest);
-
         $this->assertSame($expectedResponse, $response);
     }
 
@@ -224,11 +171,6 @@ class JsonStrategyTest extends TestCase
         $this->assertSame($response, $actualResponse);
     }
 
-    /**
-     * Asserts that the strategy returns the correct middleware to decorate MethodNotAllowedException.
-     *
-     * @return void
-     */
     public function testStrategyReturnsCorrectMethodNotAllowedDecorator(): void
     {
         $exception      = $this->createMock(MethodNotAllowedException::class);
@@ -252,19 +194,12 @@ class JsonStrategyTest extends TestCase
         ;
 
         $strategy = new JsonStrategy($factory);
-
         $handler = $strategy->getMethodNotAllowedDecorator($exception);
-
         $actualResponse = $handler->process($request, $requestHandler);
         $this->assertSame($response, $actualResponse);
     }
 
-    /**
-     * Asserts that the strategy returns the correct exception handler middleware.
-     *
-     * @return void
-     */
-    public function testStrategyReturnsCorrectExceptionHandler(): void
+    public function testStrategyReturnsCorrectThrowableHandler(): void
     {
         $request        = $this->createMock(ServerRequestInterface::class);
         $requestHandler = $this->createMock(RequestHandlerInterface::class);
@@ -316,18 +251,11 @@ class JsonStrategyTest extends TestCase
         ;
 
         $strategy = new JsonStrategy($factory);
-
-        $handler = $strategy->getExceptionHandler();
-
+        $handler = $strategy->getThrowableHandler();
         $actualResponse = $handler->process($request, $requestHandler);
         $this->assertSame($response, $actualResponse);
     }
 
-    /**
-     * Asserts that the strategy returns the correct http exception handler middleware.
-     *
-     * @return void
-     */
     public function testStrategyReturnsCorrectHttpExceptionHandler(): void
     {
         $exception      = $this->createMock(HttpException::class);
@@ -358,18 +286,11 @@ class JsonStrategyTest extends TestCase
         ;
 
         $strategy = new JsonStrategy($factory);
-
-        $handler = $strategy->getExceptionHandler();
-
+        $handler = $strategy->getThrowableHandler();
         $actualResponse = $handler->process($request, $requestHandler);
         $this->assertSame($response, $actualResponse);
     }
 
-    /**
-     * Asserts that the strategy properly invokes the route callable with an object return.
-     *
-     * @return void
-     */
     public function testStrategyInvokesRouteCallableWithObjectReturn(): void
     {
         $route = $this->createMock(Route::class);
@@ -437,9 +358,39 @@ class JsonStrategyTest extends TestCase
         ;
 
         $strategy = new JsonStrategy($factory);
-
         $response = $strategy->invokeRouteCallable($route, $expectedRequest);
-
         $this->assertSame($expectedResponse, $response);
+    }
+
+    public function testStrategyProvidesOptionsRouteCallable(): void
+    {
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $factory  = $this->createMock(ResponseFactoryInterface::class);
+
+        $response
+            ->expects($this->at(0))
+            ->method('withHeader')
+            ->with($this->equalTo('allow'), $this->equalTo('GET, POST'))
+            ->will($this->returnSelf())
+        ;
+
+        $response
+            ->expects($this->at(1))
+            ->method('withHeader')
+            ->with($this->equalTo('access-control-allow-methods'), $this->equalTo('GET, POST'))
+            ->will($this->returnSelf())
+        ;
+
+        $factory
+            ->expects($this->once())
+            ->method('createResponse')
+            ->willReturn($response)
+        ;
+
+        $strategy = new JsonStrategy($factory);
+        $callable = $strategy->getOptionsCallable(['GET', 'POST']);
+
+        $callable($request);
     }
 }

@@ -66,14 +66,14 @@ class Route implements
         }
 
         if (is_array($callable) && isset($callable[0]) && is_string($callable[0])) {
-            $callable = [$this->resolveClass($callable[0], $container), $callable[1]];
+            $callable = [$this->resolve($callable[0], $container), $callable[1]];
         }
 
-        if (is_string($callable) && method_exists($callable, '__invoke')) {
-            $callable = $this->resolveClass($callable, $container);
+        if (is_string($callable)) {
+            $callable = $this->resolve($callable, $container);
         }
 
-        if (! is_callable($callable)) {
+        if (!is_callable($callable)) {
             throw new RuntimeException('Could not resolve a callable for this route');
         }
 
@@ -136,16 +136,19 @@ class Route implements
     public function setVars(array $vars): self
     {
         $this->vars = $vars;
-
         return $this;
     }
 
-    protected function resolveClass(string $class, ?ContainerInterface $container = null)
+    protected function resolve(string $class, ?ContainerInterface $container = null)
     {
         if ($container instanceof ContainerInterface && $container->has($class)) {
             return $container->get($class);
         }
 
-        return new $class();
+        if (class_exists($class)) {
+            return new $class();
+        }
+
+        return $class;
     }
 }

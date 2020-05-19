@@ -29,9 +29,9 @@ $ composer require league/route
 
 The following versions of PHP are supported by this version.
 
-* PHP 7.1
 * PHP 7.2
 * PHP 7.3
+* PHP 7.4
 
 ## Documentation
 
@@ -52,7 +52,7 @@ Please see [CONTRIBUTING](https://github.com/thephpleague/route/blob/master/CONT
 ## Credits
 
 - [Phil Bennett](https://github.com/philipobenito)
-- [Nikita Popov](https://github.com/nikic) (FastRoute)
+- [Nikita Popov](https://github.com/nikic) ([FastRoute](https://github.com/nikic/FastRoute))
 - [All Contributors](https://github.com/thephpleague/route/contributors)
 
 ## License

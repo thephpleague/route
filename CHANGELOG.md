@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.0.0] 2020-05
+
+## Added
+- A cached router, a way to have a fully built router cached and resolved from cache on subsequent requests.
+- Response decorators, a way to manipulate a response object returned from a matched route.
+- Automatic generation of OPTIONS routes if they have not been defined.
+
+## Changed
+- Minimum PHP requirement bumped to 7.2.
+- `Router` no longer extends FastRoute `RouteCollecter`.
+    - `Router` constructor no longer accepts optional FastRoute `RouteParser` and `DataGenerator`.
+    - `Router` constructor now accepts an optional FastRoute `RouteCollector`.
+        - Routes already registered with FastRoute `RouteCollector` are respected and matched.
+- Separated route preparation from dispatch process so that the router can dispatch multiple times.
+- General code improvements.
+
+### Removed
+- Setting of default response headers on strategies. (Replaced by response decorators, see Added).
+- Exception handlers from strategies. (Already deprecated in favour of throwable handlers).
+
 ## [4.5.0] 2020-05
 
 ### Added

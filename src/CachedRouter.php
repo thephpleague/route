@@ -8,6 +8,8 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+use function Opis\Closure\{serialize as s, unserialize as u};
+
 class CachedRouter
 {
     /**
@@ -18,12 +20,18 @@ class CachedRouter
     /**
      * @var string
      */
-    protected $cachePath;
+    protected $cacheFile;
 
-    public function __construct(callable $builder, string $cachePath)
+    /**
+     * @var bool
+     */
+    protected $cacheEnabled;
+
+    public function __construct(callable $builder, string $cacheFile, bool $cacheEnabled = true)
     {
         $this->builder = $builder;
-        $this->cachePath = $cachePath;
+        $this->cacheFile = $cacheFile;
+        $this->cacheEnabled = $cacheEnabled;
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface
@@ -34,9 +42,9 @@ class CachedRouter
 
     protected function buildRouter(ServerRequestInterface $request): Router
     {
-        if (file_exists($this->cachePath)) {
-            $cache  = file_get_contents($this->cachePath);
-            $router = unserialize($cache, ['allowed_classes' => true]);
+        if (true === $this->cacheEnabled && file_exists($this->cacheFile)) {
+            $cache  = file_get_contents($this->cacheFile);
+            $router = u($cache, ['allowed_classes' => true]);
 
             if ($router instanceof Router) {
                 return $router;
@@ -46,9 +54,13 @@ class CachedRouter
         $builder = $this->builder;
         $router  = $builder(new Router());
 
+        if (false === $this->cacheEnabled) {
+            return $router;
+        }
+
         if ($router instanceof Router) {
             $router->prepareRoutes($request);
-            file_put_contents($this->cachePath, serialize($router));
+            file_put_contents($this->cacheFile, s($router));
             return $router;
         }
 

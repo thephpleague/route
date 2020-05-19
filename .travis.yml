@@ -24,6 +24,7 @@ install:
 
 script:
     - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+    - vendor/bin/phpstan analyse -l 4 --no-progress src
 
 after_success:
     - wget https://scrutinizer-ci.com/ocular.phar

@@ -15,14 +15,14 @@ class DefaultHeaderDecorator
 
     public function __construct(array $headers = [])
     {
-        $this->headers = $headers;
+        $this->addDefaultHeaders($headers);
     }
 
     public function __invoke(ResponseInterface $response): ResponseInterface
     {
         foreach ($this->headers as $name => $value) {
             if (false === $response->hasHeader($name)) {
-                $response = $response->withHeader($name, $value);
+                $response = $response->withAddedHeader($name, $value);
             }
         }
 
