@@ -24,6 +24,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Setting of default response headers on strategies. (Replaced by response decorators, see Added).
 - Exception handlers from strategies. (Already deprecated in favour of throwable handlers).
 
+## [4.5.1] 2021.01
+
+### Added
+- Official support for PHP 8.0.
+
 ## [4.5.0] 2020-05
 
 ### Added

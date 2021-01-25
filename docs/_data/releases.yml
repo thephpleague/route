@@ -40,7 +40,7 @@
   name: League\Route 4.x
   type: Old
   requires: PHP >= 7.1.0
-  release: 4.5.0 - 2020-05
+  release: 4.5.1 - 2021-01
   support: 2021-06
   url: /4.x/
   menu:
