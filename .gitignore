@@ -2,8 +2,11 @@ build
 composer.lock
 vendor
 .sass-cache
+.phpunit*
+.phpcs*
 
 ### Jekyll ###
+.jekyll-cache
 docs/_site/
 docs/.sass-cache/
 docs/.jekyll-cache/

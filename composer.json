@@ -21,7 +21,7 @@
         }
     ],
     "require": {
-        "php": ">=7.1",
+        "php": "^7.1 || ^8.0",
         "nikic/fast-route": "^1.0",
         "psr/container": "^1.0",
         "psr/http-factory": "^1.0",
