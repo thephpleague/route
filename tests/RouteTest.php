@@ -20,7 +20,7 @@ class RouteTest extends TestCase
     {
         $callable = new Controller;
         $route    = new Route('GET', '/', $callable);
-        $this->assertInternalType('callable', $route->getCallable());
+        $this->assertIsCallable($route->getCallable());
     }
 
     /**
@@ -32,7 +32,7 @@ class RouteTest extends TestCase
     {
         $callable = [new Controller, 'action'];
         $route    = new Route('GET', '/', $callable);
-        $this->assertInternalType('callable', $route->getCallable());
+        $this->assertIsCallable($route->getCallable());
     }
 
     /**
@@ -44,7 +44,7 @@ class RouteTest extends TestCase
     {
         $callable = 'League\Route\Fixture\namedFunctionCallable';
         $route    = new Route('GET', '/', $callable);
-        $this->assertInternalType('callable', $route->getCallable());
+        $this->assertIsCallable($route->getCallable());
     }
 
     /**

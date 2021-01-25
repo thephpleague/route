@@ -30,7 +30,7 @@
         "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit" : "^7.0",
+        "phpunit/phpunit" : "^7.5",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
         "roave/security-advisories": "dev-master",

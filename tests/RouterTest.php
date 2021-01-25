@@ -89,7 +89,11 @@ class RouterTest extends TestCase
     {
         $router = new Router;
         $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');
-        $matchers = $this->getObjectAttribute($router, 'patternMatchers');
+
+        $reflectionClass = new \ReflectionClass($router);
+        $reflectionProperty = $reflectionClass->getProperty('patternMatchers');
+        $reflectionProperty->setAccessible(true);
+        $matchers = $reflectionProperty->getValue($router);
 
         $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
         $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
