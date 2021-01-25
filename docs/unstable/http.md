@@ -42,7 +42,7 @@ class SomeMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         // ...
-        return $handler->handler($request);
+        return $handler->handle($request);
     }
 }
 ~~~
