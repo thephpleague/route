@@ -3,6 +3,7 @@ composer.lock
 vendor
 .sass-cache
 .phpunit*
+.phpcs*
 
 ### Jekyll ###
 .jekyll-cache
