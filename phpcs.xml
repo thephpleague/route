@@ -13,5 +13,8 @@
     <file>src</file>
     <file>tests</file>
 
-    <rule ref="PSR12"/>
+    <rule ref="PSR2"/>
+    <rule ref="PSR2.Namespaces.UseDeclaration.MultipleDeclarations">
+        <severity>0</severity>
+    </rule>
 </ruleset>

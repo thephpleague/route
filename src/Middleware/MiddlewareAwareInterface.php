@@ -36,14 +36,14 @@ interface MiddlewareAwareInterface
     /**
      * Shift a middleware from beginning of stack
      *
-     * @return MiddlewareInterface|null
+     * @return MiddlewareInterface
      */
     public function shiftMiddleware(): MiddlewareInterface;
 
     /**
      * Get the stack of middleware
      *
-     * @return MiddlewareInterface[]
+     * @return iterable
      */
     public function getMiddlewareStack(): iterable;
 }
