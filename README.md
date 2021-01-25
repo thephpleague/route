@@ -32,6 +32,7 @@ The following versions of PHP are supported by this version.
 * PHP 7.2
 * PHP 7.3
 * PHP 7.4
+* PHP 8.0
 
 ## Documentation
 
