@@ -27,10 +27,12 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php: ['7.1', '7.2', '7.3', '7.4']
+                php: ['7.2', '7.3', '7.4']
                 coverage: [true]
                 composer-flags: ['']
                 include:
+                    - php: '7.1'
+                      coverage: false
                     - php: '8.0'
                       coverage: false
                       composer-flags: '--ignore-platform-req=php'
