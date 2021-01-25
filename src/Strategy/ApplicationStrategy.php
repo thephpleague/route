@@ -31,10 +31,10 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
         {
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $requestHandler
+                RequestHandlerInterface $handler
             ): ResponseInterface {
                 try {
-                    return $requestHandler->handle($request);
+                    return $handler->handle($request);
                 } catch (Throwable $e) {
                     throw $e;
                 }
@@ -62,7 +62,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
 
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $requestHandler
+                RequestHandlerInterface $handler
             ): ResponseInterface {
                 throw $this->error;
             }

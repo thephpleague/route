@@ -129,7 +129,7 @@ class RouteTest extends TestCase
         {
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $requestHandler
+                RequestHandlerInterface $handler
             ): ResponseInterface {
             }
         };

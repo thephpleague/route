@@ -93,7 +93,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response;
 
-function controller(ServerRequestInterface $request, array $args) : ResponseInterface {
+function controller(ServerRequestInterface $request, array $args): ResponseInterface {
     // ...
     $response = new Response;
     $response->getBody()->write(/* $content */);
@@ -131,14 +131,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response;
 
-function responseController(ServerRequestInterface $request, array $args) : ResponseInterface {
+function responseController(ServerRequestInterface $request, array $args): ResponseInterface {
     // ...
     $response = new Response;
     $response->getBody()->write(json_encode(/* $content */));
     return $response->withAddedHeader('content-type', 'application/json')->withStatus(200);
 });
 
-function arrayController(ServerRequestInterface $request, array $args) : array {
+function arrayController(ServerRequestInterface $request, array $args): array {
     // ...
     return [
         // ...
@@ -186,7 +186,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $router = new League\Route\Router;
 
-$router->post('/acme', function (ServerRequestInterface $request) : ResponseInterface {
+$router->post('/acme', function (ServerRequestInterface $request): ResponseInterface {
     throw new BadRequestException;
 });
 ~~~
@@ -261,7 +261,7 @@ interface StrategyInterface
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function invokeRouteCallable(Route $route, ServerRequestInterface $request) : ResponseInterface;
+    public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface;
 
     /**
      * Get a middleware that will decorate a NotFoundException
@@ -270,7 +270,7 @@ interface StrategyInterface
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */
-    public function getNotFoundDecorator(NotFoundException $exception) : MiddlewareInterface;
+    public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface;
 
     /**
      * Get a middleware that will decorate a NotAllowedException
@@ -279,7 +279,7 @@ interface StrategyInterface
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */
-    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception) : MiddlewareInterface;
+    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface;
 
     /**
      * Get a middleware that acts as an exception handler, it should wrap the rest of the
@@ -287,7 +287,7 @@ interface StrategyInterface
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */
-    public function getExceptionHandler() : MiddlewareInterface;
+    public function getExceptionHandler(): MiddlewareInterface;
 }
 ~~~
 

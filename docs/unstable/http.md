@@ -39,7 +39,7 @@ class SomeMiddleware implements MiddlewareInterface
     /**
      * {@inheritdoc}
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         // ...
         return $handler->handler($request);
@@ -84,7 +84,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response;
 
-function controller(ServerRequestInterface $request) : ResponseInterface {
+function controller(ServerRequestInterface $request): ResponseInterface {
     $response = new Response;
     $response->getBody()->write('<h1>Hello, World!</h1>');
     return $response;

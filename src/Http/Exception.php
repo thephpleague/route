@@ -53,6 +53,7 @@ class Exception extends \Exception implements HttpExceptionInterface
         $this->headers['content-type'] = 'application/json';
 
         foreach ($this->headers as $key => $value) {
+            /** @var ResponseInterface $response */
             $response = $response->withAddedHeader($key, $value);
         }
 

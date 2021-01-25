@@ -5,6 +5,7 @@ vendor
 .phpunit*
 
 ### Jekyll ###
+.jekyll-cache
 docs/_site/
 docs/.sass-cache/
 docs/.jekyll-cache/

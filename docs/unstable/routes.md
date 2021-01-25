@@ -96,10 +96,10 @@ Route groups are a way of organising your route definitions, they allow us to pr
 
 $router = new League\Route\Router;
 
-$router->group('/admin', function ($route) {
-    $router->map('GET', '/acme/route1', 'AcmeController::actionOne');
-    $router->map('GET', '/acme/route2', 'AcmeController::actionTwo');
-    $router->map('GET', '/acme/route3', 'AcmeController::actionThree');
+$router->group('/admin', function (\League\Route\RouteGroup $route) {
+    $route->map('GET', '/acme/route1', 'AcmeController::actionOne');
+    $route->map('GET', '/acme/route2', 'AcmeController::actionTwo');
+    $route->map('GET', '/acme/route3', 'AcmeController::actionThree');
 });
 ~~~
 
@@ -120,10 +120,10 @@ As mentioned above, route conditions can be applied to a group and will be match
 
 $router = new League\Route\Router;
 
-$router->group('/admin', function ($route) {
-    $router->map('GET', '/acme/route1', 'AcmeController::actionOne');
-    $router->map('GET', '/acme/route2', 'AcmeController::actionTwo')->setScheme('https');
-    $router->map('GET', '/acme/route3', 'AcmeController::actionThree');
+$router->group('/admin', function (\League\Route\RouteGroup $route) {
+    $route->map('GET', '/acme/route1', 'AcmeController::actionOne');
+    $route->map('GET', '/acme/route2', 'AcmeController::actionTwo')->setScheme('https');
+    $route->map('GET', '/acme/route3', 'AcmeController::actionThree');
 })
     ->setScheme('http')
     ->setHost('example.com')
@@ -150,7 +150,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $router = new League\Route\Router;
 
-$router->map('GET', '/user/{id}/{name}', function (ServerRequestInterface $request, array $args) : ResponseInterface {
+$router->map('GET', '/user/{id}/{name}', function (ServerRequestInterface $request, array $args): ResponseInterface {
     // $args = [
     //     'id'   => {id},  // the actual value of {id}
     //     'name' => {name} // the actual value of {name}
@@ -171,7 +171,7 @@ use Psr\Http\Message\ServerRequestInterface;
 $router = new League\Route\Router;
 
 // this route will only match if {id} is numeric and {name} is a alpha
-$router->map('GET', '/user/{id:number}/{name:word}', function (ServerRequestInterface $request, array $args) : ResponseInterface {
+$router->map('GET', '/user/{id:number}/{name:word}', function (ServerRequestInterface $request, array $args): ResponseInterface {
     // $args = [
     //     'id'   => {id},  // the actual value of {id}
     //     'name' => {name} // the actual value of {name}
@@ -208,7 +208,7 @@ $router->addPatternMatcher('wordStartsWithM', '(m|M)[a-zA-Z]+');
 $router->map('GET', 'user/mTeam/{name:wordStartsWithM}', function (
     ServerRequestInterface $request,
     array $args
-) : ResponseInterface {
+): ResponseInterface {
     // $args = [
     //     'id'   => {id},  // the actual value of {id}
     //     'name' => {name} // the actual value of {name}

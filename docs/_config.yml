@@ -1,7 +1,7 @@
 # site settings
 title: Route
 subtitle: The PHP League
-email: philipo@benito.email
+email: mail@philbennett.co.uk
 description: Fast PSR-7 routing and dispatch component including PSR-15 middleware, built on top of FastRoute.
 baseurl: # the subpath of your site, e.g. /blog
 url: # the base hostname & protocol for your site

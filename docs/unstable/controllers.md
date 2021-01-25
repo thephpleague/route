@@ -25,11 +25,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $router = new League\Route\Router;
 
-$router->map('GET', '/route', function (ServerRequestInterface $request) : ResponseInterface {
+$router->map('GET', '/route', function (ServerRequestInterface $request): ResponseInterface {
     // ...
 });
 
-$router->get('/another-route', function (ServerRequestInterface $request) : ResponseInterface {
+$router->get('/another-route', function (ServerRequestInterface $request): ResponseInterface {
     // ...
 });
 ~~~
@@ -52,7 +52,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $router = new League\Route\Router;
 
-$router->map('GET', '/', function (ServerRequestInterface $request) : ResponseInterface {
+$router->map('GET', '/', function (ServerRequestInterface $request): ResponseInterface {
     // ...
 });
 ~~~
@@ -78,7 +78,7 @@ class SomeController
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function someMethod(ServerRequestInterface $request) : ResponseInterface
+    public function someMethod(ServerRequestInterface $request): ResponseInterface
     {
         // ...
     }
@@ -114,7 +114,7 @@ class SomeController
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request) : ResponseInterface
+    public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         // ...
     }
@@ -150,7 +150,7 @@ class SomeController
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function someMethod(ServerRequestInterface $request) : ResponseInterface
+    public function someMethod(ServerRequestInterface $request): ResponseInterface
     {
         // ...
     }
@@ -184,7 +184,7 @@ class SomeController
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request) : ResponseInterface
+    public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         // ...
     }
@@ -218,7 +218,7 @@ class SomeController
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function someMethod(ServerRequestInterface $request) : ResponseInterface
+    public function someMethod(ServerRequestInterface $request): ResponseInterface
     {
         // ...
     }
@@ -250,7 +250,7 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @return \Psr\Http\Message\ResponseInterface
  */
-function controller(ServerRequestInterface $request) : ResponseInterface
+function controller(ServerRequestInterface $request): ResponseInterface
 {
     // ...
 }
@@ -266,4 +266,4 @@ $router->map('GET', '/', 'Acme\controller');
 
 ## Dependency Injection
 
-Where Route is instantiating the objects for your defined controller, a dependency injection container can be used to resolve those objects. Read more on dependency injection [here](/4.x/dependency-injection).
+Where Route is instantiating the objects for your defined controller, a dependency injection container can be used to resolve those objects. Read more on dependency injection [here](/4.x/dependency-injection/).

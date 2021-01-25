@@ -61,7 +61,7 @@ class DispatchIntegrationTest extends TestCase
             return $response;
         });
 
-        $returnedResponse = $router->dispatch($request);
+        $returnedResponse = $router->handle($request);
         $this->assertSame($response, $returnedResponse);
     }
 

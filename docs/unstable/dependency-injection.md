@@ -53,7 +53,7 @@ class SomeController
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request) : ResponseInterface
+    public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         $body     = $this->templateRenderer->render('some-template');
         $response = new Response;

@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace League\Route;
+namespace League\Route\Cache;
 
+use League\Route\Router as MainRouter;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface, UriInterface};
 
-class CachedRouterTest extends TestCase
+class RouterTest extends TestCase
 {
     public function testDispatchesFoundRouteThenFromCache(): void
     {
@@ -40,7 +41,9 @@ class CachedRouterTest extends TestCase
             ->willReturn($request)
         ;
 
-        $router = new CachedRouter(function (Router $router) {
+        $cacheStore = new FileCache($cacheFile, 86400);
+
+        $router = new Router(function (MainRouter $router) {
             $router->map('GET', '/example/{something}', function (
                 ServerRequestInterface $request,
                 array $args
@@ -53,7 +56,7 @@ class CachedRouterTest extends TestCase
             });
 
             return $router;
-        }, $cacheFile);
+        }, $cacheStore);
 
         $returnedResponse = $router->dispatch($request);
         $this->assertInstanceOf(ResponseInterface::class, $returnedResponse);

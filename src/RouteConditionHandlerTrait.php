@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace League\Route;
 
+use RuntimeException;
+
 trait RouteConditionHandlerTrait
 {
     /**
@@ -49,24 +51,37 @@ trait RouteConditionHandlerTrait
     public function setHost(string $host): RouteConditionHandlerInterface
     {
         $this->host = $host;
-        return $this;
+        return $this->checkAndReturnSelf();
     }
 
     public function setName(string $name): RouteConditionHandlerInterface
     {
         $this->name = $name;
-        return $this;
+        return $this->checkAndReturnSelf();
     }
 
     public function setPort(int $port): RouteConditionHandlerInterface
     {
         $this->port = $port;
-        return $this;
+        return $this->checkAndReturnSelf();
     }
 
     public function setScheme(string $scheme): RouteConditionHandlerInterface
     {
         $this->scheme = $scheme;
-        return $this;
+        return $this->checkAndReturnSelf();
+    }
+
+    private function checkAndReturnSelf(): RouteConditionHandlerInterface
+    {
+        if ($this instanceof RouteConditionHandlerInterface) {
+            return $this;
+        }
+
+        throw new RuntimeException(sprintf(
+            'Trait (%s) must be consumed by an instance of (%s)',
+            __TRAIT__,
+            RouteConditionHandlerInterface::class
+        ));
     }
 }

@@ -53,11 +53,11 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
 
     public function getOptionsCallable(array $methods): callable
     {
-        return function (ServerRequestInterface $request) use ($methods): ResponseInterface {
-            $methods  = implode(', ', $methods);
+        return function () use ($methods): ResponseInterface {
+            $options  = implode(', ', $methods);
             $response = $this->responseFactory->createResponse();
-            $response = $response->withHeader('allow', $methods);
-            return $response->withHeader('access-control-allow-methods', $methods);
+            $response = $response->withHeader('allow', $options);
+            return $response->withHeader('access-control-allow-methods', $options);
         };
     }
 
@@ -74,10 +74,10 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
 
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $requestHandler
+                RequestHandlerInterface $handler
             ): ResponseInterface {
                 try {
-                    return $requestHandler->handle($request);
+                    return $handler->handle($request);
                 } catch (Throwable $exception) {
                     $response = $this->response;
 
@@ -126,7 +126,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
 
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $requestHandler
+                RequestHandlerInterface $handler
             ): ResponseInterface {
                 return $this->exception->buildJsonResponse($this->response);
             }

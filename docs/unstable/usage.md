@@ -18,10 +18,15 @@ First, install the Route project itself:
 composer require league/route
 ~~~
 
-Next, install an implementation of PSR-7. We recommend the [Zend Diactoros project][diactoros].
+Next, install an implementation of PSR-7. We recommend the [Laminas Diactoros project][diactoros].
 
 ~~~
-composer require zendframework/zend-diactoros
+composer require laminas/laminas-diactoros
+~~~
+If you use [Laminas Diactoros project][diactoros] you will also need
+
+~~~
+composer require laminas/laminas-httphandlerrunner
 ~~~
 
 Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/4.x/dependency-injection) for more information.
@@ -42,15 +47,15 @@ include 'path/to/vendor/autoload.php';
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-$request = Zend\Diactoros\ServerRequestFactory::fromGlobals(
+$request = Laminas\Diactoros\ServerRequestFactory::fromGlobals(
     $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
 );
 
 $router = new League\Route\Router;
 
 // map a route
-$router->map('GET', '/', function (ServerRequestInterface $request) : ResponseInterface {
-    $response = new Zend\Diactoros\Response;
+$router->map('GET', '/', function (ServerRequestInterface $request): ResponseInterface {
+    $response = new Laminas\Diactoros\Response;
     $response->getBody()->write('<h1>Hello, World!</h1>');
     return $response;
 });
@@ -58,18 +63,14 @@ $router->map('GET', '/', function (ServerRequestInterface $request) : ResponseIn
 $response = $router->dispatch($request);
 
 // send the response to the browser
-(new Zend\Diactoros\Response\SapiEmitter)->emit($response);
+(new Laminas\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);
 ~~~
 
 ## APIs
 
 Only a few changes are needed to create a simple JSON API. We have to change the strategy that the router uses to dispatch a controller, as well as providing a response factory to ensure the JSON Strategy can build the response it needs to.
 
-To provide a response factory, we will need to install a http-interop response factory package, in this case we will use the factory for zend-diactoros.
-
-~~~
-composer require http-interop/http-factory-diactoros
-~~~
+To provide a response factory, we will need to install a package that provides a response factory, such as Laminas Diactoros.
 
 ~~~php
 <?php declare(strict_types=1);
@@ -79,17 +80,17 @@ include 'path/to/vendor/autoload.php';
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-$request = Zend\Diactoros\ServerRequestFactory::fromGlobals(
+$request = Laminas\Diactoros\ServerRequestFactory::fromGlobals(
     $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
 );
 
-$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
+$responseFactory = new \Laminas\Diactoros\ResponseFactory();
 
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 $router   = (new League\Route\Router)->setStrategy($strategy);
 
 // map a route
-$router->map('GET', '/', function (ServerRequestInterface $request) : array {
+$router->map('GET', '/', function (ServerRequestInterface $request): array {
     return [
         'title'   => 'My New Simple API',
         'version' => 1,
@@ -99,10 +100,10 @@ $router->map('GET', '/', function (ServerRequestInterface $request) : array {
 $response = $router->dispatch($request);
 
 // send the response to the browser
-(new Zend\Diactoros\Response\SapiEmitter)->emit($response);
+(new Laminas\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);
 ~~~
 
-The code above will build turn your returned array in to a JSON response.
+The code above will convert your returned array in to a JSON response.
 
 ~~~json
 {
@@ -114,4 +115,4 @@ The code above will build turn your returned array in to a JSON response.
 [composer]: https://getcomposer.org/
 [dependencies]: https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies
 [psr7]: https://www.php-fig.org/psr/psr-7/
-[diactoros]:https://github.com/zendframework/zend-diactoros/
+[diactoros]:https://github.com/laminas/laminas-diactoros/
