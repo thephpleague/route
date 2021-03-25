@@ -29,7 +29,7 @@ If you use [Laminas Diactoros project][diactoros] you will also need
 composer require laminas/laminas-httphandlerrunner
 ~~~
 
-Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/4.x/dependency-injection) for more information.
+Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/5.x/dependency-injection) for more information.
 
 ~~~
 composer require league/container

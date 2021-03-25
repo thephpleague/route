@@ -47,7 +47,7 @@ class SomeMiddleware implements MiddlewareInterface
 }
 ~~~
 
-Read more about middleware [here](/4.x/middleware).
+Read more about middleware [here](/5.x/middleware).
 
 ### Controller Signature
 
@@ -63,7 +63,7 @@ function controller(ServerRequestInterface $request) {
 }
 ~~~
 
-See more about controllers [here](/4.x/controllers).
+See more about controllers [here](/5.x/controllers).
 
 ### Request Input
 
@@ -73,7 +73,7 @@ Route does not provide any functionality for dealing with globals such as `$_GET
 
 Because Route is built around PSR-15, this means that middleware and controllers are handles in a [single pass](https://www.php-fig.org/psr/psr-15/meta/#52-single-pass-lambda) approach. What this means in practice is that all middleware is passed a request object but is expected to build and return its own response or pass off to the next middleware in the stack for that to create one. Any controller that is dispatched via Route is wrapped in a middleware that adheres to this.
 
-Once wrapped, your controller ultimately becomes the last middleware in the stack (this does not mean that it has to be invoked last, see [middleware](/4.x/middleware) for more on this), it just means that it will only be concerned with creating and returning a response object.
+Once wrapped, your controller ultimately becomes the last middleware in the stack (this does not mean that it has to be invoked last, see [middleware](/5.x/middleware) for more on this), it just means that it will only be concerned with creating and returning a response object.
 
 An example of a controller building a response might look like this.
 
