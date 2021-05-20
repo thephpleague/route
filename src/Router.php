@@ -111,6 +111,10 @@ class Router implements
 
     public function getNamedRoute(string $name): Route
     {
+        if (!$this->routesPrepared) {
+            $this->collectGroupRoutes();
+        }
+
         $this->buildNameIndex();
 
         if (isset($this->namedRoutes[$name])) {
@@ -219,6 +223,13 @@ class Router implements
             }
 
             $this->routeCollector->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $route);
+        }
+    }
+
+    protected function collectGroupRoutes(): void
+    {
+        foreach ($this->groups as $key => $group) {
+            $group();
         }
     }
 
