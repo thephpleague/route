@@ -22,7 +22,7 @@
   name: League\Route 5.x
   type: Current
   requires: PHP >= 7.2.0
-  release: 5.0.0 - 2021-01
+  release: 5.1.0 - 2021-07
   support: Ongoing
   url: /5.x/
   menu:
