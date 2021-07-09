@@ -111,6 +111,25 @@ GET /admin/acme/route2
 GET /admin/acme/route3
 ~~~
 
+### Named Routes
+
+Named routes helps when you want to retrieve a Route by a human friendly label. 
+
+~~~php
+<?php declare(strict_types=1);
+
+$router = new League\Route\Router;
+$request = new Request; // Psr/Http/Message/ServerRequestInterface
+
+$router->group('/admin', function (\League\Route\RouteGroup $route) {
+    $route->map('GET', '/acme/route1', 'AcmeController::actionOne')->setName('actionOne');
+    $route->map('GET', '/acme/route2', 'AcmeController::actionTwo')->setName('actionTwo');
+});
+
+$route = $router->getNamedRoute('actionOne');
+$route->getPath(); // "/admin/acme/route1"
+~~~
+
 ### Conditions
 
 As mentioned above, route conditions can be applied to a group and will be matched across all routes contained in that group, specific routes within the group can override this functionality as displayed below.

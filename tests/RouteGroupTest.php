@@ -138,4 +138,22 @@ class RouteGroupTest extends TestCase
 
         $group();
     }
+
+    public function testGroupWithNamedRoutes(): void
+    {
+        $router = new Router();
+        $name   = 'route';
+        $expected = null;
+
+        $router->group('/acme', function (RouteGroup $group) use ($name, &$expected) {
+            $expected = $group->get('/route', function () {
+            })
+            ->setName($name);
+        });
+
+        $actual = $router->getNamedRoute($name);
+
+        $this->assertNotNull($actual);
+        $this->assertSame($expected, $actual);
+    }
 }
