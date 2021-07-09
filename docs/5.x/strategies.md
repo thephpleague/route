@@ -93,7 +93,7 @@ $router
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response;
+use Laminas\Diactoros\Response;
 
 function controller(ServerRequestInterface $request, array $args): ResponseInterface {
     // ...
@@ -111,7 +111,7 @@ The application strategy simply allows any `Throwable` to bubble out, you can ca
 
 `League\Route\Strategy\JsonStrategy` aims to make building JSON APIs a little easier. It provides a PSR-7 `Psr\Http\Message\ServerRequestInterface` implementation and any route arguments to the controller as with the application strategy, the difference being that you can either build and return a response yourself or return an array or object, and a JSON response will be built for you.
 
-To make use of the JSON strategy, you will need to provide it with a [PSR-17](https://www.php-fig.org/psr/psr-17/) response factory implementation. Some examples of HTTP Factory packages can be found [here](https://github.com/http-interop?utf8=%E2%9C%93&q=http-factory&type=&language=). We will use the `zend-diactoros` factory as an example.
+To make use of the JSON strategy, you will need to provide it with a [PSR-17](https://www.php-fig.org/psr/psr-17/) response factory implementation. Some examples of HTTP Factory packages can be found [here](https://github.com/http-interop?utf8=%E2%9C%93&q=http-factory&type=&language=). We will use the `laminas-diactoros` factory as an example.
 
 ~~~php
 <?php declare(strict_types=1);
@@ -129,7 +129,7 @@ $router = (new League\Route\Router)->setStrategy($strategy);
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response;
+use Laminas\Diactoros\Response;
 
 function responseController(ServerRequestInterface $request, array $args): ResponseInterface {
     // ...

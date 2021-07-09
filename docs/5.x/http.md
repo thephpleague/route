@@ -12,7 +12,7 @@ HTTP messages form the core of any modern web application. Route is built with t
 
 We also make use of [PSR-15](https://www.php-fig.org/psr/psr-15/) request handlers and middleware.
 
-Throughout this documentation, we will be using [zend-diactoros](https://zendframework.github.io/zend-diactoros/) to provide our HTTP messages but any implementation is supported.
+Throughout this documentation, we will be using [laminas-diactoros](https://docs.laminas.dev/laminas-diactoros/) to provide our HTTP messages but any implementation is supported.
 
 ## The Request
 
@@ -82,7 +82,7 @@ An example of a controller building a response might look like this.
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response;
+use Laminas\Diactoros\Response;
 
 function controller(ServerRequestInterface $request): ResponseInterface {
     $response = new Response;
