@@ -37,7 +37,7 @@ composer require league/container
 
 ## Hello, World!
 
-Now that we have all the packages we need, we can a simple Hello, World! application in one file.
+Now that we have all the packages we need, we can make a simple Hello, World! application in one file.
 
 ~~~php
 <?php declare(strict_types=1);
@@ -84,7 +84,7 @@ $request = Laminas\Diactoros\ServerRequestFactory::fromGlobals(
     $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
 );
 
-$responseFactory = new \Laminas\Diactoros\ResponseFactory();
+$responseFactory = new Laminas\Diactoros\ResponseFactory();
 
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 $router   = (new League\Route\Router)->setStrategy($strategy);
@@ -103,7 +103,7 @@ $response = $router->dispatch($request);
 (new Laminas\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);
 ~~~
 
-The code above will convert your returned array in to a JSON response.
+The code above will convert your returned array into a JSON response.
 
 ~~~json
 {
