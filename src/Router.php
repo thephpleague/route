@@ -181,7 +181,7 @@ class Router implements
             $options[$identifier][] = $route->getMethod();
         }
 
-        $this->buildOptionsRoutes($options);
+        $this->buildOptionsRoutes($options, $request);
 
         $this->routesPrepared = true;
         $this->routesData = $this->routeCollector->getData();
@@ -197,7 +197,7 @@ class Router implements
         }
     }
 
-    protected function buildOptionsRoutes(array $options): void
+    protected function buildOptionsRoutes(array $options, ServerRequestInterface $request): void
     {
         if (!($this->getStrategy() instanceof OptionsHandlerInterface)) {
             return;
@@ -208,7 +208,7 @@ class Router implements
 
         foreach ($options as $identifier => $methods) {
             [$scheme, $host, $port, $path] = explode(static::IDENTIFIER_SEPARATOR, $identifier);
-            $route = new Route('OPTIONS', $path, $strategy->getOptionsCallable($methods));
+            $route = new Route('OPTIONS', $path, $strategy->getOptionsCallable($methods, $request));
 
             if (!empty($scheme)) {
                 $route->setScheme($scheme);
