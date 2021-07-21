@@ -152,7 +152,7 @@ class Router implements
         $options = [];
 
         /** @var Route $route */
-        foreach ($routes as $key => $route) {
+        foreach ($routes as $route) {
             if ($route->getStrategy() === null) {
                 $route->setStrategy($this->getStrategy());
             }
@@ -164,7 +164,7 @@ class Router implements
                 continue;
             }
 
-            // need a messy but useful identifier for to determine what methods to respond with on OPTIONS
+            // need a messy but useful identifier to determine what methods to respond with on OPTIONS
             $identifier = $route->getScheme() . static::IDENTIFIER_SEPARATOR . $route->getHost()
                 . static::IDENTIFIER_SEPARATOR . $route->getPort() . static::IDENTIFIER_SEPARATOR . $route->getPath();
 
@@ -228,7 +228,7 @@ class Router implements
 
     protected function collectGroupRoutes(): void
     {
-        foreach ($this->groups as $key => $group) {
+        foreach ($this->groups as $group) {
             $group();
         }
     }

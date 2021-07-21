@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace League\Route;
 
 use Exception;
+use League\Route\Fixture\Controller;
 use League\Route\Fixture\Middleware;
 use League\Route\Http\Exception\{BadRequestException, MethodNotAllowedException, NotFoundException};
 use League\Route\Strategy\JsonStrategy;
@@ -912,5 +913,38 @@ class DispatchIntegrationTest extends TestCase
         })->middleware($middlewareTwo);
 
         $router->dispatch($request);
+    }
+
+    public function testCanMapSameRoutePathOnDifferentConditions(): void
+    {
+        $router = new Router();
+
+        $router
+            ->map('GET', '/', [Controller::class, 'action'])
+            ->setHost('test1.com')
+        ;
+
+        $router
+            ->map('GET', '/', [Controller::class, 'action'])
+            ->setHost('test2.com')
+        ;
+
+        $requestOne = $this->getMockBuilder(ServerRequestInterface::class)->getMock();
+        $requestTwo = $this->getMockBuilder(ServerRequestInterface::class)->getMock();
+
+        $uriOne = $this->getMockBuilder(UriInterface::class)->getMock();
+        $uriTwo = $this->getMockBuilder(UriInterface::class)->getMock();
+
+        $uriOne->method('getHost')->willReturn('test1.com');
+        $uriTwo->method('getHost')->willReturn('test2.com');
+
+        $requestOne->method('getUri')->willReturn($uriOne);
+        $requestTwo->method('getUri')->willReturn($uriTwo);
+
+        $responseOne = $router->dispatch($requestOne);
+        self::assertSame($responseOne->getHeader('action'), 'true');
+
+        $responseTwo = $router->dispatch($requestTwo);
+        self::assertSame($responseTwo->getHeader('action'), 'true');
     }
 }
