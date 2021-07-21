@@ -16,9 +16,11 @@ use RuntimeException;
 class Dispatcher extends GroupCountBasedDispatcher implements
     MiddlewareAwareInterface,
     RequestHandlerInterface,
+    RouteConditionHandlerInterface,
     StrategyAwareInterface
 {
     use MiddlewareAwareTrait;
+    use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
     public function dispatchRequest(ServerRequestInterface $request): ResponseInterface
@@ -64,29 +66,6 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         }
 
         return new Route($httpMethod, $uri, $matchingHandler);
-    }
-
-    protected function isExtraConditionMatch(Route $route, ServerRequestInterface $request): bool
-    {
-        // check for scheme condition
-        $scheme = $route->getScheme();
-        if ($scheme !== null && $scheme !== $request->getUri()->getScheme()) {
-            return false;
-        }
-
-        // check for domain condition
-        $host = $route->getHost();
-        if ($host !== null && $host !== $request->getUri()->getHost()) {
-            return false;
-        }
-
-        // check for port condition
-        $port = $route->getPort();
-        if ($port !== null && $port !== $request->getUri()->getPort()) {
-            return false;
-        }
-
-        return true;
     }
 
     protected function requestWithRouteAttributes(ServerRequestInterface $request, Route $route): ServerRequestInterface

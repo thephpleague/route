@@ -16,10 +16,12 @@ class Router implements
     MiddlewareAwareInterface,
     RouteCollectionInterface,
     StrategyAwareInterface,
-    RequestHandlerInterface
+    RequestHandlerInterface,
+    RouteConditionHandlerInterface
 {
     use MiddlewareAwareTrait;
     use RouteCollectionTrait;
+    use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
     protected const IDENTIFIER_SEPARATOR = "\t";
@@ -153,6 +155,11 @@ class Router implements
 
         /** @var Route $route */
         foreach ($routes as $route) {
+            // this allows for the same route to be mapped across different routes/hosts etc
+            if (false === $this->isExtraConditionMatch($route, $request)) {
+                continue;
+            }
+
             if ($route->getStrategy() === null) {
                 $route->setStrategy($this->getStrategy());
             }

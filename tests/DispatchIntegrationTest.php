@@ -917,15 +917,39 @@ class DispatchIntegrationTest extends TestCase
 
     public function testCanMapSameRoutePathOnDifferentConditions(): void
     {
-        $router = new Router();
+        $routerOne = new Router();
+        $routerTwo = new Router();
 
-        $router
-            ->map('GET', '/', [Controller::class, 'action'])
+        $responseOne = $this->getMockBuilder(ResponseInterface::class)->getMock();
+        $responseTwo = $this->getMockBuilder(ResponseInterface::class)->getMock();
+        $responseOne->expects(self::once())->method('withHeader')->willReturnSelf();
+        $responseTwo->expects(self::once())->method('withHeader')->willReturnSelf();
+
+        $routerOne
+            ->get('/', static function (ServerRequestInterface $request) use ($responseOne): ResponseInterface {
+                return $responseOne->withHeader('test', 'test');
+            })
             ->setHost('test1.com')
         ;
 
-        $router
-            ->map('GET', '/', [Controller::class, 'action'])
+        $routerOne
+            ->get('/', static function (ServerRequestInterface $request) use ($responseOne): ResponseInterface {
+                return $responseOne->withHeader('test', 'test');
+            })
+            ->setHost('test2.com')
+        ;
+
+        $routerTwo
+            ->get('/', static function (ServerRequestInterface $request) use ($responseTwo): ResponseInterface {
+                return $responseTwo->withHeader('test', 'test');
+            })
+            ->setHost('test1.com')
+        ;
+
+        $routerTwo
+            ->get('/', static function (ServerRequestInterface $request) use ($responseTwo): ResponseInterface {
+                return $responseTwo->withHeader('test', 'test');
+            })
             ->setHost('test2.com')
         ;
 
@@ -937,14 +961,15 @@ class DispatchIntegrationTest extends TestCase
 
         $uriOne->method('getHost')->willReturn('test1.com');
         $uriTwo->method('getHost')->willReturn('test2.com');
+        $uriOne->method('getPath')->willReturn('/');
+        $uriTwo->method('getPath')->willReturn('/');
 
         $requestOne->method('getUri')->willReturn($uriOne);
         $requestTwo->method('getUri')->willReturn($uriTwo);
+        $requestOne->method('getMethod')->willReturn('GET');
+        $requestTwo->method('getMethod')->willReturn('GET');
 
-        $responseOne = $router->dispatch($requestOne);
-        self::assertSame($responseOne->getHeader('action'), 'true');
-
-        $responseTwo = $router->dispatch($requestTwo);
-        self::assertSame($responseTwo->getHeader('action'), 'true');
+        $routerOne->dispatch($requestOne);
+        $routerTwo->dispatch($requestTwo);
     }
 }
