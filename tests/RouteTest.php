@@ -154,6 +154,64 @@ class RouteTest extends TestCase
         $this->assertSame('/a/replaced-wildcard/and/replaced-wildcard-with-matcher', $path);
     }
 
+    public function testGetPathReplacesOptional(): void
+    {
+        $route = new Route('GET', '/date[/{year:int}]', static function () {
+        });
+
+        $path = $route->getPath([
+            'year'            => '2000'
+        ]);
+
+        $this->assertSame('/date/2000', $path);
+    }
+
+    public function testGetPathReplacesMissing(): void
+    {
+        $route = new Route('GET', '/date[/{year:int}]', static function () {
+        });
+
+        $path = $route->getPath([]);
+
+        $this->assertSame('/date', $path);
+    }
+
+    public function testGetPathReplacesMissingMultiple(): void
+    {
+        $route = new Route('GET', '/date[/{year}[/{month}]]', static function () {
+        });
+
+        $path = $route->getPath([
+            'year'            => '2000'
+        ]);
+
+        $this->assertSame('/date/2000', $path);
+    }
+
+    public function testGetPathReplacesOptionalNested(): void
+    {
+        $route = new Route('GET', '/date[/{year}[/{month}[/{day}]]]', static function () {
+        });
+
+        $path = $route->getPath([
+            'year'            => '2000',
+            'month' => '12',
+            'day' => '1',
+        ]);
+
+        $this->assertSame('/date/2000/12/1', $path);
+    }
+
+    public function testGetPathReplacesOptionalNestedMissing(): void
+    {
+        $route = new Route('GET', '/date[/{year}[/{month}[/{day}]]]', static function () {
+        });
+
+        $path = $route->getPath([]);
+
+        $this->assertSame('/date', $path);
+    }
+
     public function testRouteThrowsWithNoStrategy(): void
     {
         $this->expectException(RuntimeException::class);
