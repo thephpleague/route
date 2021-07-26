@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace League\Route;
 
 use Exception;
-use League\Route\Fixture\Controller;
 use League\Route\Fixture\Middleware;
 use League\Route\Http\Exception\{BadRequestException, MethodNotAllowedException, NotFoundException};
 use League\Route\Strategy\JsonStrategy;
@@ -116,6 +115,67 @@ class DispatchIntegrationTest extends TestCase
 
         $returnedResponse = $router->dispatch($request);
         $this->assertSame($response, $returnedResponse);
+    }
+
+    /** @dataProvider wordsStartingWithM */
+    public function testDispatchesFoundRouteMatchingPattern(string $wordStartingWithM): void
+    {
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->willReturn('/example/' . $wordStartingWithM)
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->willReturn('GET')
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->willReturn($uri)
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('withAttribute')
+            ->willReturn($request)
+        ;
+
+        $router = new Router();
+        $router->addPatternMatcher('wordStartsWithM', '(?:m|M)[a-zA-Z]+');
+
+        $router->map('GET', '/example/{name:wordStartsWithM}', function (
+            ServerRequestInterface $request,
+            array $args
+        ) use (
+            $response,
+            $wordStartingWithM
+        ): ResponseInterface {
+            $this->assertSame([
+                'name' => $wordStartingWithM
+            ], $args);
+
+            return $response;
+        });
+
+        $returnedResponse = $router->handle($request);
+        $this->assertSame($response, $returnedResponse);
+    }
+
+    public function wordsStartingWithM(): array
+    {
+        return [
+            'min length' => ['Mi'],
+            'upper case' => ['Max'],
+            'lower case' => ['magnetic'],
+        ];
     }
 
     public function testDispatchesExceptionRoute(): void

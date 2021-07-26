@@ -222,7 +222,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $router = new League\Route\Router;
 
-$router->addPatternMatcher('wordStartsWithM', '(m|M)[a-zA-Z]+');
+$router->addPatternMatcher('wordStartsWithM', '(?:m|M)[a-zA-Z]+');
 
 $router->map('GET', 'user/mTeam/{name:wordStartsWithM}', function (
     ServerRequestInterface $request,
@@ -236,4 +236,4 @@ $router->map('GET', 'user/mTeam/{name:wordStartsWithM}', function (
 });
 ~~~
 
-The above pattern matcher will create an internal regular expression string: `{$1:(m|M)[a-zA-Z]+}`, where `$1` will interpret to `name`, the variable listed before the colon.
+The above pattern matcher will create an internal regular expression string: `{$1:(?:m|M)[a-zA-Z]+}`, where `$1` will interpret to `name`, the variable listed before the colon.
