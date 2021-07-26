@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.1.1] 2021-07
+
+## Fix
+- Fix to allow multiple routes with the same path to be mapped across multiple extra conditions (scheme, host, port).
+
 ## [5.1.0] 2021-07
 
 ## Added
