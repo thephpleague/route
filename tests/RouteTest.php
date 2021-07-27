@@ -160,7 +160,7 @@ class RouteTest extends TestCase
         });
 
         $path = $route->getPath([
-            'year'            => '2000'
+            'year' => '2000'
         ]);
 
         $this->assertSame('/date/2000', $path);
@@ -182,7 +182,7 @@ class RouteTest extends TestCase
         });
 
         $path = $route->getPath([
-            'year'            => '2000'
+            'year' => '2000'
         ]);
 
         $this->assertSame('/date/2000', $path);
@@ -194,7 +194,7 @@ class RouteTest extends TestCase
         });
 
         $path = $route->getPath([
-            'year'            => '2000',
+            'year' => '2000',
             'month' => '12',
             'day' => '1',
         ]);

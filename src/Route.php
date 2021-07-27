@@ -114,11 +114,40 @@ class Route implements
 
     public function getPath(?array $replacements = null): string
     {
-        if ($replacements !== null) {
-            return $this->resolvePath($replacements);
+        if (null === $replacements) {
+            return $this->path;
         }
 
-        return $this->path;
+        $hasReplacementRegex = '/{(' . implode('|', array_keys($replacements)) . ')(:.*)?}/';
+
+        preg_match_all('/\[\/{(?<keys>.*?)}/', $this->path, $matches);
+        $isOptionalRegex = '/{(' . implode('|', $matches['keys']) . ')(:.*)?}/';
+
+        $toReplace = [];
+
+        foreach ($replacements as $wildcard => $actual) {
+            $toReplace['/{' . preg_quote($wildcard, '/') . '(:.*)?}/'] = $actual;
+        }
+
+        $segments = [];
+
+        foreach (array_filter(explode('/', $this->path)) as $segment) {
+            // remove square brackets from end of segment only
+            $segment = preg_replace(['/\[$/', '/\]+$/'], '', $segment);
+
+            // non wildcard segment or wildcard with a replacement
+            if (!preg_match('/{(.*?)}/', $segment) || preg_match($hasReplacementRegex, $segment)) {
+                $segments[] = $segment;
+                continue;
+            }
+
+            // required wildcard segment still gets added without replacement
+            if (!preg_match($isOptionalRegex, $segment)) {
+                $segments[] = $segment;
+            }
+        }
+
+        return preg_replace(array_keys($toReplace), array_values($toReplace), '/' . implode('/', $segments));
     }
 
     public function getVars(): array
