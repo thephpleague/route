@@ -202,6 +202,19 @@ class RouteTest extends TestCase
         $this->assertSame('/date/2000/12/1', $path);
     }
 
+    public function testGetPathBreaksOnOptionalNested(): void
+    {
+        $route = new Route('GET', '/date[/{year}[/{month}[/{day}]]]', static function () {
+        });
+
+        $path = $route->getPath([
+            'year' => '2000',
+            'day' => '1',
+        ]);
+
+        $this->assertSame('/date/2000', $path);
+    }
+
     public function testGetPathReplacesOptionalNestedMissing(): void
     {
         $route = new Route('GET', '/date[/{year}[/{month}[/{day}]]]', static function () {

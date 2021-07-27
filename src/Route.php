@@ -91,27 +91,6 @@ class Route implements
         return $this->group;
     }
 
-    public function resolvePath(array $replacements = []): string
-    {
-        $parser = new Std();
-        $routeData = $parser->parse($this->path);
-        $longestPossibleRoute = end($routeData);
-        $result = [];
-        foreach ($longestPossibleRoute as $routeSegment) {
-            if (is_string($routeSegment)) {
-                $result[] = $routeSegment;
-            } else if (is_array($routeSegment)) {
-                $wildcard = $routeSegment[0];
-                if (array_key_exists($wildcard, $replacements)) {
-                    $result[] = $replacements[$wildcard];
-                } else {
-                    break;
-                }
-            }
-        }
-        return rtrim(implode($result), '/');
-    }
-
     public function getPath(?array $replacements = null): string
     {
         if (null === $replacements) {
@@ -144,6 +123,12 @@ class Route implements
             // required wildcard segment still gets added without replacement
             if (!preg_match($isOptionalRegex, $segment)) {
                 $segments[] = $segment;
+                continue;
+            }
+
+            // optional segment with no replacement means we break
+            if (preg_match($isOptionalRegex, $segment) && !preg_match($hasReplacementRegex, $segment)) {
+                break;
             }
         }
 
