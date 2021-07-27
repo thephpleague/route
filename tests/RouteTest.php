@@ -263,6 +263,28 @@ class RouteTest extends TestCase
         $this->assertSame('/date', $path);
     }
 
+    public function testGetPathReplacesOptionalPrefix(): void
+    {
+        $route = new Route('GET', '/date[-{year}]', static function () {
+        });
+
+        $path = $route->getPath([
+            'year' => '2000'
+        ]);
+
+        $this->assertSame('/date-2000', $path);
+    }
+
+    public function testGetPathReplacesOptionalPrefixMissing(): void
+    {
+        $route = new Route('GET', '/date[-{year}]', static function () {
+        });
+
+        $path = $route->getPath([]);
+
+        $this->assertSame('/date', $path);
+    }
+
     public function testRouteThrowsWithNoStrategy(): void
     {
         $this->expectException(RuntimeException::class);
