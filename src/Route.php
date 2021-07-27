@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace League\Route;
 
+use FastRoute\RouteParser\Std;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait, StrategyInterface};
 use Psr\Container\ContainerInterface;
@@ -90,15 +91,34 @@ class Route implements
         return $this->group;
     }
 
-    public function getPath(array $replacements = []): string
+    public function resolvePath(array $replacements = []): string
     {
-        $toReplace = [];
+        $parser = new Std();
+        $routeData = $parser->parse($this->path);
+        $longestPossibleRoute = end($routeData);
+        $result = [];
+        foreach ($longestPossibleRoute as $routeSegment) {
+            if (is_string($routeSegment)) {
+                $result[] = $routeSegment;
+            } else if (is_array($routeSegment)) {
+                $wildcard = $routeSegment[0];
+                if (array_key_exists($wildcard, $replacements)) {
+                    $result[] = $replacements[$wildcard];
+                } else {
+                    break;
+                }
+            }
+        }
+        return rtrim(implode($result), '/');
+    }
 
-        foreach ($replacements as $wildcard => $actual) {
-            $toReplace['/{' . preg_quote($wildcard, '/') . '(:.*?)?}/'] = $actual;
+    public function getPath(?array $replacements = null): string
+    {
+        if ($replacements !== null) {
+            return $this->resolvePath($replacements);
         }
 
-        return preg_replace(array_keys($toReplace), array_values($toReplace), $this->path);
+        return $this->path;
     }
 
     public function getVars(): array
