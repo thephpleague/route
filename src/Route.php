@@ -99,8 +99,17 @@ class Route implements
 
         $hasReplacementRegex = '/{(' . implode('|', array_keys($replacements)) . ')(:.*)?}/';
 
-        preg_match_all('/\[\/{(?<keys>.*?)}/', $this->path, $matches);
-        $isOptionalRegex = '/{(' . implode('|', $matches['keys']) . ')(:.*)?}/';
+        preg_match_all('/\[(.*?)?{(?<keys>.*?)}/', $this->path, $matches);
+
+        $isOptionalRegex = '/(.*)?{('
+            . implode('|', $matches['keys'])
+            . ')(:.*)?}(.*)?/'
+        ;
+
+        $isPartiallyOptionalRegex = '/^([^\[\]{}]+)?\[((?:.*)?{(?:'
+            . implode('|', $matches['keys'])
+            . ')(?::.*)?}(?:.*)?)\]?([^\[\]{}]+)?(?:[\[\]]+)?$/'
+        ;
 
         $toReplace = [];
 
@@ -111,22 +120,27 @@ class Route implements
         $segments = [];
 
         foreach (array_filter(explode('/', $this->path)) as $segment) {
-            // remove square brackets from end of segment only
-            $segment = preg_replace(['/\[$/', '/\]+$/'], '', $segment);
+            // segment is partially optional with a wildcard, strip it if no match, tidy up if match
+            if (preg_match($isPartiallyOptionalRegex, $segment)) {
+                $segment = preg_match($hasReplacementRegex, $segment)
+                    ? preg_replace($isPartiallyOptionalRegex, '$1$2$3', $segment)
+                    : preg_replace($isPartiallyOptionalRegex, '$1', $segment)
+                ;
+            }
 
-            // non wildcard segment or wildcard with a replacement
+            // segment either isn't a wildcard or there is a replacement
             if (!preg_match('/{(.*?)}/', $segment) || preg_match($hasReplacementRegex, $segment)) {
-                $segments[] = $segment;
+                $segments[] = preg_replace(['/\[$/', '/\]+$/'], '', $segment);
                 continue;
             }
 
-            // required wildcard segment still gets added without replacement
+            // segment is a required wildcard, no replacement, still gets added
             if (!preg_match($isOptionalRegex, $segment)) {
-                $segments[] = $segment;
+                $segments[] = preg_replace(['/\[$/', '/\]+$/'], '', $segment);
                 continue;
             }
 
-            // optional segment with no replacement means we break
+            // segment is completely optional with no replacement, strip it and break
             if (preg_match($isOptionalRegex, $segment) && !preg_match($hasReplacementRegex, $segment)) {
                 break;
             }
