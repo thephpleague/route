@@ -189,7 +189,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $router = new League\Route\Router;
 
-// this route will only match if {id} is numeric and {name} is a alpha
+// this route will only match if {id} is numeric and {name} is an alpha
 $router->map('GET', '/user/{id:number}/{name:word}', function (ServerRequestInterface $request, array $args): ResponseInterface {
     // $args = [
     //     'id'   => {id},  // the actual value of {id}
@@ -222,14 +222,13 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $router = new League\Route\Router;
 
-$router->addPatternMatcher('wordStartsWithM', '(m|M)[a-zA-Z]+');
+$router->addPatternMatcher('wordStartsWithM', '(?:m|M)[a-zA-Z]+');
 
 $router->map('GET', 'user/mTeam/{name:wordStartsWithM}', function (
     ServerRequestInterface $request,
     array $args
 ): ResponseInterface {
     // $args = [
-    //     'id'   => {id},  // the actual value of {id}
     //     'name' => {name} // the actual value of {name}
     // ];
 
@@ -237,4 +236,4 @@ $router->map('GET', 'user/mTeam/{name:wordStartsWithM}', function (
 });
 ~~~
 
-The above pattern matcher will create an internal regular expression string: `{$1:(m|M)[a-zA-Z]+}`, where `$1` will interpret to `name`, the variable listed before the colon.
+The above pattern matcher will create an internal regular expression string: `{$1:(?:m|M)[a-zA-Z]+}`, where `$1` will interpret to `name`, the variable listed before the colon.
