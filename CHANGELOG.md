@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ## [5.1.2] 2021-07
 
 ## Added
-- Extra logic for `Route::gretPath` tp be able to properly resolve optional parameters.
+- Extra logic for `Route::getPath` to be able to properly resolve optional parameters.
 
 ## [5.1.1] 2021-07
 
