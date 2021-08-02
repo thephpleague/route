@@ -214,7 +214,7 @@ $router->post('/acme', function (ServerRequestInterface $request): ResponseInter
 
 ## Response Decorators
 
-Response decorators allow you to add one, or many callables to a strategy that will be invoked on successful a route match for every response.
+Response decorators allow you to add one, or many callables to a strategy that will be invoked on a successful route match for every response.
 
 This can be useful for simple things like adding a header to every successful response, although it is recommended for anything complex, to use a middleware instead.
 
@@ -238,14 +238,13 @@ You can build your own custom strategy to use in your application as long as it 
 1. Providing a middleware that invokes your controller then decorates and returns your controllers response.
 2. Providing a middleware that will decorate a 404 `NotFoundException` and return a response.
 3. Providing a middleware that will decorate a 405 `MethodNotAllowedException` and return a response.
-4. Providing a middleware that will decorate any other exception and return a response.
+4. Providing a middleware that will decorate any other throwable and return a response.
 
 ~~~php
 <?php
 
 namespace League\Route\Strategy;
 
-use Exception;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
@@ -254,14 +253,22 @@ use Psr\Http\Server\MiddlewareInterface;
 interface StrategyInterface
 {
     /**
-     * Invoke the route callable based on the strategy.
+     * Add a response decorator.
      *
-     * @param \League\Route\Route                      $route
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @param callable $decorator
+     * 
+     * @return StrategyInterface
      */
-    public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface;
+    public function addResponseDecorator(callable $decorator): StrategyInterface;
+
+    /**
+     * Get a middleware that will decorate a MethodNotAllowedException
+     *
+     * @param \League\Route\Http\Exception\MethodNotAllowedException $exception
+     *
+     * @return \Psr\Http\Server\MiddlewareInterface
+     */
+    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface;
 
     /**
      * Get a middleware that will decorate a NotFoundException
@@ -273,21 +280,22 @@ interface StrategyInterface
     public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface;
 
     /**
-     * Get a middleware that will decorate a NotAllowedException
-     *
-     * @param \League\Route\Http\Exception\NotFoundException $exception
+     * Get a middleware that acts as a throwable handler, it should wrap the rest of the
+     * middleware stack and catch any throwables.
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */
-    public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface;
+    public function getThrowableHandler(): MiddlewareInterface;
 
     /**
-     * Get a middleware that acts as an exception handler, it should wrap the rest of the
-     * middleware stack and catch eny exceptions.
+     * Invoke the route callable based on the strategy.
      *
-     * @return \Psr\Http\Server\MiddlewareInterface
+     * @param \League\Route\Route                      $route
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getExceptionHandler(): MiddlewareInterface;
+    public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface;
 }
 ~~~
 
