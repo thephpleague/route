@@ -10,7 +10,6 @@ use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{ApplicationStrategy, OptionsHandlerInterface, StrategyAwareInterface, StrategyAwareTrait};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 
 class Router implements
     MiddlewareAwareInterface,
@@ -226,7 +225,7 @@ class Router implements
             }
 
             if (!empty($port)) {
-                $route->setPort($port);
+                $route->setPort((int) $port);
             }
 
             $this->routeCollector->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $route);
