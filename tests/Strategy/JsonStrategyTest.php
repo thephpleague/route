@@ -8,8 +8,9 @@ use Exception;
 use League\Route\Http\Exception as HttpException;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
+use League\Route\Router;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface, StreamInterface};
+use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface, StreamInterface, UriInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use stdClass;
 
@@ -392,5 +393,121 @@ class JsonStrategyTest extends TestCase
         $callable = $strategy->getOptionsCallable(['GET', 'POST']);
 
         $callable($request);
+    }
+
+    public function testJsonApplicationStrategyNoOptionsRouteDefinedExpectedDefaultCreated(): void
+    {
+        $factory       = $this->createMock(ResponseFactoryInterface::class);
+        $request       = $this->createMock(ServerRequestInterface::class);
+        $response      = $this->createMock(ResponseInterface::class);
+        $routeResponse = $this->createMock(ResponseInterface::class);
+        $uri           = $this->createMock(UriInterface::class);
+
+        $method = 'OPTIONS';
+        $path   = '/example';
+
+        $scheme = 'https';
+        $host   = 'example.io';
+        $port   = 443;
+
+        $someMethods = ['GET', 'POST', 'PUT', 'DELETE'];
+        $options     = implode(', ', $someMethods);
+
+        $request
+            ->method('getMethod')
+            ->willReturn($method)
+        ;
+
+        $request
+            ->method('getUri')
+            ->willReturn($uri)
+        ;
+
+        $uri
+            ->method('getPath')
+            ->willReturn($path)
+        ;
+
+        $uri
+            ->method('getScheme')
+            ->willReturn($scheme)
+        ;
+
+        $uri
+            ->method('getHost')
+            ->willReturn($host)
+        ;
+
+        $uri
+            ->method('getPort')
+            ->willReturn($port)
+        ;
+
+        $factory
+            ->method('createResponse')
+            ->willReturn($response)
+        ;
+
+        $response
+            ->expects($this->exactly(2))
+            ->method('withHeader')
+            ->withConsecutive(['allow', $options], ['access-control-allow-methods', $options])
+            ->willReturnOnConsecutiveCalls($this->returnSelf(), $this->returnSelf())
+        ;
+
+        $router = new Router();
+        $router->setStrategy(new JsonStrategy($factory));
+
+        foreach ($someMethods as $method) {
+            $router
+                ->map($method, $path, static function ($request, $args) use ($routeResponse) {
+                    return $routeResponse;
+                })
+                ->setScheme($scheme)
+                ->setHost($host)
+                ->setPort($port)
+            ;
+        }
+
+        $actualResponse = $router->handle($request);
+
+        $this->assertSame($response, $actualResponse);
+    }
+
+    public function testJsonApplicationStrategyUserDefinedOptionsRouteForSomeResource(): void
+    {
+        $factory  = $this->createMock(ResponseFactoryInterface::class);
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+
+        $method = 'OPTIONS';
+        $path   = '/some-resource';
+
+        $request
+            ->method('getMethod')
+            ->willReturn($method)
+        ;
+
+        $request
+            ->method('getUri')
+            ->willReturn($uri)
+        ;
+
+        $uri
+            ->method('getPath')
+            ->willReturn($path)
+        ;
+
+        $router = new Router();
+        $router->setStrategy(new JsonStrategy($factory));
+
+        $router->map($method, $path, static function ($request, $args) use ($response) {
+            return $response;
+        });
+
+        $actualResponse = $router->handle($request);
+
+        $this->assertSame($response, $actualResponse);
     }
 }
