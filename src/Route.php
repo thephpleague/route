@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace League\Route;
 
-use FastRoute\RouteParser\Std;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait, StrategyInterface};
 use Psr\Container\ContainerInterface;
