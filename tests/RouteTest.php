@@ -285,6 +285,20 @@ class RouteTest extends TestCase
         $this->assertSame('/date', $path);
     }
 
+
+    public function testGetPathReplacesMultipleNumeric(): void
+    {
+        $route = new Route('GET', '/test/{id:\d+}/test/{domainId:\d+}/delete', static function () {
+        });
+
+        $path = $route->getPath([
+            'id' => 111,
+            'domainId' => 999
+        ]);
+
+        $this->assertSame('/test/111/test/999/delete', $path);
+    }
+
     public function testRouteThrowsWithNoStrategy(): void
     {
         $this->expectException(RuntimeException::class);
