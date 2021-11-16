@@ -38,8 +38,14 @@ class Dispatcher extends GroupCountBasedDispatcher implements
                 $this->setMethodNotAllowedDecoratorMiddleware($allowed);
                 break;
             case FastRoute::FOUND:
-                $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setVars($match[2]);
-
+                $strategy = $match[1]->getStrategy();
+                $container = $strategy instanceof ContainerAwareInterface ? $strategy->getContainer() : null;
+                $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setVars(
+                    array_merge($match[2], [
+                        'routeTarget' => $match[1]->getCallable($container)
+                    ])
+                );
+                
                 if ($this->isExtraConditionMatch($route, $request)) {
                     $this->setFoundMiddleware($route);
                     $request = $this->requestWithRouteAttributes($request, $route);
