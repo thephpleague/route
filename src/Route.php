@@ -198,4 +198,17 @@ class Route implements
 
         return $class;
     }
+        
+    public function getRouteTarget(): string
+    {
+        $target = $this->handler;
+
+        if (is_string($target)) {
+            return $target;
+        } elseif (is_array($target) && isset($target[0]) && is_string($target[0]) && isset($target[1]) && is_string($target[1])) {
+            return $target[0]. '::'. $target[1];
+        } else {
+            return '';
+        }    
+    }
 }
