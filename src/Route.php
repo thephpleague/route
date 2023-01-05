@@ -26,7 +26,7 @@ class Route implements
      */
     protected $handler;
 
-    protected RouteGroup $group;
+    protected ?RouteGroup $group = null;
 
     protected array $vars = [];
 
