@@ -139,8 +139,6 @@ class JsonStrategyTest extends TestCase
 
     /**
      * Asserts that the strategy returns the correct middleware to decorate NotFoundException.
-     *
-     * @return void
      */
     public function testStrategyReturnsCorrectNotFoundDecorator(): void
     {

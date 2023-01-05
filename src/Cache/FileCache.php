@@ -8,23 +8,11 @@ use Psr\SimpleCache\CacheInterface;
 
 class FileCache implements CacheInterface
 {
-    /**
-     * @var string
-     */
-    protected $cacheFilePath;
-
-    /**
-     * @var integer
-     */
-    protected $ttl;
-
-    public function __construct(string $cacheFilePath, int $ttl)
+    public function __construct(protected string $cacheFilePath, protected int $ttl)
     {
-        $this->cacheFilePath = $cacheFilePath;
-        $this->ttl = $ttl;
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         return ($this->has($key)) ? file_get_contents($this->cacheFilePath) : $default;
     }

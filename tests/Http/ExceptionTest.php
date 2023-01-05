@@ -14,7 +14,7 @@ class ExceptionTest extends TestCase
         $json = json_encode([
             'status_code'   => $e->getStatusCode(),
             'reason_phrase' => $e->getMessage()
-        ]);
+        ], JSON_THROW_ON_ERROR);
 
         $body = $this->createMock(StreamInterface::class);
 

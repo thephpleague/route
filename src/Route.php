@@ -26,30 +26,12 @@ class Route implements
      */
     protected $handler;
 
-    /**
-     * @var RouteGroup
-     */
-    protected $group;
+    protected ?RouteGroup $group = null;
 
-    /**
-     * @var string
-     */
-    protected $method;
+    protected array $vars = [];
 
-    /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var array
-     */
-    protected $vars = [];
-
-    public function __construct(string $method, string $path, $handler)
+    public function __construct(protected string $method, protected string $path, $handler)
     {
-        $this->method  = $method;
-        $this->path    = $path;
         $this->handler = $handler;
     }
 
@@ -57,7 +39,7 @@ class Route implements
     {
         $callable = $this->handler;
 
-        if (is_string($callable) && strpos($callable, '::') !== false) {
+        if (is_string($callable) && str_contains($callable, '::')) {
             $callable = explode('::', $callable);
         }
 

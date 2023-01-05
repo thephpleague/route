@@ -124,7 +124,7 @@ class DispatchIntegrationTest extends TestCase
 
         $router = new Router();
 
-        $router->map('GET', '/example/route', static function () {
+        $router->map('GET', '/example/route', static function (): never {
             throw new Exception();
         });
 
@@ -227,7 +227,7 @@ class DispatchIntegrationTest extends TestCase
         /** @var Router $router */
         $router = (new Router())->setStrategy(new JsonStrategy($factory));
 
-        $router->map('GET', '/example/route', function () {
+        $router->map('GET', '/example/route', function (): never {
             throw new Exception('Blah');
         });
 
@@ -305,7 +305,7 @@ class DispatchIntegrationTest extends TestCase
 
         $router = (new Router())->setStrategy(new JsonStrategy($factory));
 
-        $router->map('GET', '/example/route', static function () {
+        $router->map('GET', '/example/route', static function (): never {
             throw new BadRequestException();
         });
 
@@ -730,9 +730,7 @@ class DispatchIntegrationTest extends TestCase
         /** @var Router $router */
         $router = (new Router())->setStrategy(new Strategy\ApplicationStrategy());
 
-        $router->map('GET', '/', function (): array {
-            return [];
-        })->setStrategy(new JsonStrategy($factory));
+        $router->map('GET', '/', static fn(): array => [])->setStrategy(new JsonStrategy($factory));
         $router->dispatch($request);
     }
 
@@ -777,9 +775,7 @@ class DispatchIntegrationTest extends TestCase
         $router = new Router();
 
         $router->group('/group', function ($r) use ($factory) {
-            $r->get('/id', function (): array {
-                return [];
-            })->setStrategy(new JsonStrategy($factory));
+            $r->get('/id', static fn(): array => [])->setStrategy(new JsonStrategy($factory));
         })->setStrategy(new Strategy\ApplicationStrategy());
 
         $router->dispatch($request);
@@ -789,7 +785,7 @@ class DispatchIntegrationTest extends TestCase
     {
         $counter = new class ()
         {
-            private $counter = 0;
+            private int $counter = 0;
 
             public function getCounter(): int
             {
@@ -907,9 +903,7 @@ class DispatchIntegrationTest extends TestCase
         ;
 
         $router->group('/group', static function ($r) use ($response, $middlewareThree, $middlewareFour): void {
-            $r->get('/route', static function (ServerRequestInterface $request) use ($response): ResponseInterface {
-                return $response;
-            })->middleware($middlewareThree)->lazyMiddlewares([$middlewareFour]);
+            $r->get('/route', static fn(ServerRequestInterface $request): ResponseInterface => $response)->middleware($middlewareThree)->lazyMiddlewares([$middlewareFour]);
         })->middleware($middlewareTwo);
 
         $router->dispatch($request);
@@ -926,30 +920,22 @@ class DispatchIntegrationTest extends TestCase
         $responseTwo->expects(self::once())->method('withHeader')->willReturnSelf();
 
         $routerOne
-            ->get('/', static function (ServerRequestInterface $request) use ($responseOne): ResponseInterface {
-                return $responseOne->withHeader('test', 'test');
-            })
+            ->get('/', static fn(ServerRequestInterface $request): ResponseInterface => $responseOne->withHeader('test', 'test'))
             ->setHost('test1.com')
         ;
 
         $routerOne
-            ->get('/', static function (ServerRequestInterface $request) use ($responseOne): ResponseInterface {
-                return $responseOne->withHeader('test', 'test');
-            })
+            ->get('/', static fn(ServerRequestInterface $request): ResponseInterface => $responseOne->withHeader('test', 'test'))
             ->setHost('test2.com')
         ;
 
         $routerTwo
-            ->get('/', static function (ServerRequestInterface $request) use ($responseTwo): ResponseInterface {
-                return $responseTwo->withHeader('test', 'test');
-            })
+            ->get('/', static fn(ServerRequestInterface $request): ResponseInterface => $responseTwo->withHeader('test', 'test'))
             ->setHost('test1.com')
         ;
 
         $routerTwo
-            ->get('/', static function (ServerRequestInterface $request) use ($responseTwo): ResponseInterface {
-                return $responseTwo->withHeader('test', 'test');
-            })
+            ->get('/', static fn(ServerRequestInterface $request): ResponseInterface => $responseTwo->withHeader('test', 'test'))
             ->setHost('test2.com')
         ;
 

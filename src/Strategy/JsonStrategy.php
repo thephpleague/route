@@ -17,21 +17,8 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
 {
     use ContainerAwareTrait;
 
-    /**
-     * @var ResponseFactoryInterface
-     */
-    protected $responseFactory;
-
-    /**
-     * @var int
-     */
-    protected $jsonFlags;
-
-    public function __construct(ResponseFactoryInterface $responseFactory, int $jsonFlags = 0)
+    public function __construct(protected ResponseFactoryInterface $responseFactory, protected int $jsonFlags = 0)
     {
-        $this->responseFactory = $responseFactory;
-        $this->jsonFlags = $jsonFlags;
-
         $this->addResponseDecorator(static function (ResponseInterface $response): ResponseInterface {
             if (false === $response->hasHeader('content-type')) {
                 $response = $response->withHeader('content-type', 'application/json');
@@ -65,11 +52,8 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
     {
         return new class ($this->responseFactory->createResponse()) implements MiddlewareInterface
         {
-            protected $response;
-
-            public function __construct(ResponseInterface $response)
+            public function __construct(protected ResponseInterface $response)
             {
-                $this->response = $response;
             }
 
             public function process(
@@ -88,7 +72,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
                     $response->getBody()->write(json_encode([
                         'status_code'   => 500,
                         'reason_phrase' => $exception->getMessage()
-                    ]));
+                    ], JSON_THROW_ON_ERROR));
 
                     $response = $response->withAddedHeader('content-type', 'application/json');
                     return $response->withStatus(500, strtok($exception->getMessage(), "\n"));
@@ -115,13 +99,8 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
     {
         return new class ($this->responseFactory->createResponse(), $exception) implements MiddlewareInterface
         {
-            protected $response;
-            protected $exception;
-
-            public function __construct(ResponseInterface $response, Http\Exception $exception)
+            public function __construct(protected ResponseInterface $response, protected Http\Exception $exception)
             {
-                $this->response  = $response;
-                $this->exception = $exception;
             }
 
             public function process(
