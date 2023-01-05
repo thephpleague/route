@@ -6,10 +6,7 @@ namespace League\Route\Strategy;
 
 trait StrategyAwareTrait
 {
-    /**
-     * @var ?StrategyInterface
-     */
-    protected $strategy;
+    protected ?StrategyInterface $strategy = null;
 
     public function setStrategy(StrategyInterface $strategy): StrategyAwareInterface
     {

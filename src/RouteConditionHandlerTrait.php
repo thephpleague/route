@@ -9,25 +9,13 @@ use RuntimeException;
 
 trait RouteConditionHandlerTrait
 {
-    /**
-     * @var ?string
-     */
-    protected $host;
+    protected ?string $host = null;
 
-    /**
-     * @var ?string
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var ?int
-     */
-    protected $port;
+    protected ?int $port = null;
 
-    /**
-     * @var ?string
-     */
-    protected $scheme;
+    protected ?string $scheme = null;
 
     public function getHost(): ?string
     {

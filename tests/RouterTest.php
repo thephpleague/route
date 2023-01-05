@@ -60,14 +60,12 @@ class RouterTest extends TestCase
 
     /**
      * Asserts that appropriately configured regex strings are added to patternMatchers.
-     *
-     * @return void
      */
     public function testNewPatternMatchesCanBeAddedAtRuntime(): void
     {
         $router = new class () extends Router
         {
-            public $patternMatchers = [];
+            public array $patternMatchers = [];
         };
 
         $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');

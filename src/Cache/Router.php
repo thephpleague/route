@@ -26,26 +26,11 @@ class Router
      */
     protected $builder;
 
-    /**
-     * @var CacheInterface
-     */
-    protected $cache;
+    protected int $ttl;
 
-    /**
-     * @var integer
-     */
-    protected $ttl;
-
-    /**
-     * @var bool
-     */
-    protected $cacheEnabled;
-
-    public function __construct(callable $builder, CacheInterface $cache, bool $cacheEnabled = true)
+    public function __construct(callable $builder, protected CacheInterface $cache, protected bool $cacheEnabled = true)
     {
         $this->builder = $builder;
-        $this->cache = $cache;
-        $this->cacheEnabled = $cacheEnabled;
     }
 
     public function dispatch(ServerRequestInterface $request): ResponseInterface

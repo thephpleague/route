@@ -9,10 +9,7 @@ use RuntimeException;
 
 trait ContainerAwareTrait
 {
-    /**
-     * @var ?ContainerInterface
-     */
-    protected $container;
+    protected ?ContainerInterface $container = null;
 
     public function getContainer(): ?ContainerInterface
     {

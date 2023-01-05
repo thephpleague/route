@@ -9,32 +9,13 @@ use Psr\Http\Message\ResponseInterface;
 
 class Exception extends \Exception implements HttpExceptionInterface
 {
-    /**
-     * @var array
-     */
-    protected $headers = [];
-
-    /**
-     * @var string
-     */
-    protected $message;
-
-    /**
-     * @var integer
-     */
-    protected $status;
-
     public function __construct(
-        int $status,
-        string $message = null,
+        protected int $status,
+        protected $message = null,
         \Exception $previous = null,
-        array $headers = [],
+        protected array $headers = [],
         int $code = 0
     ) {
-        $this->headers = $headers;
-        $this->message = $message;
-        $this->status  = $status;
-
         parent::__construct($message, $code, $previous);
     }
 
@@ -61,7 +42,7 @@ class Exception extends \Exception implements HttpExceptionInterface
             $response->getBody()->write(json_encode([
                 'status_code'   => $this->status,
                 'reason_phrase' => $this->message
-            ]));
+            ], JSON_THROW_ON_ERROR));
         }
 
         return $response->withStatus($this->status, $this->message);

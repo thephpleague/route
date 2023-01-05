@@ -8,10 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class DefaultHeaderDecorator
 {
-    /**
-     * @var array
-     */
-    protected $headers = [];
+    protected array $headers = [];
 
     public function __construct(array $headers = [])
     {

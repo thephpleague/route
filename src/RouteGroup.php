@@ -23,20 +23,11 @@ class RouteGroup implements
      */
     protected $callback;
 
-    /**
-     * @var RouteCollectionInterface
-     */
-    protected $collection;
+    protected string $prefix;
 
-    /**
-     * @var string
-     */
-    protected $prefix;
-
-    public function __construct(string $prefix, callable $callback, RouteCollectionInterface $collection)
+    public function __construct(string $prefix, callable $callback, protected RouteCollectionInterface $collection)
     {
         $this->callback   = $callback;
-        $this->collection = $collection;
         $this->prefix     = sprintf('/%s', ltrim($prefix, '/'));
     }
 
