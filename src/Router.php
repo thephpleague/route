@@ -193,6 +193,11 @@ class Router implements
         $this->routesData = $this->routeCollector->getData();
     }
 
+    public function getData(): array
+    {
+        return $this->routeCollector->getData();
+    }
+
     protected function buildNameIndex(): void
     {
         foreach ($this->routes as $key => $route) {
