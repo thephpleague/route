@@ -113,7 +113,7 @@ class Route implements
         $toReplace = [];
 
         foreach ($replacements as $wildcard => $actual) {
-            $toReplace['/{' . preg_quote($wildcard, '/') . '(:.*)?}/'] = $actual;
+            $toReplace['/{' . preg_quote($wildcard, '/') . '(:.*)?}/U'] = $actual;
         }
 
         $segments = [];
