@@ -143,15 +143,16 @@ class RouteTest extends TestCase
 
     public function testGetPathReplacesWildcards(): void
     {
-        $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}', static function () {
+        $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}/and/{wildcardWithMatcherAgain:uuid}', static function () {
         });
 
         $path = $route->getPath([
-            'wildcard'            => 'replaced-wildcard',
-            'wildcardWithMatcher' => 'replaced-wildcard-with-matcher',
+            'wildcard'                 => 'replaced-wildcard',
+            'wildcardWithMatcher'      => 'replaced-wildcard-with-matcher',
+            'wildcardWithMatcherAgain' => 'replaced-wildcard-with-matcher-again',
         ]);
 
-        $this->assertSame('/a/replaced-wildcard/and/replaced-wildcard-with-matcher', $path);
+        $this->assertSame('/a/replaced-wildcard/and/replaced-wildcard-with-matcher/and/replaced-wildcard-with-matcher-again', $path);
     }
 
     public function testGetPathReplacesOptional(): void
