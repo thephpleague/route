@@ -74,8 +74,9 @@ $container = new League\Container\Container;
 $container->add(Acme\SomeController::class)->addArgument(Acme\TemplateRenderer::class);
 $container->add(Acme\TemplateRenderer::class);
 
-$strategy = (new League\Route\Strategy\ApplicationStrategy)->setContainer($container);
-$router   = (new League\Route\Router)->setStrategy($strategy);
+$strategy = new League\Route\Strategy\ApplicationStrategy;
+$strategy->setContainer($container);
+$router = (new League\Route\Router)->setStrategy($strategy);
 
 $router->map('GET', '/', Acme\SomeController::class);
 ~~~
