@@ -65,6 +65,57 @@ class DispatchIntegrationTest extends TestCase
         $this->assertSame($response, $returnedResponse);
     }
 
+    public function testDispatchesFoundRouteWithAttributes(): void
+    {
+        $request  = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $uri      = $this->createMock(UriInterface::class);
+
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getPath')
+            ->willReturn('/example')
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('getMethod')
+            ->willReturn('GET')
+        ;
+
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->willReturn($uri)
+        ;
+
+        $request
+            ->expects($this->once())
+            ->method('withAttribute')
+            ->willReturn($request)
+        ;
+
+        $router = new Router();
+
+        $router->map('GET', '/example', function (
+            ServerRequestInterface $request,
+            array $args
+        ) use (
+            $response
+        ): ResponseInterface {
+            $this->assertSame([
+                'param1' => 'value1'
+            ], $request->getAttributes());
+
+            return $response;
+        })->setVars([
+            'param1' => 'value1'
+        ]);
+
+        $returnedResponse = $router->handle($request);
+        $this->assertSame($response, $returnedResponse);
+    }
+
     public function testDispatchesFoundRouteMultipleTimes(): void
     {
         $request  = $this->createMock(ServerRequestInterface::class);
