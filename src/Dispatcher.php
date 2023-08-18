@@ -40,7 +40,9 @@ class Dispatcher extends GroupCountBasedDispatcher implements
             case FastRoute::FOUND:
                 $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setVars($match[2]);
 
-                if ($this->isExtraConditionMatch($route, $request)) {
+				$request = $request->withAttribute('route', $route);
+
+				if ($this->isExtraConditionMatch($route, $request)) {
                     $this->setFoundMiddleware($route);
                     $request = $this->requestWithRouteAttributes($request, $route);
                     break;
