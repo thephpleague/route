@@ -55,15 +55,15 @@ class ApplicationStrategyTest extends TestCase
         $route = $this->createMock(Route::class);
 
         $expectedResponse = $this->createMock(ResponseInterface::class);
-        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
-        $expectedVars     = ['something', 'else'];
+        $expectedRequest = $this->createMock(ServerRequestInterface::class);
+        $expectedVars = ['something', 'else'];
 
         $route
             ->expects($this->once())
             ->method('getCallable')
             ->willReturn(function (
                 ServerRequestInterface $request,
-                array $vars = []
+                array                  $vars = []
             ) use (
                 $expectedRequest,
                 $expectedResponse,
@@ -72,14 +72,12 @@ class ApplicationStrategyTest extends TestCase
                 $this->assertSame($expectedRequest, $request);
                 $this->assertSame($expectedVars, $vars);
                 return $expectedResponse;
-            })
-        ;
+            });
 
         $route
             ->expects($this->once())
             ->method('getVars')
-            ->willReturn($expectedVars)
-        ;
+            ->willReturn($expectedVars);
 
         $strategy = new ApplicationStrategy;
         $response = $strategy->invokeRouteCallable($route, $expectedRequest);
@@ -96,11 +94,11 @@ class ApplicationStrategyTest extends TestCase
     {
         $this->expectException(NotFoundException::class);
 
-        $exception      = $this->createMock(NotFoundException::class);
-        $request        = $this->createMock(ServerRequestInterface::class);
+        $exception = $this->createMock(NotFoundException::class);
+        $request = $this->createMock(ServerRequestInterface::class);
         $requestHandler = $this->createMock(RequestHandlerInterface::class);
 
-        $strategy  = new ApplicationStrategy;
+        $strategy = new ApplicationStrategy;
         $decorator = $strategy->getNotFoundDecorator($exception);
 
         $this->assertInstanceOf(MiddlewareInterface::class, $decorator);
@@ -117,11 +115,11 @@ class ApplicationStrategyTest extends TestCase
     {
         $this->expectException(MethodNotAllowedException::class);
 
-        $exception      = $this->createMock(MethodNotAllowedException::class);
-        $request        = $this->createMock(ServerRequestInterface::class);
+        $exception = $this->createMock(MethodNotAllowedException::class);
+        $request = $this->createMock(ServerRequestInterface::class);
         $requestHandler = $this->createMock(RequestHandlerInterface::class);
 
-        $strategy  = new ApplicationStrategy;
+        $strategy = new ApplicationStrategy;
         $decorator = $strategy->getMethodNotAllowedDecorator($exception);
 
         $this->assertInstanceOf(MiddlewareInterface::class, $decorator);
@@ -138,18 +136,17 @@ class ApplicationStrategyTest extends TestCase
     {
         $this->expectException(Exception::class);
 
-        $request        = $this->createMock(ServerRequestInterface::class);
+        $request = $this->createMock(ServerRequestInterface::class);
         $requestHandler = $this->createMock(RequestHandlerInterface::class);
 
         $requestHandler
             ->expects($this->once())
             ->method('handle')
             ->with($this->equalTo($request))
-            ->will($this->throwException(new Exception))
-        ;
+            ->will($this->throwException(new Exception));
 
         $strategy = new ApplicationStrategy;
-        $handler  = $strategy->getExceptionHandler();
+        $handler = $strategy->getExceptionHandler();
 
         $this->assertInstanceOf(MiddlewareInterface::class, $handler);
 
