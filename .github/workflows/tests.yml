@@ -28,7 +28,7 @@ jobs:
         strategy:
             matrix:
                 php: ['7.2', '7.3', '7.4']
-                coverage: [true]
+                coverage: [false]
                 composer-flags: ['']
                 include:
                     - php: '7.1'
