@@ -8,7 +8,6 @@ use Psr\Http\Server\MiddlewareInterface;
 
 interface MiddlewareAwareInterface
 {
-
     public function getMiddlewareStack(): iterable;
     public function lazyMiddleware(string $middleware): MiddlewareAwareInterface;
     public function lazyMiddlewares(array $middlewares): MiddlewareAwareInterface;
