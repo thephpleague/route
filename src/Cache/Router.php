@@ -11,11 +11,10 @@ declare(strict_types=1);
 namespace League\Route\Cache;
 
 use InvalidArgumentException;
+use Laravel\SerializableClosure\SerializableClosure;
 use League\Route\Router as MainRouter;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\SimpleCache\CacheInterface;
-
-use function Opis\Closure\{serialize as s, unserialize as u};
 
 class Router
 {
@@ -24,10 +23,7 @@ class Router
      */
     protected $builder;
 
-    /**
-     * @var integer
-     */
-    protected $ttl;
+    protected int $ttl;
 
     public function __construct(
         callable $builder,
@@ -35,19 +31,29 @@ class Router
         protected bool $cacheEnabled = true,
         protected string $cacheKey = 'league/route/cache'
     ) {
+        if (true === $this->cacheEnabled && $builder instanceof \Closure) {
+            $builder = new SerializableClosure($builder);
+        }
+
         $this->builder = $builder;
     }
 
+    /**
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
         $router = $this->buildRouter($request);
         return $router->dispatch($request);
     }
 
+    /**
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     protected function buildRouter(ServerRequestInterface $request): MainRouter
     {
         if (true === $this->cacheEnabled && $cache = $this->cache->get($this->cacheKey)) {
-            $router = u($cache, ['allowed_classes' => true]);
+            $router = unserialize($cache, ['allowed_classes' => true]);
 
             if ($router instanceof MainRouter) {
                 return $router;
@@ -55,6 +61,11 @@ class Router
         }
 
         $builder = $this->builder;
+
+        if ($builder instanceof SerializableClosure) {
+            $builder = $builder->getClosure();
+        }
+
         $router = $builder(new MainRouter());
 
         if (false === $this->cacheEnabled) {
@@ -63,7 +74,7 @@ class Router
 
         if ($router instanceof MainRouter) {
             $router->prepareRoutes($request);
-            $this->cache->set($this->cacheKey, s($router));
+            $this->cache->set($this->cacheKey, serialize($router));
             return $router;
         }
 

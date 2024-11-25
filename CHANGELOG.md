@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.2.0] 2024-11
+
+### Changed
+- Replaced opis/closure with laravel/serializable-closure and implemented throughout the handler process rather than a blanket serialisation of the router.
+
 ## [6.1.1] 2024-11
 
 ### Fixed
