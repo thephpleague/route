@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace League\Route;
 
-use Laravel\SerializableClosure\SerializableClosure;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -37,20 +36,12 @@ class Route implements
         protected ?RouteGroup $group = null,
         protected array $vars = []
     ) {
-        if ($handler instanceof \Closure) {
-            $handler = new SerializableClosure($handler);
-        }
-
         $this->handler = ($handler instanceof RequestHandlerInterface) ? [$handler, 'handle'] : $handler;
     }
 
     public function getCallable(?ContainerInterface $container = null): callable
     {
         $callable = $this->handler;
-
-        if ($callable instanceof SerializableClosure) {
-            $callable = $callable->getClosure();
-        }
 
         if (is_string($callable) && str_contains($callable, '::')) {
             $callable = explode('::', $callable);
