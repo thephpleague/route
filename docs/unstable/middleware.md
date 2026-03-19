@@ -10,12 +10,9 @@ sections:
 ---
 ## Introduction
 
-> A middleware component is an individual component participating, often together
-> with other middleware components, in the processing of an incoming request and
-> the creation of a resulting response, as defined by PSR-7.
->
-> A middleware component MAY create and return a response without delegating to
-> a request handler, if sufficient conditions are met.
+A middleware component is an individual component participating, often together with other middleware components, in the processing of an incoming request and the creation of a resulting response, as defined by PSR-7.
+
+A middleware component may create and return a response without delegating to a request handler, if sufficient conditions are met.
 
 Route is a [PSR-15](https://www.php-fig.org/psr/psr-15/) server request handler, and as such can handle the invocation of a stack of middlewares.
 
@@ -36,12 +33,9 @@ use Laminas\Diactoros\Response\RedirectResponse;
 
 class AuthMiddleware implements MiddlewareInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // determine authentication and/or authorization
+        // determine authentication and/or authorisation
         // ...
 
         // if user has auth, use the request handler to continue to the next
@@ -130,9 +124,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SomeMiddleware implements MiddlewareInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         // invoke the rest of the middleware stack and your controller resulting

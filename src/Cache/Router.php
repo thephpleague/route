@@ -1,29 +1,19 @@
 <?php
 
-/**
- * The cached router is currently in BETA and not recommended for production code.
- *
- * Please feel free to heavily test and report any issues as an issue on the GitHub repository.
- */
-
 declare(strict_types=1);
 
 namespace League\Route\Cache;
 
-use InvalidArgumentException;
-use Laravel\SerializableClosure\SerializableClosure;
+use League\Route\MatchResult;
 use League\Route\Router as MainRouter;
+use League\Route\RouterInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\SimpleCache\CacheInterface;
 
-class Router
+class Router implements RouterInterface
 {
-    /**
-     * @var callable
-     */
+    /** @var callable */
     protected $builder;
-
-    protected int $ttl;
 
     public function __construct(
         callable $builder,
@@ -31,53 +21,104 @@ class Router
         protected bool $cacheEnabled = true,
         protected string $cacheKey = 'league/route/cache'
     ) {
-        if (true === $this->cacheEnabled && $builder instanceof \Closure) {
-            $builder = new SerializableClosure($builder);
-        }
-
         $this->builder = $builder;
     }
 
-    /**
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
-        $router = $this->buildRouter($request);
-        return $router->dispatch($request);
+        return $this->buildRouter($request)->dispatch($request);
     }
 
-    /**
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->dispatch($request);
+    }
+
+    public function match(ServerRequestInterface $request): MatchResult
+    {
+        return $this->buildRouter($request)->match($request);
+    }
+
     protected function buildRouter(ServerRequestInterface $request): MainRouter
     {
-        if (true === $this->cacheEnabled && $cache = $this->cache->get($this->cacheKey)) {
-            $router = unserialize($cache, ['allowed_classes' => true]);
+        $router = $this->createRouterFromBuilder();
 
-            if ($router instanceof MainRouter) {
-                return $router;
+        if (!$this->cacheEnabled) {
+            return $router;
+        }
+
+        $cachedData = null;
+
+        try {
+            $cached = $this->cache->get($this->cacheKey);
+            if (is_string($cached)) {
+                $cachedData = unserialize($cached, ['allowed_classes' => false]);
             }
+        } catch (\Throwable) {
+            $cachedData = null;
         }
 
+        $routeSignature = $this->buildSignatureHash($router);
+
+        if (
+            is_array($cachedData)
+            && isset($cachedData['signature'], $cachedData['data'])
+            && $cachedData['signature'] === $routeSignature
+        ) {
+            $router->setRoutesData($cachedData['data'], $this->buildRouteMap($router));
+            return $router;
+        }
+
+        $router->prepareRoutes($request);
+
+        $this->cache->set($this->cacheKey, serialize([
+            'signature' => $routeSignature,
+            'data' => $router->getRoutesData(),
+        ]));
+
+        return $router;
+    }
+
+    protected function createRouterFromBuilder(): MainRouter
+    {
         $builder = $this->builder;
+        $router = new MainRouter();
+        $result = $builder($router);
 
-        if ($builder instanceof SerializableClosure) {
-            $builder = $builder->getClosure();
+        if ($result instanceof MainRouter) {
+            $router = $result;
         }
 
-        $router = $builder(new MainRouter());
+        return $router;
+    }
 
-        if (false === $this->cacheEnabled) {
-            return $router;
+    protected function buildSignatureHash(MainRouter $router): string
+    {
+        $routes = $router->getRoutes();
+        $signature = '';
+
+        foreach ($routes as $route) {
+            $method = $route->getMethod();
+            if (is_array($method)) {
+                sort($method);
+                $method = implode('|', $method);
+            }
+            $signature .= $method . ':' . $route->getPath() . "\n";
         }
 
-        if ($router instanceof MainRouter) {
-            $router->prepareRoutes($request);
-            $this->cache->set($this->cacheKey, serialize($router));
-            return $router;
+        return md5($signature);
+    }
+
+    /** @return array<int, \League\Route\Route> */
+    protected function buildRouteMap(MainRouter $router): array
+    {
+        $routes = $router->getRoutes();
+        $routeMap = [];
+
+        foreach ($routes as $index => $route) {
+            $routeMap[$index] = $route;
         }
 
-        throw new InvalidArgumentException('Invalid Router builder provided to cached router');
+        return $routeMap;
     }
 }

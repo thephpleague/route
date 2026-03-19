@@ -23,7 +23,17 @@ class Dispatcher extends GroupCountBasedDispatcher implements
     use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
-    public function dispatchRequest(ServerRequestInterface $request): ResponseInterface
+    /** @var array<int, Route> */
+    protected array $routeMap = [];
+
+    /** @param array<int, Route> $routeMap */
+    public function setRouteMap(array $routeMap): self
+    {
+        $this->routeMap = $routeMap;
+        return $this;
+    }
+
+    public function matchRequest(ServerRequestInterface $request): MatchResult
     {
         $method = $request->getMethod();
         $uri = $request->getUri()->getPath();
@@ -31,22 +41,37 @@ class Dispatcher extends GroupCountBasedDispatcher implements
 
         switch ($match[0]) {
             case FastRoute::NOT_FOUND:
-                $this->setNotFoundDecoratorMiddleware();
-                break;
+                return MatchResult::notFound();
             case FastRoute::METHOD_NOT_ALLOWED:
-                $allowed = (array) $match[1];
-                $this->setMethodNotAllowedDecoratorMiddleware($allowed);
-                break;
+                return MatchResult::methodNotAllowed((array) $match[1]);
             case FastRoute::FOUND:
-                $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setVars($match[2]);
+                $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setPathVars($match[2]);
 
                 if ($this->isExtraConditionMatch($route, $request)) {
-                    $this->setFoundMiddleware($route);
-                    $request = $this->requestWithRouteAttributes($request, $route);
-                    break;
+                    return MatchResult::found($route);
                 }
 
+                return MatchResult::notFound();
+        }
+
+        return MatchResult::notFound();
+    }
+
+    public function dispatchRequest(ServerRequestInterface $request): ResponseInterface
+    {
+        $result = $this->matchRequest($request);
+
+        switch ($result->getStatus()) {
+            case MatchStatus::NotFound:
                 $this->setNotFoundDecoratorMiddleware();
+                break;
+            case MatchStatus::MethodNotAllowed:
+                $this->setMethodNotAllowedDecoratorMiddleware($result->getAllowedMethods());
+                break;
+            case MatchStatus::Found:
+                $route = $result->getRoute();
+                $this->setFoundMiddleware($route);
+                $request = $this->requestWithRouteAttributes($request, $route);
                 break;
         }
 
@@ -59,10 +84,14 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         return $middleware->process($request, $this);
     }
 
-    protected function ensureHandlerIsRoute($matchingHandler, $httpMethod, $uri): Route
+    protected function ensureHandlerIsRoute(mixed $matchingHandler, string $httpMethod, string $uri): Route
     {
         if ($matchingHandler instanceof Route) {
             return $matchingHandler;
+        }
+
+        if (is_int($matchingHandler) && isset($this->routeMap[$matchingHandler])) {
+            return $this->routeMap[$matchingHandler];
         }
 
         return new Route($httpMethod, $uri, $matchingHandler);
@@ -116,6 +145,9 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         $this->middleware($route);
     }
 
+    /**
+     * @param array<string> $allowed
+     */
     protected function setMethodNotAllowedDecoratorMiddleware(array $allowed): void
     {
         $strategy = $this->getStrategy();

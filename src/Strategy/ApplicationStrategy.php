@@ -53,7 +53,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
     {
         return new class ($error) implements MiddlewareInterface
         {
-            protected $error;
+            protected Throwable $error;
 
             public function __construct(Throwable $error)
             {

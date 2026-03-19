@@ -43,6 +43,10 @@ class RouteGroup implements
         return $this->prefix;
     }
 
+    /**
+     * @param array<string>|string $method
+     * @param callable|array<string>|string|RequestHandlerInterface $handler
+     */
     public function map(
         string|array $method,
         string $path,

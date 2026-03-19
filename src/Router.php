@@ -10,11 +10,11 @@ use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{ApplicationStrategy, OptionsHandlerInterface, StrategyAwareInterface, StrategyAwareTrait};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 
 class Router implements
     MiddlewareAwareInterface,
     RouteCollectionInterface,
+    RouterInterface,
     StrategyAwareInterface,
     RequestHandlerInterface,
     RouteConditionHandlerInterface
@@ -36,6 +36,9 @@ class Router implements
      */
     protected array $namedRoutes = [];
 
+    /**
+     * @var array<string, string>
+     */
     protected array $patternMatchers = [
         '/{(.+?):number}/'        => '{$1:[0-9]+}',
         '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
@@ -51,7 +54,13 @@ class Router implements
 
     protected bool $routesPrepared = false;
 
+    /**
+     * @var array<mixed>
+     */
     protected array $routesData = [];
+
+    /** @var array<int, Route> */
+    protected array $routeMap = [];
 
     public function __construct(protected ?RouteCollector $routeCollector = null)
     {
@@ -82,8 +91,13 @@ class Router implements
             $this->prepareRoutes($request);
         }
 
+        if ($this->getStrategy() === null) {
+            $this->setStrategy(new ApplicationStrategy());
+        }
+
         /** @var Dispatcher $dispatcher */
         $dispatcher = (new Dispatcher($this->routesData))->setStrategy($this->getStrategy());
+        $dispatcher->setRouteMap($this->routeMap);
 
         foreach ($this->getMiddlewareStack() as $middleware) {
             if (is_string($middleware)) {
@@ -117,6 +131,26 @@ class Router implements
         return $this->dispatch($request);
     }
 
+    public function match(ServerRequestInterface $request): MatchResult
+    {
+        if (false === $this->routesPrepared) {
+            $this->prepareRoutes($request);
+        }
+
+        if ($this->getStrategy() === null) {
+            $this->setStrategy(new ApplicationStrategy());
+        }
+
+        $dispatcher = new Dispatcher($this->routesData);
+        $dispatcher->setStrategy($this->getStrategy());
+        $dispatcher->setRouteMap($this->routeMap);
+        return $dispatcher->matchRequest($request);
+    }
+
+    /**
+     * @param array<string>|string $method
+     * @param callable|array<string>|string|RequestHandlerInterface $handler
+     */
     public function map(
         string|array $method,
         string $path,
@@ -136,35 +170,29 @@ class Router implements
             $this->setStrategy(new ApplicationStrategy());
         }
 
-        $this->processGroups($request);
+        $this->processGroups();
         $this->buildNameIndex();
 
         $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
         $options = [];
+        $index = 0;
 
-        /** @var Route $route */
         foreach ($routes as $route) {
-            // this allows for the same route to be mapped across different routes/hosts etc
-            if (false === $this->isExtraConditionMatch($route, $request)) {
-                continue;
-            }
-
             if ($route->getStrategy() === null) {
                 $route->setStrategy($this->getStrategy());
             }
 
-            $this->routeCollector->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $route);
+            $this->routeMap[$index] = $route;
+            $this->routeCollector->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $index);
+            $index++;
 
-            // global strategy must be an OPTIONS handler to automatically generate OPTIONS route
             if (!($this->getStrategy() instanceof OptionsHandlerInterface)) {
                 continue;
             }
 
-            // need a messy but useful identifier to determine what methods to respond with on OPTIONS
             $identifier = $route->getScheme() . static::IDENTIFIER_SEPARATOR . $route->getHost()
                 . static::IDENTIFIER_SEPARATOR . $route->getPort() . static::IDENTIFIER_SEPARATOR . $route->getPath();
 
-            // if there is a defined OPTIONS route, do not generate one
             if ('OPTIONS' === $route->getMethod()) {
                 unset($options[$identifier]);
                 continue;
@@ -177,7 +205,7 @@ class Router implements
             $options[$identifier][] = $route->getMethod();
         }
 
-        $this->buildOptionsRoutes($options);
+        $this->buildOptionsRoutes($options, $index);
 
         $this->routesPrepared = true;
         $this->routesData = $this->routeCollector->getData();
@@ -193,7 +221,10 @@ class Router implements
         }
     }
 
-    protected function buildOptionsRoutes(array $options): void
+    /**
+     * @param array<string, array<string>> $options
+     */
+    protected function buildOptionsRoutes(array $options, int $index = 0): void
     {
         if (!($this->getStrategy() instanceof OptionsHandlerInterface)) {
             return;
@@ -215,34 +246,62 @@ class Router implements
             }
 
             if (!empty($port)) {
-                $route->setPort($port);
+                $route->setPort((int) $port);
             }
 
-            $this->routeCollector->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $route);
+            $this->routeMap[$index] = $route;
+            $this->routeCollector->addRoute($route->getMethod(), $this->parseRoutePath($route->getPath()), $index);
+            $index++;
         }
+    }
+
+    /** @return array<mixed> */
+    public function getRoutesData(): array
+    {
+        return $this->routesData;
+    }
+
+    /** @return array<int, Route> */
+    public function getRouteMap(): array
+    {
+        return $this->routeMap;
+    }
+
+    /**
+     * @param array<mixed> $data
+     * @param array<int, Route> $routeMap
+     */
+    public function setRoutesData(array $data, array $routeMap): void
+    {
+        $this->routesData = $data;
+        $this->routeMap = $routeMap;
+        $this->routesPrepared = true;
+    }
+
+    /**
+     * @return Route[]
+     */
+    public function getRoutes(): array
+    {
+        if (!$this->routesPrepared) {
+            $this->collectGroupRoutes();
+            $this->buildNameIndex();
+        }
+
+        return array_values(array_merge($this->routes, $this->namedRoutes));
     }
 
     protected function collectGroupRoutes(): void
     {
-        foreach ($this->groups as $group) {
+        foreach ($this->groups as $key => $group) {
+            unset($this->groups[$key]);
             $group();
         }
     }
 
-    protected function processGroups(ServerRequestInterface $request): void
+    protected function processGroups(): void
     {
-        $activePath = $request->getUri()->getPath();
-
         foreach ($this->groups as $key => $group) {
-            // we want to determine if we are technically in a group even if the
-            // route is not matched so exceptions are handled correctly
-            if (
-                $group->getStrategy() !== null
-                && strncmp($activePath, $group->getPrefix(), strlen($group->getPrefix())) === 0
-            ) {
-                $this->setStrategy($group->getStrategy());
-            }
-
             unset($this->groups[$key]);
             $group();
         }

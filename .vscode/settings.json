@@ -1,0 +1,6 @@
+{
+    "debug.javascript.defaultRuntimeExecutable": {
+        "pwa-node": "/home/pbenn/.local/share/mise/shims/node"
+    },
+    "php.validate.executablePath": "/home/pbenn/.local/share/mise/shims/php"
+}

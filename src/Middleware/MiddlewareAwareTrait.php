@@ -12,10 +12,13 @@ use Psr\Http\Server\MiddlewareInterface;
 trait MiddlewareAwareTrait
 {
     /**
-     * @var array
+     * @var array<MiddlewareInterface|string>
      */
     protected array $middleware = [];
 
+    /**
+     * @return iterable<MiddlewareInterface|string>
+     */
     public function getMiddlewareStack(): iterable
     {
         return $this->middleware;
@@ -27,6 +30,9 @@ trait MiddlewareAwareTrait
         return $this;
     }
 
+    /**
+     * @param array<string> $middlewares
+     */
     public function lazyMiddlewares(array $middlewares): MiddlewareAwareInterface
     {
         foreach ($middlewares as $middleware) {
@@ -48,6 +54,9 @@ trait MiddlewareAwareTrait
         return $this;
     }
 
+    /**
+     * @param array<MiddlewareInterface> $middlewares
+     */
     public function middlewares(array $middlewares): MiddlewareAwareInterface
     {
         foreach ($middlewares as $middleware) {
@@ -74,7 +83,7 @@ trait MiddlewareAwareTrait
         return $middleware;
     }
 
-    protected function resolveMiddleware($middleware, ?ContainerInterface $container = null): MiddlewareInterface
+    protected function resolveMiddleware(MiddlewareInterface|string $middleware, ?ContainerInterface $container = null): MiddlewareInterface
     {
         if ($container === null && is_string($middleware) && class_exists($middleware)) {
             $middleware = new $middleware();

@@ -18,7 +18,7 @@ Route provides two strategies out of the box, one aimed at standard web apps and
 - `League\Route\Strategy\ApplicationStrategy` (Default)
 - `League\Route\Strategy\JsonStrategy` (Requires a HTTP Response Factory)
 
-> It is strongly recommended that these strategies are only used as a base for you to build your own custom strategy.
+It is strongly recommended that these strategies are only used as a base for you to build your own custom strategy.
 
 ## Applying Strategies
 
@@ -75,7 +75,7 @@ $router
     ->group('/group', function ($router) {
         $router
             ->map('GET', '/acme/route', 'Acme\Controller::action')
-            ->setStrategy(new CustomStrategy) // will ignore the strategy applied to the group
+            ->setStrategy(new CustomStrategy)
         ;
     })
     ->setStrategy(new ApplicationStrategy)
@@ -100,12 +100,12 @@ function controller(ServerRequestInterface $request, array $args): ResponseInter
     $response = new Response;
     $response->getBody()->write(/* $content */);
     return $response->withStatus(200);
-});
+}
 ~~~
 
 ### Throwable Decorators
 
-The application strategy simply allows any `Throwable` to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception/throwable decorator methods. See [Custom Strategies](#custom-strategies).
+The application strategy simply allows any `Throwable` to bubble out, you can catch them in your bootstrap process or you have the option to extend this strategy and overload the exception or throwable decorator methods. See [Custom Strategies](#custom-strategies).
 
 ## JSON Strategy
 
@@ -116,7 +116,7 @@ To make use of the JSON strategy, you will need to provide it with a [PSR-17](ht
 ~~~php
 <?php declare(strict_types=1);
 
-$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
+$responseFactory = new Laminas\Diactoros\ResponseFactory;
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 
 $router = (new League\Route\Router)->setStrategy($strategy);
@@ -136,14 +136,14 @@ function responseController(ServerRequestInterface $request, array $args): Respo
     $response = new Response;
     $response->getBody()->write(json_encode(/* $content */));
     return $response->withAddedHeader('content-type', 'application/json')->withStatus(200);
-});
+}
 
 function arrayController(ServerRequestInterface $request, array $args): array {
     // ...
     return [
         // ...
     ];
-});
+}
 ~~~
 
 ### JSON Flags
@@ -153,12 +153,11 @@ You can pass an optional second argument to the `JsonStrategy` to define the JSO
 ~~~php
 <?php declare(strict_types=1);
 
-$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
+$responseFactory = new Laminas\Diactoros\ResponseFactory;
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory, JSON_BIGINT_AS_STRING);
 
 $router = (new League\Route\Router)->setStrategy($strategy);
 ~~~
-
 
 ### Exception Decorators
 
@@ -221,7 +220,7 @@ This can be useful for simple things like adding a header to every successful re
 ~~~php
 <?php declare(strict_types=1);
 
-$responseFactory = new Http\Factory\Diactoros\ResponseFactory;
+$responseFactory = new Laminas\Diactoros\ResponseFactory;
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 
 $strategy->addResponseDecorator(function (Psr\Http\Message\ResponseInterface $response): Psr\Http\Message\ResponseInterface {
@@ -283,7 +282,7 @@ interface StrategyInterface
 
     /**
      * Get a middleware that acts as an exception handler, it should wrap the rest of the
-     * middleware stack and catch eny exceptions.
+     * middleware stack and catch any exceptions.
      *
      * @return \Psr\Http\Server\MiddlewareInterface
      */

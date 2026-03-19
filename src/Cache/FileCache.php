@@ -39,16 +39,19 @@ class FileCache implements CacheInterface
 
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
-        return [];
+        throw new \BadMethodCallException('FileCache does not support multi-key operations');
     }
 
+    /**
+     * @param iterable<mixed> $values
+     */
     public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool
     {
-        return false;
+        throw new \BadMethodCallException('FileCache does not support multi-key operations');
     }
 
     public function deleteMultiple(iterable $keys): bool
     {
-        return false;
+        throw new \BadMethodCallException('FileCache does not support multi-key operations');
     }
 }

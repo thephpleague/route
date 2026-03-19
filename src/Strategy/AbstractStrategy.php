@@ -8,6 +8,9 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractStrategy implements StrategyInterface
 {
+    /**
+     * @var array<callable>
+     */
     protected array $responseDecorators = [];
 
     public function addResponseDecorator(callable $decorator): StrategyInterface

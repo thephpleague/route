@@ -1,8 +1,8 @@
 -
   version: unstable
-  name: League\Route (dev-5.x)
+  name: League\Route (dev-7.x)
   type: Unstable
-  requires: PHP >= 8.1.0
+  requires: PHP >= 8.2.0
   release: None
   support: Own Risk
   url: /unstable/
@@ -11,10 +11,11 @@
     Basic Usage: '/unstable/usage/'
     HTTP: '/unstable/http/'
     Routes: '/unstable/routes/'
+    Route Matching: '/unstable/route-matching/'
     Controllers: '/unstable/controllers/'
     Strategies: '/unstable/strategies/'
     Middleware: '/unstable/middleware/'
-    Cached Router (BETA): '/unstable/cached-router/'
+    Cached Router: '/unstable/cached-router/'
     Dependency Injection: '/unstable/dependency-injection/'
 -
     default: true

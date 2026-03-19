@@ -9,6 +9,10 @@ use Psr\Http\Message\ResponseInterface;
 
 class Exception extends \Exception implements HttpExceptionInterface
 {
+    /**
+     * @param string $message
+     * @param array<string, string> $headers
+     */
     public function __construct(
         protected int $status,
         protected $message = '',
@@ -24,6 +28,9 @@ class Exception extends \Exception implements HttpExceptionInterface
         return $this->status;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getHeaders(): array
     {
         return $this->headers;

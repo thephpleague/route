@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace League\Route;
 
-use Laravel\SerializableClosure\SerializableClosure;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -24,10 +23,18 @@ class Route implements
     use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
-    protected $handler;
+    /** @var \Closure|array<int, mixed>|string|object */
+    protected mixed $handler;
+
+    /** @var array<string> */
+    protected array $defaultVars = [];
+
+    /** @var array<string, string> */
+    protected array $pathVars = [];
 
     /**
      * @param array<string>|string $method
+     * @param callable|array<string>|string|RequestHandlerInterface $handler
      * @param array<string> $vars
      */
     public function __construct(
@@ -35,22 +42,15 @@ class Route implements
         protected string $path,
         callable|array|string|RequestHandlerInterface $handler,
         protected ?RouteGroup $group = null,
-        protected array $vars = []
+        array $vars = []
     ) {
-        if ($handler instanceof \Closure) {
-            $handler = new SerializableClosure($handler);
-        }
-
+        $this->defaultVars = $vars;
         $this->handler = ($handler instanceof RequestHandlerInterface) ? [$handler, 'handle'] : $handler;
     }
 
     public function getCallable(?ContainerInterface $container = null): callable
     {
         $callable = $this->handler;
-
-        if ($callable instanceof SerializableClosure) {
-            $callable = $callable->getClosure();
-        }
 
         if (is_string($callable) && str_contains($callable, '::')) {
             $callable = explode('::', $callable);
@@ -92,6 +92,9 @@ class Route implements
         return $this->group;
     }
 
+    /**
+     * @param array<string, string> $replacements
+     */
     public function getPath(array $replacements = []): string
     {
         $toReplace = [];
@@ -103,12 +106,10 @@ class Route implements
         return preg_replace(array_keys($toReplace), array_values($toReplace), $this->path);
     }
 
-    /**
-     * @return array<string>
-     */
+    /** @return array<string, string> */
     public function getVars(): array
     {
-        return $this->vars;
+        return array_merge($this->defaultVars, $this->pathVars);
     }
 
     public function process(
@@ -138,12 +139,17 @@ class Route implements
         return $this;
     }
 
-    /**
-     * @param array<string> $vars
-     */
+    /** @param array<string> $vars */
     public function setVars(array $vars): self
     {
-        $this->vars = $vars;
+        $this->defaultVars = $vars;
+        return $this;
+    }
+
+    /** @param array<string, string> $pathVars */
+    public function setPathVars(array $pathVars): self
+    {
+        $this->pathVars = $pathVars;
         return $this;
     }
 

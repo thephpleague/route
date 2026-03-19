@@ -12,12 +12,23 @@ tiles-count: 4
 # social settings
 github_url: https://github.com/thephpleague/route
 slack_url: https://thephpleague.slack.com
-twitter_url: https://twitter.com/philipobenito
 
 # build settings
 markdown: kramdown
+highlighter: rouge
 
 permalink: pretty
 
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
 sass:
   style: compressed
+
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+    span:
+      line_numbers: false

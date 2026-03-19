@@ -8,7 +8,7 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/route.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/route)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/route.svg?style=flat-square)](https://packagist.org/packages/league/route)
 
-This package is compliant with [PSR-1], [PSR-2], [PSR-4], [PSR-7], [PSR-11], [PSR-12] and [PSR-15]. If you notice compliance oversights, please send a patch via pull request.
+This package is compliant with [PSR-1], [PSR-2], [PSR-4], [PSR-7], [PSR-11], [PSR-12], [PSR-15], [PSR-16] and [PSR-17]. If you notice compliance oversights, please send a patch via pull request.
 
 [PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
 [PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
@@ -17,6 +17,8 @@ This package is compliant with [PSR-1], [PSR-2], [PSR-4], [PSR-7], [PSR-11], [PS
 [PSR-11]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-11-container.md
 [PSR-12]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-12-extended-coding-style-guide.md
 [PSR-15]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-15-request-handlers.md
+[PSR-16]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md
+[PSR-17]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-17-http-factory.md
 
 ## Install
 
@@ -30,10 +32,10 @@ $ composer require league/route
 
 The following versions of PHP are supported by this version.
 
-* PHP 8.1
 * PHP 8.2
 * PHP 8.3
 * PHP 8.4
+* PHP 8.5
 
 ## Documentation
 

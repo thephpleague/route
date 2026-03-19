@@ -191,6 +191,40 @@ class RouteTest extends TestCase
         ], $route->getMiddlewareStack());
     }
 
+    public function testPreSetVarsSurviveDispatchPathVars(): void
+    {
+        $route = new Route('GET', '/users/{id}', static function () {});
+        $route->setVars(['default_role' => 'viewer']);
+        $route->setPathVars(['id' => '42']);
+
+        $vars = $route->getVars();
+        $this->assertSame('viewer', $vars['default_role']);
+        $this->assertSame('42', $vars['id']);
+    }
+
+    public function testPathVarsTakePrecedenceOverDefaultVars(): void
+    {
+        $route = new Route('GET', '/users/{id}', static function () {});
+        $route->setVars(['id' => 'default']);
+        $route->setPathVars(['id' => '42']);
+
+        $this->assertSame('42', $route->getVars()['id']);
+    }
+
+    public function testSetPathVarsDoesNotAccumulateAcrossMultipleCalls(): void
+    {
+        $route = new Route('GET', '/users/{id}', static function () {});
+        $route->setVars(['default_role' => 'viewer']);
+
+        $route->setPathVars(['id' => '42']);
+        $route->setPathVars(['id' => '99']);
+
+        $vars = $route->getVars();
+        $this->assertSame('99', $vars['id']);
+        $this->assertSame('viewer', $vars['default_role']);
+        $this->assertCount(2, $vars);
+    }
+
     public function testGetPathReplacesWildcards(): void
     {
         $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}', static function () {

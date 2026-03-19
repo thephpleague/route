@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Added
+- `RouterInterface` extending PSR-15 `RequestHandlerInterface` for Router/Cache\Router substitutability.
+- `MatchResult` value object and `MatchStatus` enum for matching routes without dispatching (#328, #352).
+- `Router::match()` method to inspect route matching without executing handlers.
+- `Router::getRoutes()` method to introspect all registered routes (#330).
+- `Route::setPathVars()` for dispatcher-set path parameters, separate from user-set defaults.
+- Index-based route caching with signature hash validation for cache integrity.
+- Corrupt cache auto-recovery in cached router.
+
+### Changed
+- Minimum PHP version raised to 8.2.
+- PHPStan analysis raised from level 4 to level 6.
+- Cached router completely redesigned: caches compiled FastRoute data (scalars only) instead of serialising the entire Router object (#353).
+- `Route::setVars()` now sets declaration-time defaults only; dispatcher uses `setPathVars()` internally (#350).
+- `Route::getVars()` returns merged result of default vars and path vars, with path vars taking precedence.
+- Route compilation is now request-independent: all routes compiled unconditionally, condition matching at dispatch time only.
+- `Cache\Router` now implements `RouterInterface`.
+- `FileCache::getMultiple()`, `setMultiple()`, and `deleteMultiple()` now throw `BadMethodCallException` instead of returning incorrect values.
+
+### Removed
+- `laravel/serializable-closure` removed from hard dependencies (moved to suggest).
+- Closure wrapping removed from `Route` constructor.
+- BETA status removed from cached router.
+- Request-dependent route filtering removed from `prepareRoutes()`.
+- Support for PHP 8.1 dropped.
+
 ## [6.2.0] 2024-11
 
 ### Changed

@@ -8,7 +8,7 @@ sections:
 ---
 ## Introduction
 
-Route has the ability to use a [PSR-11](https://www.php-fig.org/psr/psr-11/) dependency injection container to resolve any classes it needs to instantiate. Using a dependency injection container is no longer forced with route, however, it is very much recommended.
+Route has the ability to use a [PSR-11](https://www.php-fig.org/psr/psr-11/) dependency injection container to resolve any classes it needs to instantiate. Using a dependency injection container is no longer forced with Route, however, it is very much recommended.
 
 ## Recommended Reading
 
@@ -16,7 +16,7 @@ It is recommended that if you have limited or no knowledge of dependency injecti
 
 ## Using a Container
 
-In these examples, we will be using [league/container](https://container.thephpleague.com/) to demonstrate how to easily implement a dependency injection container with route.
+In these examples, we will be using [league/container](https://container.thephpleague.com/) to demonstrate how to easily implement a dependency injection container with Route.
 
 Consider that we have a controller class that needs a template renderer to load and render our HTML templates.
 
@@ -31,31 +31,13 @@ use Laminas\Diactoros\Response;
 
 class SomeController
 {
-    /**
-     * @var \Acme\TemplateRenderer
-     */
-    protected $templateRenderer;
+    public function __construct(
+        protected TemplateRenderer $templateRenderer
+    ) {}
 
-    /**
-     * Construct.
-     *
-     * @param \Acme\TemplateRenderer $templateRenderer
-     */
-    public function __construct(TemplateRenderer $templateRenderer)
-    {
-        $this->templateRenderer = $templateRenderer;
-    }
-
-    /**
-     * Controller.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
-        $body     = $this->templateRenderer->render('some-template');
+        $body = $this->templateRenderer->render('some-template');
         $response = new Response;
 
         $response->getBody()->write($body);
@@ -75,7 +57,7 @@ $container->add(Acme\SomeController::class)->addArgument(Acme\TemplateRenderer::
 $container->add(Acme\TemplateRenderer::class);
 
 $strategy = (new League\Route\Strategy\ApplicationStrategy)->setContainer($container);
-$router   = (new League\Route\Router)->setStrategy($strategy);
+$router = (new League\Route\Router)->setStrategy($strategy);
 
 $router->map('GET', '/', Acme\SomeController::class);
 ~~~

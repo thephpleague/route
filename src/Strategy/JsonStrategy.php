@@ -38,6 +38,9 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         return $this->buildJsonResponseMiddleware($exception);
     }
 
+    /**
+     * @param array<string> $methods
+     */
     public function getOptionsCallable(array $methods): callable
     {
         return function () use ($methods): ResponseInterface {
@@ -52,7 +55,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
     {
         return new class ($this->responseFactory->createResponse()) implements MiddlewareInterface
         {
-            protected $response;
+            protected ResponseInterface $response;
 
             public function __construct(ResponseInterface $response)
             {
@@ -102,8 +105,8 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
     {
         return new class ($this->responseFactory->createResponse(), $exception) implements MiddlewareInterface
         {
-            protected $response;
-            protected $exception;
+            protected ResponseInterface $response;
+            protected Http\Exception $exception;
 
             public function __construct(ResponseInterface $response, Http\Exception $exception)
             {
@@ -120,7 +123,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         };
     }
 
-    protected function isJsonSerializable($response): bool
+    protected function isJsonSerializable(mixed $response): bool
     {
         if ($response instanceof ResponseInterface) {
             return false;

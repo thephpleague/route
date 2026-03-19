@@ -6,6 +6,8 @@ sections:
     Route Conditions: route-conditions
     Route Groups: route-groups
     Wildcard Routes: wildcard-routes
+    Route Introspection: route-introspection
+    Default Route Variables: default-route-variables
 ---
 ## Request Verbs
 
@@ -113,7 +115,7 @@ GET /admin/acme/route3
 
 ### Named Routes
 
-Named routes helps when you want to retrieve a Route by a human friendly label. 
+Named routes helps when you want to retrieve a Route by a human friendly label.
 
 ~~~php
 <?php declare(strict_types=1);
@@ -238,3 +240,64 @@ $router->map('GET', 'user/mTeam/{name:wordStartsWithM}', function (
 ~~~
 
 The above pattern matcher will create an internal regular expression string: `{$1:(m|M)[a-zA-Z]+}`, where `$1` will interpret to `name`, the variable listed before the colon.
+
+## Route Introspection
+
+You can retrieve all routes registered on the router using the `getRoutes()` method. This returns an array of all registered `Route` objects, including those defined within route groups. This is useful for route debugging, documentation generation, and advanced routing scenarios.
+
+~~~php
+<?php declare(strict_types=1);
+
+$router = new League\Route\Router;
+
+$router->get('/users', 'UserController::index');
+$router->post('/users', 'UserController::store');
+$router->get('/users/{id}', 'UserController::show');
+
+$routes = $router->getRoutes();
+
+foreach ($routes as $route) {
+    echo $route->getMethod() . ' ' . $route->getPath() . PHP_EOL;
+}
+~~~
+
+Each `Route` object provides methods to inspect its configuration:
+
+- `getMethod()` - the HTTP method(s)
+- `getPath()` - the route path pattern
+- `getName()` - the route name (if set)
+- `getHost()` - the route host condition (if set)
+- `getScheme()` - the route scheme condition (if set)
+- `getPort()` - the route port condition (if set)
+- `getVars()` - the route variables (merged defaults and path variables)
+
+## Default Route Variables
+
+Routes can have default variables set that will be merged with any path variables captured during route matching. This is useful for providing context or permissions to your controllers.
+
+~~~php
+<?php declare(strict_types=1);
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+$router = new League\Route\Router;
+
+$router->map('GET', '/users/{id}', function (ServerRequestInterface $request, array $args): ResponseInterface {
+    $userId = $args['id'];
+    $userRole = $args['role'];
+    // ...
+})
+    ->setVars(['role' => 'viewer']);
+~~~
+
+When this route is matched, the `$args` array passed to the controller will contain both the default variable and the path variable:
+
+~~~php
+[
+    'role' => 'viewer',  // from setVars()
+    'id' => '42'         // from path matching {id}
+]
+~~~
+
+This allows you to separate configuration defaults from dynamic route parameters, providing cleaner, more maintainable code.

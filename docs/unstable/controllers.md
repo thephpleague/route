@@ -9,13 +9,13 @@ sections:
 ---
 ## Introduction
 
-Every defined route requires a `callable` to invoke when dispatched, something that could be described as a controller in MVC. By default, Route only imposes that the callable is defined with a specific signature, it is given a request object as the first argument, an associative array of wildcard route arguments as the second argument, and expects a response object to be returned. Read more about this in [HTTP](/5.x/http).
+Every defined route requires a `callable` to invoke when dispatched, something that could be described as a controller in MVC. By default, Route only imposes that the callable is defined with a specific signature, it is given a request object as the first argument, an associative array of wildcard route arguments as the second argument, and expects a response object to be returned. Read more about this in [HTTP](/unstable/http).
 
-This behaviour can be changed by creating/using a different strategy, read more about strategies [here](/5.x/strategies).
+This behaviour can be changed by creating or using a different strategy, read more about strategies [here](/unstable/strategies).
 
 ## Defining Controllers
 
-Defining what controller is invoked when a route is matched is as easy as padding a callable as the the third argument of the `map` method or the second argument of the proxy methods for different request verbs, `get`, `post` etc.
+Defining what controller is invoked when a route is matched is as easy as passing a callable as the third argument of the `map` method or the second argument of the proxy methods for different request verbs, `get`, `post` etc.
 
 ~~~php
 <?php declare(strict_types=1);
@@ -38,7 +38,7 @@ $router->get('/another-route', function (ServerRequestInterface $request): Respo
 
 As mentioned above, Route will dispatch any `callable` when a route is matched.
 
-For performance reasons, Route also allows you to define controllers as a type of proxy, there are two of these proxies that will allow you to define strings and the actually callable will be built when Route dispatches it.
+For performance reasons, Route also allows you to define controllers as a type of proxy, there are two of these proxies that will allow you to define strings and the actual callable will be built when Route dispatches it.
 
 ### Closure
 
@@ -71,13 +71,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class SomeController
 {
-    /**
-     * Controller.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
     public function someMethod(ServerRequestInterface $request): ResponseInterface
     {
         // ...
@@ -107,13 +100,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class SomeController
 {
-    /**
-     * Controller.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         // ...
@@ -143,13 +129,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class SomeController
 {
-    /**
-     * Controller.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
     public function someMethod(ServerRequestInterface $request): ResponseInterface
     {
         // ...
@@ -177,13 +156,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class SomeController
 {
-    /**
-     * Controller.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         // ...
@@ -211,13 +183,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class SomeController
 {
-    /**
-     * Controller.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
     public function someMethod(ServerRequestInterface $request): ResponseInterface
     {
         // ...
@@ -243,13 +208,6 @@ namespace Acme;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * Controller.
- *
- * @param \Psr\Http\Message\ServerRequestInterface $request
- *
- * @return \Psr\Http\Message\ResponseInterface
- */
 function controller(ServerRequestInterface $request): ResponseInterface
 {
     // ...
@@ -265,6 +223,7 @@ $router->map('GET', '/', 'Acme\controller');
 ~~~
 
 ### PSR-15 Middleware
+
 ~~~php
 <?php declare(strict_types=1);
 
@@ -272,16 +231,10 @@ namespace Acme;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class SomeController implements \Psr\Http\Server\RequestHandlerInterface
+class SomeController implements RequestHandlerInterface
 {
-    /**
-     * Controller.
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         // ...
@@ -304,4 +257,4 @@ $router->map('GET', '/', Acme\SomeController::class);
 
 ## Dependency Injection
 
-Where Route is instantiating the objects for your defined controller, a dependency injection container can be used to resolve those objects. Read more on dependency injection [here](/5.x/dependency-injection/).
+Where Route is instantiating the objects for your defined controller, a dependency injection container can be used to resolve those objects. Read more on dependency injection [here](/unstable/dependency-injection/).

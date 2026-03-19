@@ -3,14 +3,15 @@ layout: post
 title: Usage
 sections:
     Introduction: introduction
+    What's New in 7.0: whats-new-in-70
     Hello, World!: hello-world
     APIs: apis
 ---
 ## Introduction
 
 It is very easy to get up and running with Route. You can use [Composer][composer]
-to install and manage your installation of Route. You'll [need to install][dependencies] 
-both the Route project and an implementation of the [PSR-7 message interface][psr7]. 
+to install and manage your installation of Route. You'll [need to install][dependencies]
+both the Route project and an implementation of the [PSR-7 message interface][psr7].
 
 First, install the Route project itself:
 
@@ -29,11 +30,23 @@ If you use [Laminas Diactoros project][diactoros] you will also need
 composer require laminas/laminas-httphandlerrunner
 ~~~
 
-Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/5.x/dependency-injection) for more information.
+Optionally, you could also install a PSR-11 dependency injection container, see [Dependency Injection](/unstable/dependency-injection) for more information.
 
 ~~~
 composer require league/container
 ~~~
+
+## What's New in 7.0
+
+Version 7.0 introduces several powerful new features:
+
+- **RouterInterface**: A new `RouterInterface` that extends PSR-15's `RequestHandlerInterface`, providing type-safe dependency injection. Both `Router` and `Cache\Router` implement this interface.
+- **Route Matching**: The new `match()` method allows you to check if a route matches without executing it. It returns a `MatchResult` value object with a `MatchStatus` enum (Found, NotFound, MethodNotAllowed).
+- **Route Introspection**: Retrieve all registered routes with `getRoutes()`, useful for route debugging, documentation, and advanced routing scenarios.
+- **Improved Cached Router**: The cached router is no longer BETA. It caches compiled FastRoute data (not the router object itself) and automatically recovers from corrupt caches.
+- **PHP 8.2 Minimum**: Requires PHP 8.2.0 or higher.
+
+See [Route Matching](/unstable/route-matching) for more details on the new matching capabilities.
 
 ## Hello, World!
 
@@ -53,7 +66,6 @@ $request = Laminas\Diactoros\ServerRequestFactory::fromGlobals(
 
 $router = new League\Route\Router;
 
-// map a route
 $router->map('GET', '/', function (ServerRequestInterface $request): ResponseInterface {
     $response = new Laminas\Diactoros\Response;
     $response->getBody()->write('<h1>Hello, World!</h1>');
@@ -62,7 +74,6 @@ $router->map('GET', '/', function (ServerRequestInterface $request): ResponseInt
 
 $response = $router->dispatch($request);
 
-// send the response to the browser
 (new Laminas\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);
 ~~~
 
@@ -89,7 +100,6 @@ $responseFactory = new Laminas\Diactoros\ResponseFactory();
 $strategy = new League\Route\Strategy\JsonStrategy($responseFactory);
 $router   = (new League\Route\Router)->setStrategy($strategy);
 
-// map a route
 $router->map('GET', '/', function (ServerRequestInterface $request): array {
     return [
         'title'   => 'My New Simple API',
@@ -99,7 +109,6 @@ $router->map('GET', '/', function (ServerRequestInterface $request): array {
 
 $response = $router->dispatch($request);
 
-// send the response to the browser
 (new Laminas\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);
 ~~~
 
