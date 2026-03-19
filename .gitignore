@@ -1,16 +1,31 @@
-build
+# Dependencies
+build/
+vendor/
 composer.lock
-vendor
-.sass-cache
+
+# IDE & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
 .phpunit*
 .phpcs*
+coverage/
+
+# Caching
+.sass-cache/
+.jekyll-cache/
+
+# Local environment
+*mise.toml*
+.env.local
 
 ### Jekyll ###
-.jekyll-cache
 docs/_site/
 docs/.sass-cache/
 docs/.jekyll-cache/
 docs/.jekyll-metadata
-
-### PhpStorm ###
-.idea/
