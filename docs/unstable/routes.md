@@ -121,7 +121,6 @@ Named routes helps when you want to retrieve a Route by a human friendly label.
 <?php declare(strict_types=1);
 
 $router = new League\Route\Router;
-$request = new Request; // Psr/Http/Message/ServerRequestInterface
 
 $router->group('/admin', function (\League\Route\RouteGroup $route) {
     $route->map('GET', '/acme/route1', 'AcmeController::actionOne')->setName('actionOne');
@@ -191,7 +190,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 $router = new League\Route\Router;
 
-// this route will only match if {id} is numeric and {name} is a alpha
 $router->map('GET', '/user/{id:number}/{name:word}', function (ServerRequestInterface $request, array $args): ResponseInterface {
     // $args = [
     //     'id'   => {id},  // the actual value of {id}

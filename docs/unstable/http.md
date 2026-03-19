@@ -66,6 +66,25 @@ See more about controllers [here](/unstable/controllers).
 
 Route does not provide any functionality for dealing with globals such as `$_GET`, `$_POST` etc, this is all handled by your [PSR-7](https://www.php-fig.org/psr/psr-7/) implementation, please refer to that documentation for details on how to interact with input on the request object.
 
+### Route Attributes
+
+When a route is matched, Route sets the route variables (wildcard segments and defaults from `setVars()`) as PSR-7 request attributes. This means you can retrieve them either from the `$args` array passed to your controller or directly from the request:
+
+~~~php
+<?php declare(strict_types=1);
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+$router = new League\Route\Router;
+
+$router->map('GET', '/user/{id}', function (ServerRequestInterface $request, array $args): ResponseInterface {
+    $idFromArgs    = $args['id'];
+    $idFromRequest = $request->getAttribute('id');
+    // ...
+});
+~~~
+
 ## The Response
 
 Because Route is built around PSR-15, this means that middleware and controllers are handled in a [single pass](https://www.php-fig.org/psr/psr-15/meta/#52-single-pass-lambda) approach. What this means in practice is that all middleware is passed a request object but is expected to build and return its own response or pass off to the next middleware in the stack for that to create one. Any controller that is dispatched via Route is wrapped in a middleware that adheres to this.

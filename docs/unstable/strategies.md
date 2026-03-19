@@ -237,14 +237,13 @@ You can build your own custom strategy to use in your application as long as it 
 1. Providing a middleware that invokes your controller then decorates and returns your controllers response.
 2. Providing a middleware that will decorate a 404 `NotFoundException` and return a response.
 3. Providing a middleware that will decorate a 405 `MethodNotAllowedException` and return a response.
-4. Providing a middleware that will decorate any other exception and return a response.
+4. Providing a middleware that will decorate any other throwable and return a response.
 
 ~~~php
-<?php
+<?php declare(strict_types=1);
 
 namespace League\Route\Strategy;
 
-use Exception;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
@@ -252,41 +251,11 @@ use Psr\Http\Server\MiddlewareInterface;
 
 interface StrategyInterface
 {
-    /**
-     * Invoke the route callable based on the strategy.
-     *
-     * @param \League\Route\Route                      $route
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface;
-
-    /**
-     * Get a middleware that will decorate a NotFoundException
-     *
-     * @param \League\Route\Http\Exception\NotFoundException $exception
-     *
-     * @return \Psr\Http\Server\MiddlewareInterface
-     */
-    public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface;
-
-    /**
-     * Get a middleware that will decorate a NotAllowedException
-     *
-     * @param \League\Route\Http\Exception\NotFoundException $exception
-     *
-     * @return \Psr\Http\Server\MiddlewareInterface
-     */
+    public function addResponseDecorator(callable $decorator): self;
     public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface;
-
-    /**
-     * Get a middleware that acts as an exception handler, it should wrap the rest of the
-     * middleware stack and catch any exceptions.
-     *
-     * @return \Psr\Http\Server\MiddlewareInterface
-     */
-    public function getExceptionHandler(): MiddlewareInterface;
+    public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface;
+    public function getThrowableHandler(): MiddlewareInterface;
+    public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface;
 }
 ~~~
 

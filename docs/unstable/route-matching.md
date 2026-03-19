@@ -23,9 +23,9 @@ The new `RouterInterface` extends PSR-15's `RequestHandlerInterface` and is impl
 
 use League\Route\RouterInterface;
 
-interface SomeServiceInterface
+class SomeService
 {
-    public function __construct(RouterInterface $router);
+    public function __construct(private RouterInterface $router) {}
 }
 ~~~
 
@@ -36,18 +36,18 @@ By type-hinting against the `RouterInterface` instead of a concrete class, you c
 
 $container = new League\Container\Container;
 
-// Use the standard router
 $container->add(League\Route\RouterInterface::class, League\Route\Router::class);
-
-// Or use the cached router instead
-$container->add(League\Route\RouterInterface::class, League\Route\Cache\Router::class);
 ~~~
 
-The `RouterInterface` defines three methods:
+The `Cache\Router` requires a builder callable and a cache store as constructor arguments, so it must be bound via a factory closure. See [Dependency Injection](/unstable/dependency-injection) for full examples.
+
+The `RouterInterface` declares two methods and inherits one from `RequestHandlerInterface`:
 
 - `dispatch(ServerRequestInterface $request): ResponseInterface` - Dispatch the request and return a response
 - `match(ServerRequestInterface $request): MatchResult` - Match the request and return a result without executing
-- `handle(ServerRequestInterface $request): ResponseInterface` - PSR-15 request handler method (same as dispatch)
+- `handle(ServerRequestInterface $request): ResponseInterface` - Inherited from PSR-15 `RequestHandlerInterface`
+
+See [Dependency Injection](/unstable/dependency-injection) for examples of binding `RouterInterface` in a container.
 
 ## Matching Routes
 
@@ -83,10 +83,9 @@ The `MatchResult` value object contains the result of a route match operation. I
 ### Properties and Methods
 
 - `isFound(): bool` - Returns true if a route was found and the method is allowed
-- `isNotFound(): bool` - Returns true if no route matched the path
 - `isMethodNotAllowed(): bool` - Returns true if a route matched the path but the HTTP method is not allowed
-- `getRoute(): ?Route` - Returns the matched `Route` object if found, null otherwise
-- `getAllowedMethods(): array` - Returns the array of allowed methods if the route was found but method not allowed
+- `getRoute(): Route` - Returns the matched `Route` object; throws `\LogicException` if the result is not `Found`
+- `getAllowedMethods(): array` - Returns the allowed HTTP methods; throws `\LogicException` if the result is not `MethodNotAllowed`
 - `getStatus(): MatchStatus` - Returns the `MatchStatus` enum value
 
 ~~~php
@@ -122,7 +121,7 @@ switch ($result->getStatus()) {
 Check if a user has permission to access a route before dispatching:
 
 ~~~php
-<?php declare(straight_types=1);
+<?php declare(strict_types=1);
 
 use League\Route\Router;
 
@@ -147,7 +146,7 @@ return $router->dispatch($request);
 Log or debug information about matched routes during development:
 
 ~~~php
-<?php declare(straight_types=1);
+<?php declare(strict_types=1);
 
 $result = $router->match($request);
 
@@ -163,7 +162,7 @@ if ($result->isFound()) {
 Make decisions based on whether a route exists:
 
 ~~~php
-<?php declare(straight_types=1);
+<?php declare(strict_types=1);
 
 $adminResult = $router->match($adminRequest);
 $publicResult = $router->match($publicRequest);
@@ -178,7 +177,7 @@ if ($adminResult->isFound() && $publicResult->isFound()) {
 Build route maps or documentation by iterating routes and matching them:
 
 ~~~php
-<?php declare(straight_types=1);
+<?php declare(strict_types=1);
 
 foreach ($router->getRoutes() as $route) {
     // Create a fake request for matching

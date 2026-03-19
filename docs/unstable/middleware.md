@@ -5,6 +5,7 @@ sections:
     Introduction: introduction
     Example Middleware: example-middleware
     Defining Middleware: defining-middleware
+    Lazy Middleware: lazy-middleware
     Middleware Order: middleware-order
     Route as a Middleware: route-as-a-middleware
 ---
@@ -35,18 +36,10 @@ class AuthMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // determine authentication and/or authorisation
-        // ...
-
-        // if user has auth, use the request handler to continue to the next
-        // middleware and ultimately reach your route callable
         if ($auth === true) {
             return $handler->handle($request);
         }
 
-        // if user does not have auth, possibly return a redirect response,
-        // this will not continue to any further middleware and will never
-        // reach your route callable
         return new RedirectResponse(/* .. */);
     }
 }
@@ -99,6 +92,34 @@ $router
 ;
 ~~~
 
+## Lazy Middleware
+
+If you are using a PSR-11 dependency injection container, you can register middleware by class name using `lazyMiddleware()`. The middleware will be resolved from the container (or instantiated directly) at dispatch time, rather than upfront:
+
+~~~php
+<?php declare(strict_types=1);
+
+$router = new League\Route\Router;
+
+$router->lazyMiddleware(Acme\AuthMiddleware::class);
+
+// Or add multiple at once
+$router->lazyMiddlewares([
+    Acme\AuthMiddleware::class,
+    Acme\LoggingMiddleware::class,
+]);
+~~~
+
+You can also prepend a lazy middleware to the front of the stack:
+
+~~~php
+<?php declare(strict_types=1);
+
+$router->lazyPrependMiddleware(Acme\AuthMiddleware::class);
+~~~
+
+These lazy variants are available on the router, route groups, and individual routes, mirroring the eager `middleware()` methods.
+
 ## Middleware Order
 
 Middleware is invoked in a specific order but depending on the logic contained in a middleware, you can control whether your code is run before or after your controller is invoked.
@@ -126,12 +147,9 @@ class SomeMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // invoke the rest of the middleware stack and your controller resulting
-        // in a returned response object
         $response = $handler->handle($request);
 
         // ...
-        // do something with the response
         return $response;
     }
 }
@@ -139,4 +157,4 @@ class SomeMiddleware implements MiddlewareInterface
 
 ## Route as a Middleware
 
-League\Route is itself a Request Handler, so an instance of `League\Route\Router` can be added to any existing middleware stack.
+`League\Route\Router` implements `League\Route\RouterInterface`, which extends PSR-15's `RequestHandlerInterface`. This means an instance of `League\Route\Router` can be added to any existing middleware stack as a request handler.

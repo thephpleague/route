@@ -31,8 +31,8 @@ This design ensures:
 
 - Fast startup times after the first request
 - Reliable cache invalidation when routes change
-- No serialisation of your entire application or controller instances
-- Support for closures and container-resolved handlers
+- Only plain PHP arrays (the compiled FastRoute route data) are serialised, not the entire Router object or any controller instances
+- Support for closures and container-resolved handlers, since closure-based controllers are never serialised
 - Automatic recovery from corruption
 
 ## Usage
@@ -45,7 +45,7 @@ Using the cached router is very similar to the standard router, but you pass a b
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-$cacheStore = new League\Route\Cache\FileCache('/path/to/cache/file.cache', $ttl = 86400);
+$cacheStore = new League\Route\Cache\FileCache('/path/to/cache/file.cache', 86400);
 
 $cachedRouter = new League\Route\Cache\Router(
     function (League\Route\Router $router): League\Route\Router {
@@ -87,7 +87,7 @@ $cachedRouter = new League\Route\Cache\Router(
 ~~~
 
 - `cacheEnabled: bool` (default: true) - Set to false to disable caching temporarily
-- `cacheKey: string` (default: 'route') - Custom cache key for multiple router instances
+- `cacheKey: string` (default: 'league/route/cache') - Custom cache key for multiple router instances
 
 ## Cache Stores
 
@@ -102,31 +102,17 @@ Route includes a `League\Route\Cache\FileCache` implementation that stores the c
 
 $cache = new League\Route\Cache\FileCache(
     '/path/to/cache/file.cache',
-    $ttl = 86400  // Time-to-live in seconds (optional, default: 86400)
+    86400
 );
 
 $cachedRouter = new League\Route\Cache\Router($builder, $cache);
 ~~~
 
-The FileCache requires a writable directory and will automatically create the cache file.
+The FileCache requires a writable directory and will automatically create the cache file. The second argument is the TTL in seconds.
 
 ### PSR-16 Compatible Stores
 
-You can use any PSR-16 simple cache implementation, such as:
-
-- Redis (via redis-adapter/cache)
-- Memcached
-- APCu
-- Any custom implementation
-
-~~~php
-<?php declare(strict_types=1);
-
-// Example with league/container's PSR-16 adapter
-$cache = new SomeRedisCache();
-
-$cachedRouter = new League\Route\Cache\Router($builder, $cache);
-~~~
+Any PSR-16 compatible cache implementation will work. Browse available implementations at [Packagist](https://packagist.org/providers/psr/simple-cache-implementation).
 
 ## Cache Invalidation
 
@@ -141,13 +127,21 @@ This means you don't need to manually clear the cache when routes change. It hap
 
 ### Manual Cache Clearing
 
-If you need to manually clear the cache (for example, during deployment or testing), you can delete the cache file or use your cache store's `clear()` method:
+If you need to manually clear the cache (for example, during deployment or testing), you can use your cache store's `delete()` or `clear()` method:
 
 ~~~php
-<?php declare(straight_types=1);
+<?php declare(strict_types=1);
 
-$cache->delete('route');  // Clear the default cache key
-$cache->delete('my-custom-key');  // Clear a custom cache key
+$cache->clear();
+~~~
+
+If you are using a PSR-16 store with named keys, use `delete()` with the matching key:
+
+~~~php
+<?php declare(strict_types=1);
+
+$cache->delete('league/route/cache');
+$cache->delete('my-custom-key');
 ~~~
 
 ### Handling Corruption
@@ -161,28 +155,25 @@ Both the standard `Router` and the `Cache\Router` implement the new `RouterInter
 Type-hint against `RouterInterface` in your dependency injection container:
 
 ~~~php
-<?php declare(straight_types=1);
+<?php declare(strict_types=1);
 
 use League\Route\RouterInterface;
 
 $container = new League\Container\Container;
 
-// Use the standard router
 $container->add(
     RouterInterface::class,
     League\Route\Router::class
 );
 
-// Or use the cached router instead
 $container->add(
     RouterInterface::class,
     function (): RouterInterface {
         return new League\Route\Cache\Router(
             function (League\Route\Router $router): League\Route\Router {
-                // Register your routes here
                 return $router;
             },
-            new League\Route\Cache\FileCache('/tmp/route.cache')
+            new League\Route\Cache\FileCache('/tmp/route.cache', 86400)
         );
     }
 );
@@ -191,7 +182,7 @@ $container->add(
 This enables you to switch between routers based on environment or configuration:
 
 ~~~php
-<?php declare(straight_types=1);
+<?php declare(strict_types=1);
 
 $cacheEnabled = $_ENV['ROUTE_CACHE'] ?? true;
 

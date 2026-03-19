@@ -5,6 +5,7 @@ sections:
     Introduction: introduction
     Recommended Reading: recommended-reading
     Using a Container: using-a-container
+    Binding RouterInterface: binding-routerinterface
 ---
 ## Introduction
 
@@ -60,4 +61,47 @@ $strategy = (new League\Route\Strategy\ApplicationStrategy)->setContainer($conta
 $router = (new League\Route\Router)->setStrategy($strategy);
 
 $router->map('GET', '/', Acme\SomeController::class);
+~~~
+
+## Binding RouterInterface
+
+Both `League\Route\Router` and `League\Route\Cache\Router` implement `League\Route\RouterInterface`. You can bind this interface in your container so that any service type-hinting against `RouterInterface` will receive the correct implementation:
+
+~~~php
+<?php declare(strict_types=1);
+
+use League\Route\RouterInterface;
+
+$container = new League\Container\Container;
+
+$container->add(RouterInterface::class, function () use ($container): RouterInterface {
+    $strategy = (new League\Route\Strategy\ApplicationStrategy)->setContainer($container);
+    $router   = (new League\Route\Router)->setStrategy($strategy);
+
+    $router->map('GET', '/', Acme\SomeController::class);
+
+    return $router;
+});
+~~~
+
+This allows you to swap in the cached router for production without changing any code that depends on `RouterInterface`:
+
+~~~php
+<?php declare(strict_types=1);
+
+use League\Route\RouterInterface;
+
+$container->add(RouterInterface::class, function () use ($container): RouterInterface {
+    $builder = function (League\Route\Router $router) use ($container): League\Route\Router {
+        $strategy = (new League\Route\Strategy\ApplicationStrategy)->setContainer($container);
+        $router->setStrategy($strategy);
+        $router->map('GET', '/', Acme\SomeController::class);
+        return $router;
+    };
+
+    return new League\Route\Cache\Router(
+        $builder,
+        new League\Route\Cache\FileCache('/tmp/route.cache', 86400)
+    );
+});
 ~~~

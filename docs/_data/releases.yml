@@ -17,6 +17,7 @@
     Middleware: '/unstable/middleware/'
     Cached Router: '/unstable/cached-router/'
     Dependency Injection: '/unstable/dependency-injection/'
+    Upgrade Guide: '/unstable/upgrade/'
 -
     default: true
     version: 6.x
