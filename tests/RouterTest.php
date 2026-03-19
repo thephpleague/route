@@ -87,7 +87,8 @@ class RouterTest extends TestCase
         $request->method('getUri')->willReturn($uri);
 
         $router = new Router();
-        $router->map('GET', '/example/{something}', static function () {});
+        $router->map('GET', '/example/{something}', static function () {
+        });
 
         $result = $router->match($request);
 
@@ -105,7 +106,8 @@ class RouterTest extends TestCase
         $request->method('getUri')->willReturn($uri);
 
         $router = new Router();
-        $router->map('GET', '/example/{something}', static function () {});
+        $router->map('GET', '/example/{something}', static function () {
+        });
 
         $result = $router->match($request);
 
@@ -123,7 +125,8 @@ class RouterTest extends TestCase
         $request->method('getUri')->willReturn($uri);
 
         $router = new Router();
-        $router->map('GET', '/example/{something}', static function () {});
+        $router->map('GET', '/example/{something}', static function () {
+        });
 
         $result = $router->match($request);
 
@@ -136,8 +139,10 @@ class RouterTest extends TestCase
     public function testGetRoutesReturnsRegisteredRoutes(): void
     {
         $router = new Router();
-        $router->get('/foo', static function () {});
-        $router->post('/bar', static function () {});
+        $router->get('/foo', static function () {
+        });
+        $router->post('/bar', static function () {
+        });
 
         $routes = $router->getRoutes();
         $this->assertCount(2, $routes);
@@ -148,8 +153,10 @@ class RouterTest extends TestCase
     public function testGetRoutesIncludesNamedRoutes(): void
     {
         $router = new Router();
-        $router->get('/foo', static function () {})->setName('foo.route');
-        $router->get('/bar', static function () {});
+        $router->get('/foo', static function () {
+        })->setName('foo.route');
+        $router->get('/bar', static function () {
+        });
 
         $routes = $router->getRoutes();
         $this->assertCount(2, $routes);
@@ -158,9 +165,11 @@ class RouterTest extends TestCase
     public function testGetRoutesIncludesGroupRoutes(): void
     {
         $router = new Router();
-        $router->get('/top', static function () {});
+        $router->get('/top', static function () {
+        });
         $router->group('/api', function ($group) {
-            $group->get('/users', static function () {});
+            $group->get('/users', static function () {
+            });
         });
 
         $routes = $router->getRoutes();
@@ -179,9 +188,11 @@ class RouterTest extends TestCase
     {
         $router = new Router();
         $router->setStrategy(new \League\Route\Strategy\ApplicationStrategy());
-        $router->get('/foo', static function () {});
+        $router->get('/foo', static function () {
+        });
         $router->group('/api', function ($group) {
-            $group->get('/bar', static function () {});
+            $group->get('/bar', static function () {
+            });
         });
 
         $routesBefore = $router->getRoutes();
@@ -194,7 +205,8 @@ class RouterTest extends TestCase
     public function testSetRoutesDataInjectsCachedState(): void
     {
         $router = new Router();
-        $router->map('GET', '/foo', static function () {});
+        $router->map('GET', '/foo', static function () {
+        });
 
         $request = $this->createMock(ServerRequestInterface::class);
         $uri = $this->createMock(UriInterface::class);
@@ -210,7 +222,8 @@ class RouterTest extends TestCase
         $this->assertNotEmpty($map);
 
         $newRouter = new Router();
-        $newRouter->map('GET', '/foo', static function () {});
+        $newRouter->map('GET', '/foo', static function () {
+        });
         $newRouter->setRoutesData($data, $map);
 
         $result = $newRouter->match($request);
@@ -228,7 +241,8 @@ class RouterTest extends TestCase
         $request->method('getUri')->willReturn($uri);
 
         $router = new Router();
-        $router->map('GET', '/secure', static function () {})->setScheme('https');
+        $router->map('GET', '/secure', static function () {
+        })->setScheme('https');
 
         $result = $router->match($request);
         $this->assertFalse($result->isFound());
@@ -245,7 +259,8 @@ class RouterTest extends TestCase
         $request->method('getUri')->willReturn($uri);
 
         $router = new Router();
-        $router->map('GET', '/api/users', static function () {})->setHost('api.example.com');
+        $router->map('GET', '/api/users', static function () {
+        })->setHost('api.example.com');
 
         $result = $router->match($request);
         $this->assertFalse($result->isFound());

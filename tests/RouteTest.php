@@ -193,7 +193,8 @@ class RouteTest extends TestCase
 
     public function testPreSetVarsSurviveDispatchPathVars(): void
     {
-        $route = new Route('GET', '/users/{id}', static function () {});
+        $route = new Route('GET', '/users/{id}', static function () {
+        });
         $route->setVars(['default_role' => 'viewer']);
         $route->setPathVars(['id' => '42']);
 
@@ -204,7 +205,8 @@ class RouteTest extends TestCase
 
     public function testPathVarsTakePrecedenceOverDefaultVars(): void
     {
-        $route = new Route('GET', '/users/{id}', static function () {});
+        $route = new Route('GET', '/users/{id}', static function () {
+        });
         $route->setVars(['id' => 'default']);
         $route->setPathVars(['id' => '42']);
 
@@ -213,7 +215,8 @@ class RouteTest extends TestCase
 
     public function testSetPathVarsDoesNotAccumulateAcrossMultipleCalls(): void
     {
-        $route = new Route('GET', '/users/{id}', static function () {});
+        $route = new Route('GET', '/users/{id}', static function () {
+        });
         $route->setVars(['default_role' => 'viewer']);
 
         $route->setPathVars(['id' => '42']);

@@ -171,7 +171,8 @@ class RouterTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $router = new Router(function (MainRouter $router): MainRouter {
-            $router->map('GET', '/example/{something}', static function () {});
+            $router->map('GET', '/example/{something}', static function () {
+            });
             return $router;
         }, $cache);
 

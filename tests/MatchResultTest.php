@@ -10,7 +10,8 @@ class MatchResultTest extends TestCase
 {
     public function testFoundResult(): void
     {
-        $route = new Route('GET', '/test', static function () {});
+        $route = new Route('GET', '/test', static function () {
+        });
         $result = MatchResult::found($route);
 
         $this->assertTrue($result->isFound());
@@ -47,7 +48,8 @@ class MatchResultTest extends TestCase
     public function testGetAllowedMethodsThrowsOnFound(): void
     {
         $this->expectException(\LogicException::class);
-        $route = new Route('GET', '/test', static function () {});
+        $route = new Route('GET', '/test', static function () {
+        });
         MatchResult::found($route)->getAllowedMethods();
     }
 }
