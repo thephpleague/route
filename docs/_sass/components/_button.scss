@@ -5,7 +5,6 @@
 ///
 
 /* Button */
-
 	input[type="submit"],
 	input[type="reset"],
 	input[type="button"],
@@ -24,6 +23,7 @@
 		color: _palette(fg-bold);
 		cursor: pointer;
 		display: inline-block;
+		font-family: _font(family-sans);
 		font-size: 0.8em;
 		font-weight: _font(weight-bold);
 		height: 3.5em;
@@ -36,6 +36,7 @@
 		white-space: nowrap;
 
 		&:hover, &:active {
+			background-color: _palette(highlight);
 			box-shadow: inset 0 0 0 2px _palette(highlight);
 			color: _palette(highlight);
 		}
@@ -108,18 +109,30 @@
 			}
 		}
 
+		&.special.next {
+			&:before {
+				background-image: svg-url('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="36px" height="24px" viewBox="0 0 36 24" zoomAndPan="disable"><style>line { stroke: #{_palette(bg)}; stroke-width: 2px; }</style><line x1="0" y1="12" x2="34" y2="12" /><line x1="25" y1="4" x2="34" y2="12.5" /><line x1="25" y1="20" x2="34" y2="11.5" /></svg>');
+			}
+
+			&:after {
+				background-image: svg-url('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="36px" height="24px" viewBox="0 0 36 24" zoomAndPan="disable"><style>line { stroke: #{_palette(bg)}; stroke-width: 2px; }</style><line x1="0" y1="12" x2="34" y2="12" /><line x1="25" y1="4" x2="34" y2="12.5" /><line x1="25" y1="20" x2="34" y2="11.5" /></svg>');
+			}
+		}
+
 		&.special {
 			background-color: _palette(fg-bold);
 			box-shadow: none;
 			color: _palette(bg);
 
-			&:hover, &:active {
+			&:hover {
 				background-color: _palette(highlight);
+				box-shadow: none;
 				color: _palette(bg) !important;
 			}
 
 			&:active {
 				background-color: desaturate(darken(_palette(highlight), 15), 5);
+				box-shadow: none;
 			}
 		}
 

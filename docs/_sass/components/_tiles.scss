@@ -34,7 +34,8 @@
 			min-height: 23em;
 			overflow: hidden;
 			position: relative;
-			width: 25%;
+			width: calc(100% / 3);
+			font-family: _font(family-sans);
 
 			.image {
 				display: none;
@@ -47,10 +48,18 @@
 
 			h3 {
 				font-size: 1.75em;
+				font-family: _font(family-sans);
+				color: #ffffff;
+				padding-bottom: 0.5em;
+				margin-bottom: 1em;
 
 				a {
+					color: inherit;
+					border-bottom: none !important;
+
 					&:hover {
 						color: inherit !important;
+						border-bottom: none !important;
 					}
 				}
 			}
@@ -72,7 +81,7 @@
 				display: block;
 				height: 100%;
 				left: 0;
-				opacity: 0.85;
+				opacity: 0.25;
 				position: absolute;
 				width: 100%;
 				z-index: 2;
@@ -102,39 +111,21 @@
 				opacity: 0;
 			}
 
-			&:nth-child(6n - 5) {
+			&:nth-child(1) {
 				&:before {
 					background-color: _palette(accent1);
 				}
 			}
 
-			&:nth-child(6n - 4) {
+			&:nth-child(2) {
 				&:before {
-					background-color: _palette(accent2);
+					background-color: #e6e6e6;
 				}
 			}
 
-			&:nth-child(6n - 3) {
+			&:nth-child(3) {
 				&:before {
 					background-color: _palette(accent3);
-				}
-			}
-
-			&:nth-child(6n - 2) {
-				&:before {
-					background-color: _palette(accent4);
-				}
-			}
-
-			&:nth-child(6n - 1) {
-				&:before {
-					background-color: _palette(accent5);
-				}
-			}
-
-			&:nth-child(6n) {
-				&:before {
-					background-color: _palette(accent6);
 				}
 			}
 		}
@@ -151,6 +142,10 @@
 		@include breakpoint(medium) {
 			article {
 				width: 50% !important;
+
+				&:nth-child(3) {
+					width: 100% !important;
+				}
 			}
 		}
 
@@ -160,6 +155,7 @@
 				height: 16em;
 				max-height: none;
 				min-height: 0;
+				width: 100% !important;
 
 				h3 {
 					font-size: 1.5em;
