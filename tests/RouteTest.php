@@ -5,6 +5,7 @@ declare(strict_types=1);
 use League\Route\FreezeableInterface;
 use League\Route\Route;
 use League\Route\RouteGroup;
+use League\Route\Strategy\StrategyInterface;
 use League\Route\Test\Fixture\Controller;
 use League\Route\Test\Fixture\MiddlewareController;
 use Mockery\MockInterface;
@@ -227,7 +228,7 @@ test('frozen route throws LogicException when setStrategy is called', function (
     $route = new Route('GET', '/test', static function () {});
     $route->freeze();
 
-    $strategy = Mockery::mock(League\Route\Strategy\StrategyInterface::class);
+    $strategy = Mockery::mock(StrategyInterface::class);
 
     expect(fn() => $route->setStrategy($strategy))->toThrow(LogicException::class, 'Cannot modify route after routes have been prepared');
 });

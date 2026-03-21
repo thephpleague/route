@@ -59,7 +59,7 @@ class Dispatcher implements
 
         return match ($match[0]) {
             FastRouteDispatcher::METHOD_NOT_ALLOWED => MatchResult::methodNotAllowed((array) $match[1]),
-            default                                 => MatchResult::notFound(),
+            default => MatchResult::notFound(),
         };
     }
 
@@ -78,7 +78,7 @@ class Dispatcher implements
 
         match ($result->getStatus()) {
             MatchStatus::MethodNotAllowed => $this->setMethodNotAllowedDecoratorMiddleware($result->getAllowedMethods()),
-            default                       => $this->setNotFoundDecoratorMiddleware(),
+            default => $this->setNotFoundDecoratorMiddleware(),
         };
 
         return $this->handle($request);

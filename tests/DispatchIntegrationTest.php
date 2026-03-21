@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Laminas\Diactoros\ServerRequest;
 use League\Route\Http\Exception\BadRequestException;
 use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
@@ -569,7 +570,7 @@ test('dispatched route is added as a request attribute', function () {
         return $response;
     });
 
-    $request = new \Laminas\Diactoros\ServerRequest(
+    $request = new ServerRequest(
         [],
         [],
         '/example/route',
