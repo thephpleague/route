@@ -24,16 +24,19 @@ class Router implements RouterInterface
         $this->builder = $builder;
     }
 
+    #[\Override]
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
         return $this->buildRouter($request)->dispatch($request);
     }
 
+    #[\Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->dispatch($request);
     }
 
+    #[\Override]
     public function match(ServerRequestInterface $request): MatchResult
     {
         return $this->buildRouter($request)->match($request);

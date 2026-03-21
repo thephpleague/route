@@ -23,6 +23,7 @@ class Exception extends \Exception implements HttpExceptionInterface
         parent::__construct($this->message, $code, $previous);
     }
 
+    #[\Override]
     public function getStatusCode(): int
     {
         return $this->status;
@@ -31,11 +32,13 @@ class Exception extends \Exception implements HttpExceptionInterface
     /**
      * @return array<string, string>
      */
+    #[\Override]
     public function getHeaders(): array
     {
         return $this->headers;
     }
 
+    #[\Override]
     public function buildJsonResponse(ResponseInterface $response): ResponseInterface
     {
         $this->headers['content-type'] = 'application/json';

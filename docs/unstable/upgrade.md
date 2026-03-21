@@ -4,6 +4,7 @@ title: Upgrade Guide
 sections:
     Upgrading to 7.0: upgrading-to-70
     PHP Version: php-version
+    PHP 8.3 Language Features: php-83-language-features
     RouterInterface: routerinterface
     Route Matching: route-matching
     Cached Router: cached-router
@@ -16,7 +17,14 @@ This guide covers the breaking changes introduced in version 7.0 and what you ne
 
 ## PHP Version
 
-The minimum supported PHP version has been raised from 8.1 to **8.2**. Ensure your environment meets this requirement before upgrading.
+The minimum supported PHP version has been raised from 8.1 to **8.3**. PHP 8.2 has reached end-of-life and is no longer supported. Ensure your environment is running PHP 8.3 or later before upgrading.
+
+## PHP 8.3 Language Features
+
+Version 7.0 adopts several PHP 8.3 language features:
+
+- **Typed class constants**: All class constants now have explicit type declarations. If you extend `Router` and redefine the `IDENTIFIER_SEPARATOR` constant, ensure your value is a `string`.
+- **`#[\Override]` attributes**: Methods implementing interface contracts now use `#[\Override]` for compile-time safety. This is an internal change and does not affect your code unless you extend library classes and override the same methods.
 
 ## RouterInterface
 
@@ -59,9 +67,9 @@ If you called `setVars()` at dispatch time in a custom strategy or extension, us
 
 ## Removed Features
 
-### PHP 8.1 support dropped
+### PHP 8.1 and 8.2 support dropped
 
-PHP 8.1 is no longer supported.
+PHP 8.1 and 8.2 are no longer supported.
 
 ### laravel/serializable-closure removed from hard dependencies
 

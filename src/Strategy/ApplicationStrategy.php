@@ -15,16 +15,19 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
 {
     use ContainerAwareTrait;
 
+    #[\Override]
     public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface
     {
         return $this->throwThrowableMiddleware($exception);
     }
 
+    #[\Override]
     public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface
     {
         return $this->throwThrowableMiddleware($exception);
     }
 
+    #[\Override]
     public function getThrowableHandler(): MiddlewareInterface
     {
         return new class implements MiddlewareInterface
@@ -42,6 +45,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
         };
     }
 
+    #[\Override]
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface
     {
         $controller = $route->getCallable($this->getContainer());
@@ -53,11 +57,8 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
     {
         return new class ($error) implements MiddlewareInterface
         {
-            protected Throwable $error;
-
-            public function __construct(Throwable $error)
+            public function __construct(protected readonly Throwable $error)
             {
-                $this->error = $error;
             }
 
             public function process(

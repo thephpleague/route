@@ -24,7 +24,7 @@ class Router implements
     use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
-    protected const IDENTIFIER_SEPARATOR = "\t";
+    protected const string IDENTIFIER_SEPARATOR = "\t";
 
     /**
      * @var RouteGroup[]
@@ -85,6 +85,7 @@ class Router implements
         return $group;
     }
 
+    #[\Override]
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
         if (false === $this->routesPrepared) {
@@ -126,11 +127,13 @@ class Router implements
         throw new InvalidArgumentException(sprintf('No route of the name (%s) exists', $name));
     }
 
+    #[\Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->dispatch($request);
     }
 
+    #[\Override]
     public function match(ServerRequestInterface $request): MatchResult
     {
         if (false === $this->routesPrepared) {
@@ -151,6 +154,7 @@ class Router implements
      * @param array<string>|string $method
      * @param callable|array<string>|string|RequestHandlerInterface $handler
      */
+    #[\Override]
     public function map(
         string|array $method,
         string $path,

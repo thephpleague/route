@@ -78,6 +78,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         return $this->handle($request);
     }
 
+    #[\Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $middleware = $this->shiftMiddleware();

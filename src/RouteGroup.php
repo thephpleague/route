@@ -47,6 +47,7 @@ class RouteGroup implements
      * @param array<string>|string $method
      * @param callable|array<string>|string|RequestHandlerInterface $handler
      */
+    #[\Override]
     public function map(
         string|array $method,
         string $path,

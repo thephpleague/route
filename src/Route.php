@@ -112,6 +112,7 @@ class Route implements
         return array_merge($this->defaultVars, $this->pathVars);
     }
 
+    #[\Override]
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler

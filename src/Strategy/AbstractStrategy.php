@@ -13,6 +13,7 @@ abstract class AbstractStrategy implements StrategyInterface
      */
     protected array $responseDecorators = [];
 
+    #[\Override]
     public function addResponseDecorator(callable $decorator): StrategyInterface
     {
         $this->responseDecorators[] = $decorator;

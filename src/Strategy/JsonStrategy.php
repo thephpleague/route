@@ -28,11 +28,13 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         });
     }
 
+    #[\Override]
     public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface
     {
         return $this->buildJsonResponseMiddleware($exception);
     }
 
+    #[\Override]
     public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface
     {
         return $this->buildJsonResponseMiddleware($exception);
@@ -41,6 +43,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
     /**
      * @param array<string> $methods
      */
+    #[\Override]
     public function getOptionsCallable(array $methods): callable
     {
         return function () use ($methods): ResponseInterface {
@@ -51,15 +54,13 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         };
     }
 
+    #[\Override]
     public function getThrowableHandler(): MiddlewareInterface
     {
         return new class ($this->responseFactory->createResponse()) implements MiddlewareInterface
         {
-            protected ResponseInterface $response;
-
-            public function __construct(ResponseInterface $response)
+            public function __construct(protected readonly ResponseInterface $response)
             {
-                $this->response = $response;
             }
 
             public function process(
@@ -87,6 +88,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         };
     }
 
+    #[\Override]
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface
     {
         $controller = $route->getCallable($this->getContainer());
@@ -105,13 +107,10 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
     {
         return new class ($this->responseFactory->createResponse(), $exception) implements MiddlewareInterface
         {
-            protected ResponseInterface $response;
-            protected Http\Exception $exception;
-
-            public function __construct(ResponseInterface $response, Http\Exception $exception)
-            {
-                $this->response  = $response;
-                $this->exception = $exception;
+            public function __construct(
+                protected readonly ResponseInterface $response,
+                protected readonly Http\Exception $exception,
+            ) {
             }
 
             public function process(

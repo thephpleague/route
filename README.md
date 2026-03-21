@@ -32,7 +32,6 @@ $ composer require league/route
 
 The following versions of PHP are supported by this version.
 
-* PHP 8.2
 * PHP 8.3
 * PHP 8.4
 * PHP 8.5
