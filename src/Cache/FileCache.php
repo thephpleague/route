@@ -49,9 +49,7 @@ class FileCache implements CacheInterface
         throw new BadMethodCallException('FileCache does not support multi-key operations');
     }
 
-    /**
-     * @param iterable<mixed> $values
-     */
+    /** @param iterable<mixed> $values */
     #[Override]
     public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool
     {

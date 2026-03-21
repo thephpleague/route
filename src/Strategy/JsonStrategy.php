@@ -41,9 +41,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         return $this->buildJsonResponseMiddleware($exception);
     }
 
-    /**
-     * @param array<string> $methods
-     */
+    /** @param array<string> $methods */
     #[Override]
     public function getOptionsCallable(array $methods): callable
     {

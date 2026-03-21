@@ -27,19 +27,13 @@ class Router implements
 
     protected const string IDENTIFIER_SEPARATOR = "\t";
 
-    /**
-     * @var RouteGroup[]
-     */
+    /** @var RouteGroup[] */
     protected array $groups = [];
 
-    /**
-     * @var Route[]
-     */
+    /** @var Route[] */
     protected array $namedRoutes = [];
 
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     protected array $patternMatchers = [
         '/{(.+?):number}/'        => '{$1:[0-9]+}',
         '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
@@ -48,16 +42,12 @@ class Router implements
         '/{(.+?):uuid}/'          => '{$1:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}+}',
     ];
 
-    /**
-     * @var Route[]
-     */
+    /** @var Route[] */
     protected array $routes = [];
 
     protected bool $routesPrepared = false;
 
-    /**
-     * @var array<mixed>
-     */
+    /** @var array<mixed> */
     protected array $routesData = [];
 
     /** @var array<int, Route> */
@@ -226,9 +216,7 @@ class Router implements
         }
     }
 
-    /**
-     * @param array<string, array<string>> $options
-     */
+    /** @param array<string, array<string>> $options */
     protected function buildOptionsRoutes(array $options, int $index = 0): void
     {
         if (!($this->getStrategy() instanceof OptionsHandlerInterface)) {
@@ -283,9 +271,7 @@ class Router implements
         $this->routesPrepared = true;
     }
 
-    /**
-     * @return Route[]
-     */
+    /** @return Route[] */
     public function getRoutes(): array
     {
         if (!$this->routesPrepared) {

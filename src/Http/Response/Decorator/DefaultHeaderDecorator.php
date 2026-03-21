@@ -8,14 +8,10 @@ use Psr\Http\Message\ResponseInterface;
 
 class DefaultHeaderDecorator
 {
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     protected array $headers = [];
 
-    /**
-     * @param array<string, string> $headers
-     */
+    /** @param array<string, string> $headers */
     public function __construct(array $headers = [])
     {
         $this->addDefaultHeaders($headers);
@@ -38,9 +34,7 @@ class DefaultHeaderDecorator
         return $this;
     }
 
-    /**
-     * @param array<string, string> $headers
-     */
+    /** @param array<string, string> $headers */
     public function addDefaultHeaders(array $headers): self
     {
         foreach ($headers as $name => $value) {

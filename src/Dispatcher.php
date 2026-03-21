@@ -147,9 +147,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         $this->middleware($route);
     }
 
-    /**
-     * @param array<string> $allowed
-     */
+    /** @param array<string> $allowed */
     protected function setMethodNotAllowedDecoratorMiddleware(array $allowed): void
     {
         $strategy = $this->getStrategy();

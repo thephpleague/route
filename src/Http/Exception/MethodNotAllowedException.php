@@ -9,9 +9,7 @@ use League\Route\Http;
 
 class MethodNotAllowedException extends Http\Exception
 {
-    /**
-     * @param array<string> $allowed
-     */
+    /** @param array<string> $allowed */
     public function __construct(
         array $allowed = [],
         string $message = 'Method Not Allowed',

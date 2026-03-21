@@ -14,6 +14,7 @@ return (new PhpCsFixer\Config())
         'global_namespace_import' => ['import_classes' => true, 'import_constants' => false, 'import_functions' => false],
         'no_unused_imports' => true,
         'ordered_imports' => ['sort_algorithm' => 'alpha'],
+        'phpdoc_line_span' => ['property' => 'single', 'method' => 'single'],
         'single_quote' => true,
     ])
     ->setFinder($finder)

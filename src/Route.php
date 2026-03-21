@@ -81,9 +81,7 @@ class Route implements
         return $callable;
     }
 
-    /**
-     * @return array<string>|string
-     */
+    /** @return array<string>|string */
     public function getMethod(): array|string
     {
         return $this->method;
@@ -94,9 +92,7 @@ class Route implements
         return $this->group;
     }
 
-    /**
-     * @param array<string, string> $replacements
-     */
+    /** @param array<string, string> $replacements */
     public function getPath(array $replacements = []): string
     {
         $toReplace = [];

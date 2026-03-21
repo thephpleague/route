@@ -10,9 +10,7 @@ interface HttpExceptionInterface
 {
     public function buildJsonResponse(ResponseInterface $response): ResponseInterface;
 
-    /**
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     public function getHeaders(): array;
     public function getStatusCode(): int;
 }

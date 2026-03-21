@@ -30,9 +30,7 @@ class Exception extends \Exception implements HttpExceptionInterface
         return $this->status;
     }
 
-    /**
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     #[Override]
     public function getHeaders(): array
     {

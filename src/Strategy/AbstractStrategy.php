@@ -9,9 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractStrategy implements StrategyInterface
 {
-    /**
-     * @var array<callable>
-     */
+    /** @var array<callable> */
     protected array $responseDecorators = [];
 
     #[Override]

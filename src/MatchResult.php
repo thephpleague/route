@@ -8,9 +8,7 @@ use LogicException;
 
 final class MatchResult
 {
-    /**
-     * @param array<string> $allowedMethods
-     */
+    /** @param array<string> $allowedMethods */
     private function __construct(
         private readonly MatchStatus $status,
         private readonly ?Route $route,
@@ -27,9 +25,7 @@ final class MatchResult
         return new self(MatchStatus::NotFound, null, []);
     }
 
-    /**
-     * @param array<string> $allowedMethods
-     */
+    /** @param array<string> $allowedMethods */
     public static function methodNotAllowed(array $allowedMethods): self
     {
         return new self(MatchStatus::MethodNotAllowed, null, $allowedMethods);
@@ -53,9 +49,7 @@ final class MatchResult
         return $this->route;
     }
 
-    /**
-     * @return array<string>
-     */
+    /** @return array<string> */
     public function getAllowedMethods(): array
     {
         if ($this->status !== MatchStatus::MethodNotAllowed) {

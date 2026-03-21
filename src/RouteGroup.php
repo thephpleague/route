@@ -20,9 +20,7 @@ class RouteGroup implements
     use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     protected $callback;
 
     public function __construct(
