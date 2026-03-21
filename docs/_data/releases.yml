@@ -25,7 +25,7 @@
     type: Current
     requires: PHP >= 8.1
     release: 6.2.0 - 2024-11
-    support: Ongoing
+    support: 2026-12
     url: /6.x/
     menu:
         Getting Started: '/6.x/'
@@ -40,10 +40,10 @@
 -
   version: 5.x
   name: League\Route 5.x
-  type: Current
+  type: Old
   requires: PHP >= 7.2
   release: 5.1.2 - 2021-07
-  support: Ongoing
+  support: Unsupported
   url: /5.x/
   menu:
     Getting Started: '/5.x/'
