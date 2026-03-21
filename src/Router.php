@@ -31,6 +31,12 @@ class Router implements
     /** @var RouteGroup[] */
     protected array $groups = [];
 
+    /** @var array<string, array<string>> */
+    protected array $middlewareGroups = [];
+
+    /** @var array<string> */
+    protected array $pendingMiddlewareGroups = [];
+
     /** @var Route[] */
     protected array $namedRoutes = [];
 
@@ -67,6 +73,29 @@ class Router implements
         $pattern = '/{(.+?):' . $alias . '}/';
         $regex = '{$1:' . $regex . '}';
         $this->patternMatchers[$pattern] = $regex;
+        return $this;
+    }
+
+    /** @param array<string> $middleware */
+    public function defineMiddlewareGroup(string $name, array $middleware): self
+    {
+        $this->middlewareGroups[$name] = $middleware;
+        return $this;
+    }
+
+    /** @return array<string> */
+    public function getMiddlewareGroup(string $name): array
+    {
+        if (!array_key_exists($name, $this->middlewareGroups)) {
+            throw new InvalidArgumentException(sprintf('No middleware group of the name (%s) exists', $name));
+        }
+
+        return $this->middlewareGroups[$name];
+    }
+
+    public function middlewareGroup(string $name): self
+    {
+        $this->pendingMiddlewareGroups[] = $name;
         return $this;
     }
 
@@ -125,13 +154,10 @@ class Router implements
     {
         $route = $this->getNamedRoute($name);
         $rawPath = $route->getPath();
-        $resolvedPath = $route->getPath($substitutions);
+        $mergedSubstitutions = array_merge($route->getVars(), $substitutions);
 
-        preg_match_all('/\{([^}]+)\}/', $rawPath, $paramMatches);
-        $routeParamNames = array_map(
-            static fn(string $segment): string => explode(':', $segment, 2)[0],
-            $paramMatches[1],
-        );
+        $path = $this->resolveOptionalSegments($rawPath, $mergedSubstitutions);
+        $resolvedPath = $this->substitutePathParameters($path, $mergedSubstitutions);
 
         preg_match_all('/\{[^}]+\}/', $resolvedPath, $remainingMatches);
 
@@ -142,13 +168,55 @@ class Router implements
             );
         }
 
-        $extraParams = array_diff_key($substitutions, array_flip($routeParamNames));
+        preg_match_all('/\{([^}:]+)(?::[^}]+)?\}/', $rawPath, $allParamMatches);
+        $extraParams = array_diff_key($substitutions, array_flip($allParamMatches[1]));
 
         if (empty($extraParams)) {
             return $resolvedPath;
         }
 
         return $resolvedPath . '?' . http_build_query($extraParams);
+    }
+
+    /** @param array<string, string> $substitutions */
+    private function resolveOptionalSegments(string $path, array $substitutions): string
+    {
+        $resolveInnermost = static function (string $subject) use ($substitutions): string {
+            return (string) preg_replace_callback(
+                '/\[([^\[\]]*)\]/',
+                static function (array $matches) use ($substitutions): string {
+                    preg_match_all('/\{([^}:]+)(?::[^}]+)?\}/', $matches[1], $paramMatches);
+
+                    foreach ($paramMatches[1] as $param) {
+                        if (!array_key_exists($param, $substitutions)) {
+                            return '';
+                        }
+                    }
+
+                    return $matches[1];
+                },
+                $subject,
+            );
+        };
+
+        while (str_contains($path, '[')) {
+            $path = $resolveInnermost($path);
+        }
+
+        return $path;
+    }
+
+    /** @param array<string, string> $substitutions */
+    private function substitutePathParameters(string $path, array $substitutions): string
+    {
+        return (string) preg_replace_callback(
+            '/\{([^}:]+)(?::[^}]+)?\}/',
+            static function (array $matches) use ($substitutions): string {
+                $param = $matches[1];
+                return array_key_exists($param, $substitutions) ? (string) $substitutions[$param] : $matches[0];
+            },
+            $path,
+        );
     }
 
     #[Override]
@@ -199,6 +267,12 @@ class Router implements
             $this->setStrategy(new ApplicationStrategy());
         }
 
+        foreach ($this->pendingMiddlewareGroups as $name) {
+            $this->lazyMiddlewares($this->getMiddlewareGroup($name));
+        }
+
+        $this->pendingMiddlewareGroups = [];
+
         $this->collectGroupRoutes();
         $this->buildNameIndex();
 
@@ -240,6 +314,10 @@ class Router implements
         }
 
         $this->buildOptionsRoutes($options, $index);
+
+        foreach ($this->routeMap as $route) {
+            $route->freeze();
+        }
 
         $this->routesPrepared = true;
         $this->routesData = $this->routeCollector->getData();

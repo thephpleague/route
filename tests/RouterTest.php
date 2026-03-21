@@ -194,7 +194,7 @@ test('setRoutesData injects cached state and allows matching', function () {
     expect($newRouter->match($request)->isFound())->toBeTrue();
 });
 
-test('match returns not found when the scheme condition does not match', function () {
+test('match returns condition not met when the scheme condition does not match', function () {
     /** @var UriInterface&MockInterface $uri */
     $uri = Mockery::mock(UriInterface::class);
     $uri->allows('getPath')->andReturn('/secure');
@@ -208,10 +208,14 @@ test('match returns not found when the scheme condition does not match', functio
     $router = new Router();
     $router->map('GET', '/secure', static function () {})->setScheme('https');
 
-    expect($router->match($request)->isFound())->toBeFalse();
+    $result = $router->match($request);
+
+    expect($result->isFound())->toBeFalse();
+    expect($result->isConditionNotMet())->toBeTrue();
+    expect($result->getStatus())->toBe(MatchStatus::ConditionNotMet);
 });
 
-test('match returns not found when the host condition does not match', function () {
+test('match returns condition not met when the host condition does not match', function () {
     /** @var UriInterface&MockInterface $uri */
     $uri = Mockery::mock(UriInterface::class);
     $uri->allows('getPath')->andReturn('/api/users');
@@ -225,5 +229,84 @@ test('match returns not found when the host condition does not match', function 
     $router = new Router();
     $router->map('GET', '/api/users', static function () {})->setHost('api.example.com');
 
-    expect($router->match($request)->isFound())->toBeFalse();
+    $result = $router->match($request);
+
+    expect($result->isFound())->toBeFalse();
+    expect($result->isConditionNotMet())->toBeTrue();
+    expect($result->getStatus())->toBe(MatchStatus::ConditionNotMet);
+});
+
+test('defineMiddlewareGroup registers a named middleware group', function () {
+    $router = new Router();
+
+    $router->defineMiddlewareGroup('auth', ['App\Middleware\AuthMiddleware']);
+
+    expect($router->getMiddlewareGroup('auth'))->toBe(['App\Middleware\AuthMiddleware']);
+});
+
+test('middlewareGroup applies named group middleware to routes via a group', function () {
+    $router = new Router();
+    $router->defineMiddlewareGroup('auth', ['App\Middleware\AuthMiddleware', 'App\Middleware\VerifyToken']);
+
+    $group = $router->group('/api', function ($group) {
+        $group->get('/users', static function () {});
+    });
+    $group->middlewareGroup('auth');
+
+    $routes = $router->getRoutes();
+    $route = $routes[0];
+
+    $parentGroup = $route->getParentGroup();
+    expect($parentGroup)->not->toBeNull();
+
+    $stack = iterator_to_array($parentGroup->getMiddlewareStack());
+    expect($stack)->toContain('App\Middleware\AuthMiddleware');
+    expect($stack)->toContain('App\Middleware\VerifyToken');
+});
+
+test('middlewareGroup on router applies named group middleware globally', function () {
+    $router = new Router();
+    $router->defineMiddlewareGroup('logging', ['App\Middleware\LogMiddleware']);
+    $router->middlewareGroup('logging');
+
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/ping');
+
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+
+    $router->map('GET', '/ping', static function () {});
+    $router->prepareRoutes($request);
+
+    $stack = iterator_to_array($router->getMiddlewareStack());
+    expect($stack)->toContain('App\Middleware\LogMiddleware');
+});
+
+test('middlewareGroup throws InvalidArgumentException for an undefined group name', function () {
+    $router = new Router();
+
+    expect(fn() => $router->getMiddlewareGroup('nonexistent'))->toThrow(InvalidArgumentException::class);
+});
+
+test('multiple middleware groups can be applied to the same route group', function () {
+    $router = new Router();
+    $router->defineMiddlewareGroup('auth', ['App\Middleware\AuthMiddleware']);
+    $router->defineMiddlewareGroup('throttle', ['App\Middleware\ThrottleMiddleware']);
+
+    $group = $router->group('/api', function ($group) {
+        $group->get('/orders', static function () {});
+    });
+    $group->middlewareGroup('auth');
+    $group->middlewareGroup('throttle');
+
+    $routes = $router->getRoutes();
+    $parentGroup = $routes[0]->getParentGroup();
+    expect($parentGroup)->not->toBeNull();
+
+    $stack = iterator_to_array($parentGroup->getMiddlewareStack());
+    expect($stack)->toContain('App\Middleware\AuthMiddleware');
+    expect($stack)->toContain('App\Middleware\ThrottleMiddleware');
 });

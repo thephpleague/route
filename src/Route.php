@@ -15,11 +15,13 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use RuntimeException;
 
 class Route implements
+    FreezeableInterface,
     MiddlewareInterface,
     MiddlewareAwareInterface,
     RouteConditionHandlerInterface,
     StrategyAwareInterface
 {
+    use FreezeableTrait;
     use MiddlewareAwareTrait;
     use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
@@ -125,6 +127,7 @@ class Route implements
 
     public function setParentGroup(RouteGroup $group): self
     {
+        $this->assertNotFrozen();
         $this->group = $group;
         $prefix = $this->group->getPrefix();
         $path = $this->getPath();
@@ -140,11 +143,15 @@ class Route implements
     /** @param array<string> $vars */
     public function setVars(array $vars): self
     {
+        $this->assertNotFrozen();
         $this->defaultVars = $vars;
         return $this;
     }
 
-    /** @param array<string, string> $pathVars */
+    /**
+     * @internal
+     * @param array<string, string> $pathVars
+     */
     public function setPathVars(array $pathVars): self
     {
         $this->pathVars = $pathVars;

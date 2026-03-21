@@ -5,6 +5,7 @@ declare(strict_types=1);
 use League\Route\Http\Exception\BadRequestException;
 use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
+use League\Route\Route;
 use League\Route\Router;
 use League\Route\Strategy\ApplicationStrategy;
 use League\Route\Strategy\JsonStrategy;
@@ -551,4 +552,29 @@ test('router can map a route with a host condition and dispatches it correctly',
     $result = $router->dispatch($request);
 
     expect($result)->toBe($response);
+});
+
+test('dispatched route is added as a request attribute', function () {
+    $router = new Router();
+
+    $router->map('GET', '/example/route', static function (
+        ServerRequestInterface $request,
+        array $args,
+    ): ResponseInterface {
+        $routeAttribute = $request->getAttribute(Route::class);
+        expect($routeAttribute)->toBeInstanceOf(Route::class);
+
+        /** @var ResponseInterface&MockInterface $response */
+        $response = Mockery::mock(ResponseInterface::class);
+        return $response;
+    });
+
+    $request = new \Laminas\Diactoros\ServerRequest(
+        [],
+        [],
+        '/example/route',
+        'GET',
+    );
+
+    $router->dispatch($request);
 });

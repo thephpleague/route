@@ -6,6 +6,7 @@ sections:
     RouterInterface: router-interface
     Matching Routes: matching-routes
     MatchResult: match-result
+    Condition Matching: condition-matching
     Use Cases: use-cases
 ---
 ## Introduction
@@ -68,6 +69,9 @@ $result = $router->match($request);
 if ($result->isFound()) {
     $route = $result->getRoute();
     echo 'Matched route: ' . $route->getPath();
+} elseif ($result->isConditionNotMet()) {
+    $route = $result->getRoute();
+    echo 'Route exists but conditions do not match: ' . $route->getHost();
 } elseif ($result->isMethodNotAllowed()) {
     echo 'Method not allowed';
     echo 'Allowed methods: ' . implode(', ', $result->getAllowedMethods());
@@ -82,11 +86,12 @@ The `MatchResult` value object contains the result of a route match operation. I
 
 ### Properties and Methods
 
-- `isFound(): bool` - Returns true if a route was found and the method is allowed
+- `isFound(): bool` - Returns true if a route was found and all conditions matched
 - `isMethodNotAllowed(): bool` - Returns true if a route matched the path but the HTTP method is not allowed
-- `getRoute(): Route` - Returns the matched `Route` object; throws `\LogicException` if the result is not `Found`
+- `isConditionNotMet(): bool` - Returns true if a route matched the path and method but a host, scheme, or port condition failed
+- `getRoute(): Route` - Returns the matched `Route` object; available for `Found` and `ConditionNotMet` results, throws `\LogicException` otherwise
 - `getAllowedMethods(): array` - Returns the allowed HTTP methods; throws `\LogicException` if the result is not `MethodNotAllowed`
-- `getStatus(): MatchStatus` - Returns the `MatchStatus` enum value
+- `getStatus(): MatchStatus` - Returns the `MatchStatus` enum value (`Found`, `NotFound`, `MethodNotAllowed`, `ConditionNotMet`)
 
 ~~~php
 <?php declare(strict_types=1);
@@ -99,20 +104,37 @@ $router->get('/users/{id}', 'UserController::show');
 
 $result = $router->match($request);
 
-switch ($result->getStatus()) {
-    case MatchStatus::Found:
-        $route = $result->getRoute();
-        $vars = $route->getVars();
-        echo 'Route matched with vars: ' . json_encode($vars);
-        break;
-    case MatchStatus::NotFound:
-        echo 'No route found';
-        break;
-    case MatchStatus::MethodNotAllowed:
-        echo 'Method not allowed. Allowed: ' . implode(', ', $result->getAllowedMethods());
-        break;
+match ($result->getStatus()) {
+    MatchStatus::Found => handleFound($result->getRoute()),
+    MatchStatus::MethodNotAllowed => handleMethodNotAllowed($result->getAllowedMethods()),
+    MatchStatus::ConditionNotMet => handleConditionNotMet($result->getRoute()),
+    MatchStatus::NotFound => handleNotFound(),
+};
+~~~
+
+## Condition Matching
+
+When a route matches by path and HTTP method but fails a host, scheme, or port condition, the `match()` method returns a `ConditionNotMet` result instead of `NotFound`. This distinction helps with debugging: you can tell whether a 404 means "no route exists" or "the route exists but you are accessing it from the wrong host or scheme".
+
+~~~php
+<?php declare(strict_types=1);
+
+use League\Route\Router;
+use League\Route\MatchStatus;
+
+$router = new Router;
+$router->get('/api/users', 'UserController::index')->setHost('api.example.com');
+
+$result = $router->match($request);
+
+if ($result->isConditionNotMet()) {
+    $route = $result->getRoute();
+    echo 'Route exists at ' . $route->getPath() . ' but conditions do not match';
+    echo 'Expected host: ' . $route->getHost();
 }
 ~~~
+
+During dispatch, `ConditionNotMet` is handled identically to `NotFound` for backwards compatibility (a 404 response or `NotFoundException` is produced). The distinction is only visible through the `match()` API.
 
 ## Use Cases
 

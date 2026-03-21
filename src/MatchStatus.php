@@ -9,4 +9,5 @@ enum MatchStatus
     case Found;
     case NotFound;
     case MethodNotAllowed;
+    case ConditionNotMet;
 }

@@ -23,6 +23,9 @@ class RouteGroup implements
     /** @var callable */
     protected $callback;
 
+    /** @var array<string> */
+    protected array $pendingMiddlewareGroups = [];
+
     public function __construct(
         protected string $prefix,
         callable $callback,
@@ -32,9 +35,29 @@ class RouteGroup implements
         $this->prefix = sprintf('/%s', ltrim($this->prefix, '/'));
     }
 
+    public function middlewareGroup(string $name): self
+    {
+        $this->pendingMiddlewareGroups[] = $name;
+        return $this;
+    }
+
     public function __invoke(): void
     {
         ($this->callback)($this);
+        $this->expandPendingMiddlewareGroups();
+    }
+
+    protected function expandPendingMiddlewareGroups(): void
+    {
+        if (!($this->collection instanceof Router)) {
+            return;
+        }
+
+        foreach ($this->pendingMiddlewareGroups as $name) {
+            $this->lazyMiddlewares($this->collection->getMiddlewareGroup($name));
+        }
+
+        $this->pendingMiddlewareGroups = [];
     }
 
     public function getPrefix(): string

@@ -8,6 +8,10 @@ sections:
     RouterInterface: routerinterface
     Route Matching: route-matching
     URL Generation: url-generation
+    Middleware Groups: middleware-groups
+    Route Freezing: route-freezing
+    Matched Route in Middleware: matched-route-in-middleware
+    MethodNotAllowedException: methodnotallowedexception
     Dispatcher Composition: dispatcher-composition
     OPTIONS Callable Changes: options-callable-changes
     Cached Router: cached-router
@@ -69,9 +73,62 @@ $url = $router->generateUrl('users.show', ['id' => '42']);
 // => /users/42
 ~~~
 
-This is a purely additive change. See [Routes](/unstable/routes) for full documentation including query string parameters and error handling.
+This is a purely additive change. See [Routes](/unstable/routes) for full documentation including query string parameters, optional segments, and error handling.
 
 If you type-hint against `UrlGeneratorInterface` separately from `RouterInterface`, your code can generate URLs without depending on the full router.
+
+`generateUrl()` now supports FastRoute optional segments (`[/{param}]`). Optional parameters are resolved from defaults set via `setVars()` or omitted entirely. See [Routes](/unstable/routes#url-generation) for details.
+
+## Middleware Groups
+
+Named middleware groups allow you to define a collection of middleware once and apply it by name across multiple routes or groups. See [Middleware](/unstable/middleware#middleware-groups) for full documentation.
+
+~~~php
+<?php declare(strict_types=1);
+
+$router->defineMiddlewareGroup('api', [
+    Acme\AuthMiddleware::class,
+    Acme\ThrottleMiddleware::class,
+]);
+
+$router->group('/api', function ($group) {
+    $group->get('/users', 'UserController::index');
+})->middlewareGroup('api');
+~~~
+
+This is a purely additive change and requires no action unless you want to take advantage of it.
+
+## Route Freezing
+
+Routes are now frozen (made immutable) after `prepareRoutes()` completes. Calling configuration setters such as `setHost()`, `setScheme()`, `setPort()`, `setName()`, `setStrategy()`, `setVars()`, or `middleware()` on a frozen route throws `LogicException`.
+
+**If you modify route objects after dispatch**, your code will now throw an exception instead of silently having no effect. Move any route configuration before the first call to `dispatch()` or `match()`.
+
+`Route::setPathVars()` is exempted from freezing as it is an internal dispatcher operation. It is now marked `@internal` and should not be called by application code.
+
+The `FreezeableInterface` and `FreezeableTrait` provide the immutability mechanism. If you extend `Route`, the freezing behaviour is inherited automatically.
+
+## Matched Route in Middleware
+
+The matched `Route` object is now added to the request attributes during dispatch, keyed by `Route::class`. Middleware can retrieve it to inspect the matched route for authorisation, logging, or analytics. See [Middleware](/unstable/middleware#matched-route-in-middleware) for examples.
+
+This is a purely additive change. The route object in the attributes is frozen, so middleware cannot modify route configuration.
+
+## MethodNotAllowedException
+
+`MethodNotAllowedException` now exposes a `getAllowedMethods(): array` method that returns the allowed HTTP methods as a typed array. Previously, the allowed methods were only accessible by parsing the `Allow` header string from `getHeaders()`.
+
+~~~php
+<?php declare(strict_types=1);
+
+try {
+    $router->dispatch($request);
+} catch (League\Route\Http\Exception\MethodNotAllowedException $e) {
+    $allowed = $e->getAllowedMethods();
+}
+~~~
+
+This is a purely additive change. The `Allow` header continues to be set as before.
 
 ## Dispatcher Composition
 

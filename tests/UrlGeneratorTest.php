@@ -92,3 +92,59 @@ test('cache router throws InvalidArgumentException for a missing named route', f
 
     expect(fn() => $router->generateUrl('nonexistent'))->toThrow(InvalidArgumentException::class);
 });
+
+test('generates a URL with an optional segment when the parameter is provided', function () {
+    $router = new Router();
+    $router->get('/blog[/{page:number}]', static function () {})->setName('blog.list');
+
+    expect($router->generateUrl('blog.list', ['page' => '2']))->toBe('/blog/2');
+});
+
+test('generates a URL omitting the optional segment when the parameter is not provided', function () {
+    $router = new Router();
+    $router->get('/blog[/{page:number}]', static function () {})->setName('blog.list');
+
+    expect($router->generateUrl('blog.list'))->toBe('/blog');
+});
+
+test('generates a URL using default vars for an optional segment', function () {
+    $router = new Router();
+    $router->get('/blog[/{page:number}]', static function () {})->setName('blog.list')->setVars(['page' => '1']);
+
+    expect($router->generateUrl('blog.list'))->toBe('/blog/1');
+});
+
+test('substitution overrides default var for an optional segment', function () {
+    $router = new Router();
+    $router->get('/blog[/{page:number}]', static function () {})->setName('blog.list')->setVars(['page' => '1']);
+
+    expect($router->generateUrl('blog.list', ['page' => '3']))->toBe('/blog/3');
+});
+
+test('still throws for missing required parameters when optional segments are present', function () {
+    $router = new Router();
+    $router->get('/users/{id}[/{action}]', static function () {})->setName('users.action');
+
+    expect(fn() => $router->generateUrl('users.action'))->toThrow(InvalidArgumentException::class);
+});
+
+test('generates a URL with nested optional segments when only the outer parameter is provided', function () {
+    $router = new Router();
+    $router->get('/archive[/{year}[/{month}]]', static function () {})->setName('archive');
+
+    expect($router->generateUrl('archive', ['year' => '2024']))->toBe('/archive/2024');
+});
+
+test('generates a URL with nested optional segments when both parameters are provided', function () {
+    $router = new Router();
+    $router->get('/archive[/{year}[/{month}]]', static function () {})->setName('archive');
+
+    expect($router->generateUrl('archive', ['year' => '2024', 'month' => '03']))->toBe('/archive/2024/03');
+});
+
+test('generates a URL with nested optional segments when no parameters are provided', function () {
+    $router = new Router();
+    $router->get('/archive[/{year}[/{month}]]', static function () {})->setName('archive');
+
+    expect($router->generateUrl('archive'))->toBe('/archive');
+});

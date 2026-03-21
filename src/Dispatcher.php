@@ -112,6 +112,8 @@ class Dispatcher implements
             $request = $request->withAttribute($key, $value);
         }
 
+        $request = $request->withAttribute(Route::class, $route);
+
         return $request;
     }
 

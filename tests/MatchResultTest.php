@@ -42,3 +42,26 @@ test('get allowed methods throws a logic exception when the result is found', fu
 
     expect(fn() => MatchResult::found($route)->getAllowedMethods())->toThrow(LogicException::class);
 });
+
+test('conditionNotMet result reports correctly and exposes route and status', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $result = MatchResult::conditionNotMet($route);
+
+    expect($result->isConditionNotMet())->toBeTrue();
+    expect($result->getRoute())->toBe($route);
+    expect($result->getStatus())->toBe(MatchStatus::ConditionNotMet);
+});
+
+test('conditionNotMet result isFound returns false', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $result = MatchResult::conditionNotMet($route);
+
+    expect($result->isFound())->toBeFalse();
+});
+
+test('conditionNotMet result isMethodNotAllowed returns false', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $result = MatchResult::conditionNotMet($route);
+
+    expect($result->isMethodNotAllowed())->toBeFalse();
+});

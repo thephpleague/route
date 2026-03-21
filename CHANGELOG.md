@@ -17,6 +17,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - `UrlGeneratorInterface` with `generateUrl()` for reverse routing from named routes (#355).
 - `Router` and `Cache\Router` both implement `UrlGeneratorInterface`.
 - `DispatcherInterface` (marked `@internal`) formalising the Router-Dispatcher contract (#359).
+- Middleware groups: `defineMiddlewareGroup()` and `middlewareGroup()` for named middleware collections on `Router` and `RouteGroup`.
+- `MatchStatus::ConditionNotMet` enum case distinguishing host/scheme/port condition failures from true not-found results.
+- `MatchResult::conditionNotMet()` named constructor and `isConditionNotMet()` convenience method.
+- `MethodNotAllowedException::getAllowedMethods()` for typed array access to allowed HTTP methods.
+- Matched `Route` object added as a request attribute (keyed by `Route::class`) during dispatch, enabling routing-aware middleware.
+- Route freezing: routes become immutable after `prepareRoutes()`, preventing silent post-compilation misconfiguration.
+- `FreezeableInterface`, `FreezeableTrait`, and `FreezeGuard` for route immutability lifecycle.
+- Optional segment support in `generateUrl()`: routes using FastRoute `[/{param}]` syntax resolve correctly with defaults from `setVars()` or omit the segment when unset.
 
 ### Changed
 - Minimum PHP version raised to 8.3.
@@ -37,6 +45,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - `JsonStrategy::getOptionsCallable()` returned closure now accepts `(ServerRequestInterface $request, array $vars)` parameters, enabling CORS-aware OPTIONS handling (#361).
 - `OptionsHandlerInterface::getOptionsCallable()` docblock now specifies the expected callable signature.
 - Cache signature hash upgraded from md5 to xxh128 for improved collision resistance.
+- `Dispatcher` switch statements replaced with `match` expressions for exhaustiveness checking.
+- `MatchResult` is now a `readonly` class.
+- `Route::setPathVars()` marked `@internal` (dispatcher-only operation, exempted from route freezing).
 
 ### Removed
 - `laravel/serializable-closure` removed from hard dependencies (moved to suggest).

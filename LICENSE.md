@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 
-Copyright (c) 2024 Phil Bennett <mail@philbennett.co.uk>
+Copyright (c) 2026 Phil Bennett <mail@philbennett.co.uk>
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal

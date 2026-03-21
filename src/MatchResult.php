@@ -10,9 +10,9 @@ final readonly class MatchResult
 {
     /** @param array<string> $allowedMethods */
     private function __construct(
-        private readonly MatchStatus $status,
-        private readonly ?Route $route,
-        private readonly array $allowedMethods,
+        private MatchStatus $status,
+        private ?Route $route,
+        private array $allowedMethods,
     ) {}
 
     public static function found(Route $route): self

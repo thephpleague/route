@@ -259,6 +259,58 @@ $url = $router->generateUrl('posts.show', ['slug' => 'hello-world']);
 // => /hello-world
 ~~~
 
+### Optional Segments
+
+Routes can include optional segments using FastRoute's bracket syntax `[/{param}]`. The `generateUrl()` method handles these correctly: if the parameter is provided, the segment is included; if not, it is omitted or the default from `setVars()` is used.
+
+~~~php
+<?php declare(strict_types=1);
+
+$router = new League\Route\Router;
+
+$router->get('/blog[/{page:number}]', 'BlogController::index')
+    ->setName('blog.index')
+    ->setVars(['page' => '1']);
+
+$router->generateUrl('blog.index');
+// => /blog/1 (uses default from setVars)
+
+$router->generateUrl('blog.index', ['page' => '3']);
+// => /blog/3 (substitution overrides default)
+~~~
+
+If no default is set and no substitution is provided, the optional segment is omitted entirely:
+
+~~~php
+<?php declare(strict_types=1);
+
+$router->get('/blog[/{page:number}]', 'BlogController::index')
+    ->setName('blog.index');
+
+$router->generateUrl('blog.index');
+// => /blog (optional segment omitted)
+~~~
+
+Nested optional segments are also supported:
+
+~~~php
+<?php declare(strict_types=1);
+
+$router->get('/archive[/{year}[/{month}]]', 'ArchiveController::index')
+    ->setName('archive');
+
+$router->generateUrl('archive', ['year' => '2024']);
+// => /archive/2024
+
+$router->generateUrl('archive', ['year' => '2024', 'month' => '03']);
+// => /archive/2024/03
+
+$router->generateUrl('archive');
+// => /archive
+~~~
+
+Required parameters (outside brackets) still throw `InvalidArgumentException` if missing, even when optional segments are present.
+
 ### Missing Parameters
 
 If required parameters are not provided, an `InvalidArgumentException` is thrown with a message listing the missing parameters.

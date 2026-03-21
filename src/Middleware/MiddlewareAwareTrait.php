@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace League\Route\Middleware;
 
 use InvalidArgumentException;
+use League\Route\FreezeGuard;
 use OutOfBoundsException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -22,6 +23,7 @@ trait MiddlewareAwareTrait
 
     public function lazyMiddleware(string $middleware): MiddlewareAwareInterface
     {
+        FreezeGuard::assertNotFrozen($this);
         $this->middleware[] = $middleware;
         return $this;
     }
@@ -38,12 +40,14 @@ trait MiddlewareAwareTrait
 
     public function lazyPrependMiddleware(string $middleware): MiddlewareAwareInterface
     {
+        FreezeGuard::assertNotFrozen($this);
         array_unshift($this->middleware, $middleware);
         return $this;
     }
 
     public function middleware(MiddlewareInterface $middleware): MiddlewareAwareInterface
     {
+        FreezeGuard::assertNotFrozen($this);
         $this->middleware[] = $middleware;
         return $this;
     }
@@ -60,6 +64,7 @@ trait MiddlewareAwareTrait
 
     public function prependMiddleware(MiddlewareInterface $middleware): MiddlewareAwareInterface
     {
+        FreezeGuard::assertNotFrozen($this);
         array_unshift($this->middleware, $middleware);
         return $this;
     }

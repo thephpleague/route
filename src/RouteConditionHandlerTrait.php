@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace League\Route;
 
-use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
 trait RouteConditionHandlerTrait
@@ -36,24 +35,28 @@ trait RouteConditionHandlerTrait
 
     public function setHost(string $host): RouteConditionHandlerInterface
     {
+        FreezeGuard::assertNotFrozen($this);
         $this->host = $host;
         return $this->checkAndReturnSelf();
     }
 
     public function setName(string $name): RouteConditionHandlerInterface
     {
+        FreezeGuard::assertNotFrozen($this);
         $this->name = $name;
         return $this->checkAndReturnSelf();
     }
 
     public function setPort(int $port): RouteConditionHandlerInterface
     {
+        FreezeGuard::assertNotFrozen($this);
         $this->port = $port;
         return $this->checkAndReturnSelf();
     }
 
     public function setScheme(string $scheme): RouteConditionHandlerInterface
     {
+        FreezeGuard::assertNotFrozen($this);
         $this->scheme = $scheme;
         return $this->checkAndReturnSelf();
     }
@@ -69,24 +72,5 @@ trait RouteConditionHandlerTrait
             __TRAIT__,
             RouteConditionHandlerInterface::class,
         ));
-    }
-
-    protected function isExtraConditionMatch(Route $route, ServerRequestInterface $request): bool
-    {
-        // check for scheme condition
-        $scheme = $route->getScheme();
-        if ($scheme !== null && $scheme !== $request->getUri()->getScheme()) {
-            return false;
-        }
-
-        // check for domain condition
-        $host = $route->getHost();
-        if ($host !== null && $host !== $request->getUri()->getHost()) {
-            return false;
-        }
-
-        // check for port condition
-        $port = $route->getPort();
-        return !($port !== null && $port !== $request->getUri()->getPort());
     }
 }

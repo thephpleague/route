@@ -40,15 +40,18 @@ composer require league/container
 
 Version 7.0 introduces several powerful new features:
 
+- **Middleware Groups**: Define named middleware collections with `defineMiddlewareGroup()` and apply them by name with `middlewareGroup()` on routes, groups, or the router. See [Middleware](/unstable/middleware#middleware-groups).
 - **RouterInterface**: A new `RouterInterface` that extends PSR-15's `RequestHandlerInterface`, providing type-safe dependency injection. Both `Router` and `Cache\Router` implement this interface.
-- **Route Matching**: The new `match()` method allows you to check if a route matches without executing it. It returns a `MatchResult` value object with a `MatchStatus` enum (Found, NotFound, MethodNotAllowed).
-- **URL Generation**: Generate URLs from named routes with `generateUrl()`. Extra parameters are appended as a query string. Both `Router` and `Cache\Router` implement the new `UrlGeneratorInterface`.
+- **Route Matching**: The new `match()` method allows you to check if a route matches without executing it. It returns a `MatchResult` value object with a `MatchStatus` enum (Found, NotFound, MethodNotAllowed, ConditionNotMet).
+- **URL Generation**: Generate URLs from named routes with `generateUrl()`, including support for optional segments and default parameters. Both `Router` and `Cache\Router` implement the new `UrlGeneratorInterface`.
+- **Route Freezing**: Routes become immutable after compilation, preventing silent post-dispatch misconfiguration.
+- **Matched Route in Middleware**: The matched `Route` object is available as a request attribute (keyed by `Route::class`) for routing-aware middleware.
 - **Route Introspection**: Retrieve all registered routes with `getRoutes()`, useful for route debugging, documentation, and advanced routing scenarios.
 - **Improved Cached Router**: The cached router is no longer BETA. It caches compiled FastRoute data (not the router object itself) and automatically recovers from corrupt caches.
-- **Cleaner Architecture**: The internal `Dispatcher` now uses composition instead of inheriting from FastRoute, reducing coupling and improving testability.
+- **Cleaner Architecture**: The internal `Dispatcher` now uses composition instead of inheriting from FastRoute, with modern `match` expressions replacing `switch` statements.
 - **PHP 8.3 Minimum**: Requires PHP 8.3.0 or higher.
 
-See [Route Matching](/unstable/route-matching) and [URL Generation](/unstable/routes#url-generation) for more details.
+See [Route Matching](/unstable/route-matching), [Middleware](/unstable/middleware), and [URL Generation](/unstable/routes#url-generation) for more details.
 
 ## Hello, World!
 

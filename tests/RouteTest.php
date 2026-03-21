@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use League\Route\FreezeableInterface;
 use League\Route\Route;
 use League\Route\RouteGroup;
 use League\Route\Test\Fixture\Controller;
@@ -181,4 +182,87 @@ test('route throws a RuntimeException when processed without a strategy', functi
 
     expect(fn() => (new Route('GET', '/something', static function () {}))->process($request, $requestHandler))
         ->toThrow(RuntimeException::class);
+});
+
+test('unfrozen route allows all setters without throwing', function () {
+    $route = new Route('GET', '/test', static function () {});
+
+    expect(fn() => $route->setHost('example.com'))->not->toThrow(LogicException::class);
+    expect(fn() => $route->setScheme('https'))->not->toThrow(LogicException::class);
+    expect(fn() => $route->setPort(443))->not->toThrow(LogicException::class);
+    expect(fn() => $route->setName('test.route'))->not->toThrow(LogicException::class);
+    expect(fn() => $route->setVars(['key' => 'value']))->not->toThrow(LogicException::class);
+    expect(fn() => $route->setPathVars(['id' => '1']))->not->toThrow(LogicException::class);
+});
+
+test('frozen route throws LogicException when setHost is called', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $route->freeze();
+
+    expect(fn() => $route->setHost('example.com'))->toThrow(LogicException::class, 'Cannot modify route after routes have been prepared');
+});
+
+test('frozen route throws LogicException when setScheme is called', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $route->freeze();
+
+    expect(fn() => $route->setScheme('https'))->toThrow(LogicException::class, 'Cannot modify route after routes have been prepared');
+});
+
+test('frozen route throws LogicException when setPort is called', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $route->freeze();
+
+    expect(fn() => $route->setPort(443))->toThrow(LogicException::class, 'Cannot modify route after routes have been prepared');
+});
+
+test('frozen route throws LogicException when setName is called', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $route->freeze();
+
+    expect(fn() => $route->setName('test.route'))->toThrow(LogicException::class, 'Cannot modify route after routes have been prepared');
+});
+
+test('frozen route throws LogicException when setStrategy is called', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $route->freeze();
+
+    $strategy = Mockery::mock(League\Route\Strategy\StrategyInterface::class);
+
+    expect(fn() => $route->setStrategy($strategy))->toThrow(LogicException::class, 'Cannot modify route after routes have been prepared');
+});
+
+test('frozen route throws LogicException when middleware is called', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $route->freeze();
+
+    $middleware = Mockery::mock(MiddlewareInterface::class);
+
+    expect(fn() => $route->middleware($middleware))->toThrow(LogicException::class, 'Cannot modify route after routes have been prepared');
+});
+
+test('frozen route throws LogicException when setVars is called', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $route->freeze();
+
+    expect(fn() => $route->setVars(['key' => 'value']))->toThrow(LogicException::class, 'Cannot modify route after routes have been prepared');
+});
+
+test('frozen route allows setPathVars after freezing', function () {
+    $route = new Route('GET', '/test/{id}', static function () {});
+    $route->freeze();
+
+    expect(fn() => $route->setPathVars(['id' => '42']))->not->toThrow(LogicException::class);
+    expect($route->getVars()['id'])->toBe('42');
+});
+
+test('route implements FreezeableInterface and isFrozen reflects freeze state', function () {
+    $route = new Route('GET', '/test', static function () {});
+
+    expect($route)->toBeInstanceOf(FreezeableInterface::class);
+    expect($route->isFrozen())->toBeFalse();
+
+    $route->freeze();
+
+    expect($route->isFrozen())->toBeTrue();
 });
