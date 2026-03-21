@@ -27,7 +27,7 @@ use Psr\Http\Message\StreamInterface;
 function assertExceptionBuildsJsonResponse(Exception $exception): void
 {
     $json = json_encode([
-        'status_code'   => $exception->getStatusCode(),
+        'status_code' => $exception->getStatusCode(),
         'reason_phrase' => $exception->getMessage(),
     ]);
 
@@ -65,21 +65,21 @@ test('http exception subclass is built correctly with expected status code, reas
 
     assertExceptionBuildsJsonResponse($exception);
 })->with([
-    'BadRequest'                => [BadRequestException::class, 400, 'Bad Request'],
-    'Conflict'                  => [ConflictException::class, 409, 'Conflict'],
-    'ExpectationFailed'         => [ExpectationFailedException::class, 417, 'Expectation Failed'],
-    'Forbidden'                 => [ForbiddenException::class, 403, 'Forbidden'],
-    'Gone'                      => [GoneException::class, 410, 'Gone'],
-    'ImATeapot'                 => [ImATeapotException::class, 418, "I'm a teapot"],
-    'LengthRequired'            => [LengthRequiredException::class, 411, 'Length Required'],
-    'NotAcceptable'             => [NotAcceptableException::class, 406, 'Not Acceptable'],
-    'NotFound'                  => [NotFoundException::class, 404, 'Not Found'],
-    'PreconditionFailed'        => [PreconditionFailedException::class, 412, 'Precondition Failed'],
-    'PreconditionRequired'      => [PreconditionRequiredException::class, 428, 'Precondition Required'],
-    'TooManyRequests'           => [TooManyRequestsException::class, 429, 'Too Many Requests'],
-    'Unauthorized'              => [UnauthorizedException::class, 401, 'Unauthorized'],
+    'BadRequest' => [BadRequestException::class, 400, 'Bad Request'],
+    'Conflict' => [ConflictException::class, 409, 'Conflict'],
+    'ExpectationFailed' => [ExpectationFailedException::class, 417, 'Expectation Failed'],
+    'Forbidden' => [ForbiddenException::class, 403, 'Forbidden'],
+    'Gone' => [GoneException::class, 410, 'Gone'],
+    'ImATeapot' => [ImATeapotException::class, 418, "I'm a teapot"],
+    'LengthRequired' => [LengthRequiredException::class, 411, 'Length Required'],
+    'NotAcceptable' => [NotAcceptableException::class, 406, 'Not Acceptable'],
+    'NotFound' => [NotFoundException::class, 404, 'Not Found'],
+    'PreconditionFailed' => [PreconditionFailedException::class, 412, 'Precondition Failed'],
+    'PreconditionRequired' => [PreconditionRequiredException::class, 428, 'Precondition Required'],
+    'TooManyRequests' => [TooManyRequestsException::class, 429, 'Too Many Requests'],
+    'Unauthorized' => [UnauthorizedException::class, 401, 'Unauthorized'],
     'UnavailableForLegalReasons' => [UnavailableForLegalReasonsException::class, 451, 'Unavailable For Legal Reasons'],
-    'UnprocessableEntity'       => [UnprocessableEntityException::class, 422, 'Unprocessable Entity'],
-    'UnsupportedMedia'          => [UnsupportedMediaException::class, 415, 'Unsupported Media'],
-    'MethodNotAllowed'          => [MethodNotAllowedException::class, 405, 'Method Not Allowed'],
+    'UnprocessableEntity' => [UnprocessableEntityException::class, 422, 'Unprocessable Entity'],
+    'UnsupportedMedia' => [UnsupportedMediaException::class, 415, 'Unsupported Media'],
+    'MethodNotAllowed' => [MethodNotAllowedException::class, 405, 'Method Not Allowed'],
 ]);

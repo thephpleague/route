@@ -106,7 +106,7 @@ test('dispatches a route that throws a generic exception with json strategy and 
     /** @var StreamInterface&MockInterface $body */
     $body = Mockery::mock(StreamInterface::class);
     $body->shouldReceive('write')->once()->with(json_encode([
-        'status_code'   => 500,
+        'status_code' => 500,
         'reason_phrase' => 'Blah',
     ]));
 
@@ -146,7 +146,7 @@ test('dispatches a route that throws an http exception with json strategy and re
     $body = Mockery::mock(StreamInterface::class);
     $body->shouldReceive('isWritable')->once()->andReturn(true);
     $body->shouldReceive('write')->once()->with(json_encode([
-        'status_code'   => 400,
+        'status_code' => 400,
         'reason_phrase' => 'Bad Request',
     ]));
 
@@ -201,7 +201,7 @@ test('dispatches a not found route with json strategy and returns a json 404 res
     $body = Mockery::mock(StreamInterface::class);
     $body->shouldReceive('isWritable')->once()->andReturn(true);
     $body->shouldReceive('write')->once()->with(json_encode([
-        'status_code'   => 404,
+        'status_code' => 404,
         'reason_phrase' => 'Not Found',
     ]));
 
@@ -252,7 +252,7 @@ test('dispatches a method not allowed route with json strategy and returns a jso
     $body = Mockery::mock(StreamInterface::class);
     $body->shouldReceive('isWritable')->once()->andReturn(true);
     $body->shouldReceive('write')->once()->with(json_encode([
-        'status_code'   => 405,
+        'status_code' => 405,
         'reason_phrase' => 'Method Not Allowed',
     ]));
 
@@ -340,7 +340,7 @@ test('router uses global strategy when a group prefix matches but no route match
     $body = Mockery::mock(StreamInterface::class);
     $body->shouldReceive('isWritable')->once()->andReturn(true);
     $body->shouldReceive('write')->once()->with(json_encode([
-        'status_code'   => 404,
+        'status_code' => 404,
         'reason_phrase' => 'Not Found',
     ]));
 

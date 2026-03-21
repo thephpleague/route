@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use League\Route\Cache\Router as CacheRouter;
 use League\Route\Router;
+use Mockery\MockInterface;
 use Psr\SimpleCache\CacheInterface;
 
 test('generates a URL by substituting a single path parameter', function () {
@@ -70,10 +71,10 @@ test('throws InvalidArgumentException listing the missing parameter', function (
 });
 
 test('cache router delegates URL generation to the inner router', function () {
-    /** @var CacheInterface&Mockery\MockInterface $cache */
+    /** @var CacheInterface&MockInterface $cache */
     $cache = Mockery::mock(CacheInterface::class);
 
-    $router = new CacheRouter(function (League\Route\Router $r): League\Route\Router {
+    $router = new CacheRouter(function (Router $r): Router {
         $r->get('/users/{id}', static function () {})->setName('users.show');
         return $r;
     }, $cache);
@@ -82,10 +83,10 @@ test('cache router delegates URL generation to the inner router', function () {
 });
 
 test('cache router throws InvalidArgumentException for a missing named route', function () {
-    /** @var CacheInterface&Mockery\MockInterface $cache */
+    /** @var CacheInterface&MockInterface $cache */
     $cache = Mockery::mock(CacheInterface::class);
 
-    $router = new CacheRouter(function (League\Route\Router $r): League\Route\Router {
+    $router = new CacheRouter(function (Router $r): Router {
         return $r;
     }, $cache);
 

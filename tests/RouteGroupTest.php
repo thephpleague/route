@@ -77,8 +77,8 @@ test('route group sets its strategy on each registered route', function () {
 });
 
 test('named routes registered inside a group are retrievable from the router', function () {
-    $router   = new Router();
-    $name     = 'route';
+    $router = new Router();
+    $name = 'route';
     $expected = null;
 
     $router->group('/acme', function (RouteGroup $group) use ($name, &$expected) {

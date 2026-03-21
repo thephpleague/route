@@ -16,8 +16,8 @@ test('strategy invokes route callable and returns response', function () {
     $route = Mockery::mock(Route::class);
 
     $expectedResponse = Mockery::mock(ResponseInterface::class);
-    $expectedRequest  = Mockery::mock(ServerRequestInterface::class);
-    $expectedVars     = ['something', 'else'];
+    $expectedRequest = Mockery::mock(ServerRequestInterface::class);
+    $expectedVars = ['something', 'else'];
 
     $route->shouldReceive('getCallable')->once()->andReturn(
         function (ServerRequestInterface $request, array $vars = []) use ($expectedRequest, $expectedResponse, $expectedVars): ResponseInterface {
@@ -45,7 +45,7 @@ test('strategy not found decorator throws NotFoundException when processed', fun
     /** @var RequestHandlerInterface&MockInterface $requestHandler */
     $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
-    $strategy  = new ApplicationStrategy();
+    $strategy = new ApplicationStrategy();
     $decorator = $strategy->getNotFoundDecorator($exception);
     $decorator->process($request, $requestHandler);
 })->throws(NotFoundException::class);
@@ -60,7 +60,7 @@ test('strategy method not allowed decorator throws MethodNotAllowedException whe
     /** @var RequestHandlerInterface&MockInterface $requestHandler */
     $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
-    $strategy  = new ApplicationStrategy();
+    $strategy = new ApplicationStrategy();
     $decorator = $strategy->getMethodNotAllowedDecorator($exception);
     $decorator->process($request, $requestHandler);
 })->throws(MethodNotAllowedException::class);
@@ -75,6 +75,6 @@ test('strategy throwable handler re-throws exception from request handler', func
     $requestHandler->shouldReceive('handle')->once()->with($request)->andThrow(new Exception());
 
     $strategy = new ApplicationStrategy();
-    $handler  = $strategy->getThrowableHandler();
+    $handler = $strategy->getThrowableHandler();
     $handler->process($request, $requestHandler);
 })->throws(Exception::class);

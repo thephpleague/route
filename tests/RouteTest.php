@@ -15,19 +15,19 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 test('route sets and resolves an invokable class callable', function () {
     $callable = new Controller();
-    $route    = new Route('GET', '/', $callable);
+    $route = new Route('GET', '/', $callable);
     expect(is_callable($route->getCallable()))->toBeTrue();
 });
 
 test('route sets and resolves a class method array callable', function () {
     $callable = [new Controller(), 'action'];
-    $route    = new Route('GET', '/', $callable);
+    $route = new Route('GET', '/', $callable);
     expect(is_callable($route->getCallable()))->toBeTrue();
 });
 
 test('route sets and resolves a lazily loaded class method array callable without a container', function () {
     $callable = [new Controller(), 'action'];
-    $route    = new Route('GET', '/', $callable);
+    $route = new Route('GET', '/', $callable);
     expect(is_callable($route->getCallable()))->toBeTrue();
 });
 
@@ -39,13 +39,13 @@ test('route sets and resolves a lazily loaded class method array callable using 
     $container->shouldReceive('get')->once()->with(Controller::class)->andReturn(new Controller());
 
     $callable = [Controller::class, 'action'];
-    $route    = new Route('GET', '/', $callable);
+    $route = new Route('GET', '/', $callable);
     expect(is_callable($route->getCallable($container)))->toBeTrue();
 });
 
 test('route sets and resolves a named function callable', function () {
     $callable = 'League\Route\Test\Fixture\namedFunctionCallable';
-    $route    = new Route('GET', '/', $callable);
+    $route = new Route('GET', '/', $callable);
     expect(is_callable($route->getCallable()))->toBeTrue();
 });
 
@@ -56,8 +56,8 @@ test('route sets and resolves a class method callable as a string via a containe
     $container->shouldReceive('has')->once()->with(Controller::class)->andReturn(true);
     $container->shouldReceive('get')->once()->with(Controller::class)->andReturn(new Controller());
 
-    $callable    = 'League\Route\Test\Fixture\Controller::action';
-    $route       = new Route('GET', '/', $callable);
+    $callable = 'League\Route\Test\Fixture\Controller::action';
+    $route = new Route('GET', '/', $callable);
     $newCallable = $route->getCallable($container);
 
     expect($newCallable)->toBeArray();
@@ -71,8 +71,8 @@ test('route sets and resolves a class method callable as a string without a cont
 
     $container->shouldReceive('has')->once()->with(Controller::class)->andReturn(false);
 
-    $callable    = 'League\Route\Test\Fixture\Controller::action';
-    $route       = new Route('GET', '/', $callable);
+    $callable = 'League\Route\Test\Fixture\Controller::action';
+    $route = new Route('GET', '/', $callable);
     $newCallable = $route->getCallable($container);
 
     expect($newCallable)->toBeArray();
@@ -87,8 +87,8 @@ test('route sets and resolves a request handler callable as a string via a conta
     $container->shouldReceive('has')->once()->with(MiddlewareController::class)->andReturn(true);
     $container->shouldReceive('get')->once()->with(MiddlewareController::class)->andReturn(new MiddlewareController());
 
-    $callable    = 'League\Route\Test\Fixture\MiddlewareController';
-    $route       = new Route('GET', '/', $callable);
+    $callable = 'League\Route\Test\Fixture\MiddlewareController';
+    $route = new Route('GET', '/', $callable);
     $newCallable = $route->getCallable($container);
 
     expect($newCallable)->toBeArray();
@@ -168,7 +168,7 @@ test('getPath replaces wildcard segments with provided values', function () {
     $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}', static function () {});
 
     $path = $route->getPath([
-        'wildcard'            => 'replaced-wildcard',
+        'wildcard' => 'replaced-wildcard',
         'wildcardWithMatcher' => 'replaced-wildcard-with-matcher',
     ]);
 
@@ -176,7 +176,7 @@ test('getPath replaces wildcard segments with provided values', function () {
 });
 
 test('route throws a RuntimeException when processed without a strategy', function () {
-    $request        = Mockery::mock(ServerRequestInterface::class);
+    $request = Mockery::mock(ServerRequestInterface::class);
     $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
     expect(fn() => (new Route('GET', '/something', static function () {}))->process($request, $requestHandler))

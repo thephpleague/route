@@ -132,7 +132,7 @@ class Dispatcher implements
             $route->setStrategy($strategy);
         }
 
-        $strategy  = $route->getStrategy();
+        $strategy = $route->getStrategy();
         $container = $strategy instanceof ContainerAwareInterface ? $strategy->getContainer() : null;
 
         foreach ($this->getMiddlewareStack() as $key => $middleware) {

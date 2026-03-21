@@ -102,7 +102,7 @@ test('strategy invokes route callable returning an object and encodes it as json
     /** @var StreamInterface&MockInterface $body */
     $body = Mockery::mock(StreamInterface::class);
 
-    $expectedVars   = ['something', 'else'];
+    $expectedVars = ['something', 'else'];
     $expectedObject = new stdClass();
     $expectedObject->something = 'else';
 
@@ -151,7 +151,7 @@ test('strategy not found decorator builds and returns a json response', function
     $factory->shouldReceive('createResponse')->once()->andReturn($response);
 
     $strategy = new JsonStrategy($factory);
-    $handler  = $strategy->getNotFoundDecorator($exception);
+    $handler = $strategy->getNotFoundDecorator($exception);
 
     $actualResponse = $handler->process($request, $requestHandler);
 
@@ -178,7 +178,7 @@ test('strategy method not allowed decorator builds and returns a json response',
     $factory->shouldReceive('createResponse')->once()->andReturn($response);
 
     $strategy = new JsonStrategy($factory);
-    $handler  = $strategy->getMethodNotAllowedDecorator($exception);
+    $handler = $strategy->getMethodNotAllowedDecorator($exception);
 
     $actualResponse = $handler->process($request, $requestHandler);
 
@@ -205,7 +205,7 @@ test('strategy throwable handler returns a json error response for a generic exc
     $response->shouldReceive('withStatus')->once()->with(500, 'Exception thrown')->andReturn($response);
 
     $body->shouldReceive('write')->once()->with(json_encode([
-        'status_code'   => 500,
+        'status_code' => 500,
         'reason_phrase' => 'Exception thrown',
     ]));
 
@@ -213,8 +213,8 @@ test('strategy throwable handler returns a json error response for a generic exc
     $factory = Mockery::mock(ResponseFactoryInterface::class);
     $factory->shouldReceive('createResponse')->once()->andReturn($response);
 
-    $strategy       = new JsonStrategy($factory);
-    $handler        = $strategy->getThrowableHandler();
+    $strategy = new JsonStrategy($factory);
+    $handler = $strategy->getThrowableHandler();
     $actualResponse = $handler->process($request, $requestHandler);
 
     expect($actualResponse)->toBe($response);
@@ -240,8 +240,8 @@ test('strategy throwable handler delegates to buildJsonResponse for an http exce
     $factory = Mockery::mock(ResponseFactoryInterface::class);
     $factory->shouldReceive('createResponse')->once()->andReturn($response);
 
-    $strategy       = new JsonStrategy($factory);
-    $handler        = $strategy->getThrowableHandler();
+    $strategy = new JsonStrategy($factory);
+    $handler = $strategy->getThrowableHandler();
     $actualResponse = $handler->process($request, $requestHandler);
 
     expect($actualResponse)->toBe($response);

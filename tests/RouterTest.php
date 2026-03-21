@@ -10,8 +10,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 test('router maps and returns route for each HTTP method', function () {
-    $router   = new Router();
-    $path     = '/something';
+    $router = new Router();
+    $path = '/something';
     $callable = function () {};
 
     foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
@@ -23,8 +23,8 @@ test('router maps and returns route for each HTTP method', function () {
 });
 
 test('router maps and returns a route group with correct prefix', function () {
-    $router   = new Router();
-    $prefix   = '/something';
+    $router = new Router();
+    $prefix = '/something';
     $callable = static function () {};
 
     $group = $router->group($prefix, $callable);
@@ -33,7 +33,7 @@ test('router maps and returns a route group with correct prefix', function () {
 
 test('router can set and retrieve a named route', function () {
     $router = new Router();
-    $name   = 'route';
+    $name = 'route';
 
     $expected = $router
         ->map('get', '/something', function () {})
@@ -182,7 +182,7 @@ test('setRoutesData injects cached state and allows matching', function () {
 
     $router->prepareRoutes($request);
     $data = $router->getRoutesData();
-    $map  = $router->getRouteMap();
+    $map = $router->getRouteMap();
 
     expect($data)->not->toBeEmpty();
     expect($map)->not->toBeEmpty();
