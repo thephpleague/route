@@ -49,22 +49,18 @@ class Dispatcher implements
         $uri = $request->getUri()->getPath();
         $match = $this->fastRouteDispatcher->dispatch($method, $uri);
 
-        switch ($match[0]) {
-            case FastRouteDispatcher::NOT_FOUND:
-                return MatchResult::notFound();
-            case FastRouteDispatcher::METHOD_NOT_ALLOWED:
-                return MatchResult::methodNotAllowed((array) $match[1]);
-            case FastRouteDispatcher::FOUND:
-                $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setPathVars($match[2]);
+        if ($match[0] === FastRouteDispatcher::FOUND) {
+            $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setPathVars($match[2]);
 
-                if ($this->isExtraConditionMatch($route, $request)) {
-                    return MatchResult::found($route);
-                }
-
-                return MatchResult::notFound();
+            return $this->isExtraConditionMatch($route, $request)
+                ? MatchResult::found($route)
+                : MatchResult::conditionNotMet($route);
         }
 
-        return MatchResult::notFound();
+        return match ($match[0]) {
+            FastRouteDispatcher::METHOD_NOT_ALLOWED => MatchResult::methodNotAllowed((array) $match[1]),
+            default                                 => MatchResult::notFound(),
+        };
     }
 
     #[Override]
@@ -72,19 +68,18 @@ class Dispatcher implements
     {
         $result = $this->matchRequest($request);
 
-        switch ($result->getStatus()) {
-            case MatchStatus::NotFound:
-                $this->setNotFoundDecoratorMiddleware();
-                break;
-            case MatchStatus::MethodNotAllowed:
-                $this->setMethodNotAllowedDecoratorMiddleware($result->getAllowedMethods());
-                break;
-            case MatchStatus::Found:
-                $route = $result->getRoute();
-                $this->setFoundMiddleware($route);
-                $request = $this->requestWithRouteAttributes($request, $route);
-                break;
+        if ($result->getStatus() === MatchStatus::Found) {
+            $route = $result->getRoute();
+            $this->setFoundMiddleware($route);
+            $request = $this->requestWithRouteAttributes($request, $route);
+
+            return $this->handle($request);
         }
+
+        match ($result->getStatus()) {
+            MatchStatus::MethodNotAllowed => $this->setMethodNotAllowedDecoratorMiddleware($result->getAllowedMethods()),
+            default                       => $this->setNotFoundDecoratorMiddleware(),
+        };
 
         return $this->handle($request);
     }

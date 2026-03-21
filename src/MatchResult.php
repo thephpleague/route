@@ -6,7 +6,7 @@ namespace League\Route;
 
 use LogicException;
 
-final class MatchResult
+final readonly class MatchResult
 {
     /** @param array<string> $allowedMethods */
     private function __construct(
@@ -31,6 +31,11 @@ final class MatchResult
         return new self(MatchStatus::MethodNotAllowed, null, $allowedMethods);
     }
 
+    public static function conditionNotMet(Route $route): self
+    {
+        return new self(MatchStatus::ConditionNotMet, $route, []);
+    }
+
     public function isFound(): bool
     {
         return $this->status === MatchStatus::Found;
@@ -39,6 +44,11 @@ final class MatchResult
     public function isMethodNotAllowed(): bool
     {
         return $this->status === MatchStatus::MethodNotAllowed;
+    }
+
+    public function isConditionNotMet(): bool
+    {
+        return $this->status === MatchStatus::ConditionNotMet;
     }
 
     public function getRoute(): Route
