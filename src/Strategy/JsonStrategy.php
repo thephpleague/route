@@ -45,7 +45,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
     #[Override]
     public function getOptionsCallable(array $methods): callable
     {
-        return function () use ($methods): ResponseInterface {
+        return function (ServerRequestInterface $request, array $vars) use ($methods): ResponseInterface {
             $options  = implode(', ', $methods);
             $response = $this->responseFactory->createResponse();
             $response = $response->withHeader('allow', $options);
@@ -72,13 +72,17 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
                         return $exception->buildJsonResponse($response);
                     }
 
-                    $response->getBody()->write(json_encode([
+                    $body = json_encode([
                         'status_code'   => 500,
                         'reason_phrase' => $exception->getMessage(),
-                    ]));
+                    ]);
+                    if (is_string($body)) {
+                        $response->getBody()->write($body);
+                    }
 
                     $response = $response->withAddedHeader('content-type', 'application/json');
-                    return $response->withStatus(500, strtok($exception->getMessage(), "\n"));
+                    $reasonPhrase = strtok($exception->getMessage(), "\n");
+                    return $response->withStatus(500, is_string($reasonPhrase) ? $reasonPhrase : '');
                 }
             }
         };
@@ -91,9 +95,11 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         $response = $controller($request, $route->getVars());
 
         if ($this->isJsonSerializable($response)) {
-            $body = json_encode($response, $this->jsonFlags);
+            $encodedBody = json_encode($response, $this->jsonFlags);
             $response = $this->responseFactory->createResponse();
-            $response->getBody()->write($body);
+            if (is_string($encodedBody)) {
+                $response->getBody()->write($encodedBody);
+            }
         }
 
         return $this->decorateResponse($response);

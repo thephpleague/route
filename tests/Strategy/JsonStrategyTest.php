@@ -264,7 +264,7 @@ test('strategy options callable returns a response with allow and access-control
     $strategy = new JsonStrategy($factory);
     $callable = $strategy->getOptionsCallable(['GET', 'POST']);
 
-    $result = $callable($request);
+    $result = $callable($request, []);
 
     expect($result)->toBe($response);
 });

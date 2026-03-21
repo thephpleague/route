@@ -66,10 +66,14 @@ trait MiddlewareAwareTrait
 
     public function shiftMiddleware(): MiddlewareInterface
     {
-        $middleware =  array_shift($this->middleware);
+        $middleware = array_shift($this->middleware);
 
         if ($middleware === null) {
             throw new OutOfBoundsException('Reached end of middleware stack. Does your controller return a response?');
+        }
+
+        if (is_string($middleware)) {
+            throw new InvalidArgumentException(sprintf('Unresolved lazy middleware (%s) cannot be shifted from the stack', $middleware));
         }
 
         return $middleware;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace League\Route;
 
-use FastRoute\Dispatcher as FastRoute;
+use FastRoute\Dispatcher as FastRouteDispatcher;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
@@ -14,38 +14,47 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 
-class Dispatcher extends GroupCountBasedDispatcher implements
+class Dispatcher implements
+    DispatcherInterface,
     MiddlewareAwareInterface,
     RequestHandlerInterface,
-    RouteConditionHandlerInterface,
     StrategyAwareInterface
 {
     use MiddlewareAwareTrait;
-    use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
-    /** @var array<int, Route> */
-    protected array $routeMap = [];
+    private readonly FastRouteDispatcher $fastRouteDispatcher;
 
-    /** @param array<int, Route> $routeMap */
-    public function setRouteMap(array $routeMap): self
-    {
+    /** @var array<int, Route> */
+    private readonly array $routeMap;
+
+    /**
+     * @param array<mixed> $routesData
+     * @param array<int, Route> $routeMap
+     */
+    public function __construct(
+        array $routesData,
+        StrategyInterface $strategy,
+        array $routeMap,
+    ) {
+        $this->fastRouteDispatcher = new GroupCountBasedDispatcher($routesData);
+        $this->setStrategy($strategy);
         $this->routeMap = $routeMap;
-        return $this;
     }
 
+    #[Override]
     public function matchRequest(ServerRequestInterface $request): MatchResult
     {
         $method = $request->getMethod();
         $uri = $request->getUri()->getPath();
-        $match = $this->dispatch($method, $uri);
+        $match = $this->fastRouteDispatcher->dispatch($method, $uri);
 
         switch ($match[0]) {
-            case FastRoute::NOT_FOUND:
+            case FastRouteDispatcher::NOT_FOUND:
                 return MatchResult::notFound();
-            case FastRoute::METHOD_NOT_ALLOWED:
+            case FastRouteDispatcher::METHOD_NOT_ALLOWED:
                 return MatchResult::methodNotAllowed((array) $match[1]);
-            case FastRoute::FOUND:
+            case FastRouteDispatcher::FOUND:
                 $route = $this->ensureHandlerIsRoute($match[1], $method, $uri)->setPathVars($match[2]);
 
                 if ($this->isExtraConditionMatch($route, $request)) {
@@ -58,6 +67,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         return MatchResult::notFound();
     }
 
+    #[Override]
     public function dispatchRequest(ServerRequestInterface $request): ResponseInterface
     {
         $result = $this->matchRequest($request);
@@ -129,10 +139,8 @@ class Dispatcher extends GroupCountBasedDispatcher implements
             $this->middleware[$key] = $this->resolveMiddleware($middleware, $container);
         }
 
-        // wrap entire dispatch process in exception handler
         $this->prependMiddleware($strategy->getThrowableHandler());
 
-        // add group and route specific middleware
         if ($group = $route->getParentGroup()) {
             foreach ($group->getMiddlewareStack() as $middleware) {
                 $this->middleware($this->resolveMiddleware($middleware, $container));
@@ -143,7 +151,6 @@ class Dispatcher extends GroupCountBasedDispatcher implements
             $this->middleware($this->resolveMiddleware($middleware, $container));
         }
 
-        // add actual route to end of stack
         $this->middleware($route);
     }
 
@@ -170,5 +177,21 @@ class Dispatcher extends GroupCountBasedDispatcher implements
 
         $middleware = $strategy->getNotFoundDecorator(new NotFoundException());
         $this->prependMiddleware($middleware);
+    }
+
+    private function isExtraConditionMatch(Route $route, ServerRequestInterface $request): bool
+    {
+        $scheme = $route->getScheme();
+        if ($scheme !== null && $scheme !== $request->getUri()->getScheme()) {
+            return false;
+        }
+
+        $host = $route->getHost();
+        if ($host !== null && $host !== $request->getUri()->getHost()) {
+            return false;
+        }
+
+        $port = $route->getPort();
+        return !($port !== null && $port !== $request->getUri()->getPort());
     }
 }

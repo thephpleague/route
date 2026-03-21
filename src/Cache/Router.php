@@ -8,15 +8,18 @@ use League\Route\MatchResult;
 use League\Route\Route;
 use League\Route\Router as MainRouter;
 use League\Route\RouterInterface;
+use League\Route\UrlGeneratorInterface;
 use Override;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
-class Router implements RouterInterface
+class Router implements RouterInterface, UrlGeneratorInterface
 {
     /** @var callable */
     protected $builder;
+
+    protected ?MainRouter $resolvedRouter = null;
 
     public function __construct(
         callable $builder,
@@ -45,9 +48,20 @@ class Router implements RouterInterface
         return $this->buildRouter($request)->match($request);
     }
 
+    #[Override]
+    public function generateUrl(string $name, array $substitutions = []): string
+    {
+        return $this->getOrCreateRouter()->generateUrl($name, $substitutions);
+    }
+
+    protected function getOrCreateRouter(): MainRouter
+    {
+        return $this->resolvedRouter ??= $this->createRouterFromBuilder();
+    }
+
     protected function buildRouter(ServerRequestInterface $request): MainRouter
     {
-        $router = $this->createRouterFromBuilder();
+        $router = $this->getOrCreateRouter();
 
         if (!$this->cacheEnabled) {
             return $router;
@@ -112,7 +126,7 @@ class Router implements RouterInterface
             $signature .= $method . ':' . $route->getPath() . "\n";
         }
 
-        return md5($signature);
+        return hash('xxh128', $signature);
     }
 
     /** @return array<int, Route> */

@@ -42,11 +42,13 @@ Version 7.0 introduces several powerful new features:
 
 - **RouterInterface**: A new `RouterInterface` that extends PSR-15's `RequestHandlerInterface`, providing type-safe dependency injection. Both `Router` and `Cache\Router` implement this interface.
 - **Route Matching**: The new `match()` method allows you to check if a route matches without executing it. It returns a `MatchResult` value object with a `MatchStatus` enum (Found, NotFound, MethodNotAllowed).
+- **URL Generation**: Generate URLs from named routes with `generateUrl()`. Extra parameters are appended as a query string. Both `Router` and `Cache\Router` implement the new `UrlGeneratorInterface`.
 - **Route Introspection**: Retrieve all registered routes with `getRoutes()`, useful for route debugging, documentation, and advanced routing scenarios.
 - **Improved Cached Router**: The cached router is no longer BETA. It caches compiled FastRoute data (not the router object itself) and automatically recovers from corrupt caches.
-- **PHP 8.2 Minimum**: Requires PHP 8.2.0 or higher.
+- **Cleaner Architecture**: The internal `Dispatcher` now uses composition instead of inheriting from FastRoute, reducing coupling and improving testability.
+- **PHP 8.3 Minimum**: Requires PHP 8.3.0 or higher.
 
-See [Route Matching](/unstable/route-matching) for more details on the new matching capabilities.
+See [Route Matching](/unstable/route-matching) and [URL Generation](/unstable/routes#url-generation) for more details.
 
 ## Hello, World!
 

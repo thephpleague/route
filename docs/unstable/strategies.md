@@ -230,6 +230,30 @@ $strategy->addResponseDecorator(function (Psr\Http\Message\ResponseInterface $re
 $router = (new League\Route\Router)->setStrategy($strategy);
 ~~~
 
+### OPTIONS and CORS
+
+When using `JsonStrategy`, OPTIONS routes are generated automatically. The callable returned by `getOptionsCallable()` receives the request and route variables at dispatch time, allowing you to build CORS-aware responses in a custom strategy:
+
+~~~php
+<?php declare(strict_types=1);
+
+public function getOptionsCallable(array $methods): callable
+{
+    return function (ServerRequestInterface $request, array $vars) use ($methods): ResponseInterface {
+        $origin = $request->getHeaderLine('Origin');
+        $response = $this->responseFactory->createResponse();
+        $response = $response->withHeader('allow', implode(', ', $methods));
+        $response = $response->withHeader('access-control-allow-methods', implode(', ', $methods));
+
+        if ($origin !== '') {
+            $response = $response->withHeader('access-control-allow-origin', $origin);
+        }
+
+        return $response;
+    };
+}
+~~~
+
 ## Custom Strategies
 
 You can build your own custom strategy to use in your application as long as it is an implementation of `League\Route\Strategy\StrategyInterface`. A strategy is tasked with:

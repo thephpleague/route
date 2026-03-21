@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace League\Route;
 
-use Closure;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait, StrategyInterface};
 use Override;
@@ -25,7 +24,7 @@ class Route implements
     use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
-    /** @var Closure|array<int, mixed>|string|object */
+    /** @var callable|array<int, mixed>|string */
     protected mixed $handler;
 
     /** @var array<string> */

@@ -14,10 +14,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - `Route::setPathVars()` for dispatcher-set path parameters, separate from user-set defaults.
 - Index-based route caching with signature hash validation for cache integrity.
 - Corrupt cache auto-recovery in cached router.
+- `UrlGeneratorInterface` with `generateUrl()` for reverse routing from named routes (#355).
+- `Router` and `Cache\Router` both implement `UrlGeneratorInterface`.
+- `DispatcherInterface` (marked `@internal`) formalising the Router-Dispatcher contract (#359).
 
 ### Changed
 - Minimum PHP version raised to 8.3.
-- PHPStan analysis raised from level 4 to level 6.
+- PHPStan analysis raised from level 4 to level 7 (#360).
 - Switched from PHP_CodeSniffer (PSR-12) to PHP CS Fixer (PER-CS2.0).
 - Switched from PHPUnit to Pest v4.
 - Switched from PHPUnit mocks to Mockery.
@@ -28,6 +31,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Route compilation is now request-independent: all routes compiled unconditionally, condition matching at dispatch time only.
 - `Cache\Router` now implements `RouterInterface`.
 - `FileCache::getMultiple()`, `setMultiple()`, and `deleteMultiple()` now throw `BadMethodCallException` instead of returning incorrect values.
+- `Dispatcher` now uses composition instead of inheriting from `FastRoute\Dispatcher\GroupCountBased` (#359).
+- `Dispatcher` constructor accepts strategy and route map at construction time instead of via setters.
+- `Dispatcher` no longer implements `RouteConditionHandlerInterface` (condition matching extracted as internal concern).
+- `JsonStrategy::getOptionsCallable()` returned closure now accepts `(ServerRequestInterface $request, array $vars)` parameters, enabling CORS-aware OPTIONS handling (#361).
+- `OptionsHandlerInterface::getOptionsCallable()` docblock now specifies the expected callable signature.
+- Cache signature hash upgraded from md5 to xxh128 for improved collision resistance.
 
 ### Removed
 - `laravel/serializable-closure` removed from hard dependencies (moved to suggest).
@@ -36,6 +45,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Request-dependent route filtering removed from `prepareRoutes()`.
 - Support for PHP 8.1 and 8.2 dropped.
 - Scrutinizer CI integration removed.
+- `Dispatcher::setRouteMap()` removed (route map now set via constructor).
+- Duplicate `Router::processGroups()` method removed (consolidated into `collectGroupRoutes()`).
 
 ## [6.2.0] 2024-11
 

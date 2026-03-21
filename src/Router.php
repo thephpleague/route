@@ -18,7 +18,8 @@ class Router implements
     RouterInterface,
     StrategyAwareInterface,
     RequestHandlerInterface,
-    RouteConditionHandlerInterface
+    RouteConditionHandlerInterface,
+    UrlGeneratorInterface
 {
     use MiddlewareAwareTrait;
     use RouteCollectionTrait;
@@ -87,9 +88,10 @@ class Router implements
             $this->setStrategy(new ApplicationStrategy());
         }
 
-        /** @var Dispatcher $dispatcher */
-        $dispatcher = (new Dispatcher($this->routesData))->setStrategy($this->getStrategy());
-        $dispatcher->setRouteMap($this->routeMap);
+        $strategy = $this->getStrategy();
+        assert($strategy !== null);
+
+        $dispatcher = new Dispatcher($this->routesData, $strategy, $this->routeMap);
 
         foreach ($this->getMiddlewareStack() as $middleware) {
             if (is_string($middleware)) {
@@ -119,6 +121,37 @@ class Router implements
     }
 
     #[Override]
+    public function generateUrl(string $name, array $substitutions = []): string
+    {
+        $route = $this->getNamedRoute($name);
+        $rawPath = $route->getPath();
+        $resolvedPath = $route->getPath($substitutions);
+
+        preg_match_all('/\{([^}]+)\}/', $rawPath, $paramMatches);
+        $routeParamNames = array_map(
+            static fn(string $segment): string => explode(':', $segment, 2)[0],
+            $paramMatches[1],
+        );
+
+        preg_match_all('/\{[^}]+\}/', $resolvedPath, $remainingMatches);
+
+        if (!empty($remainingMatches[0])) {
+            $missing = implode(', ', $remainingMatches[0]);
+            throw new InvalidArgumentException(
+                sprintf('Missing required parameters %s for route "%s"', $missing, $name),
+            );
+        }
+
+        $extraParams = array_diff_key($substitutions, array_flip($routeParamNames));
+
+        if (empty($extraParams)) {
+            return $resolvedPath;
+        }
+
+        return $resolvedPath . '?' . http_build_query($extraParams);
+    }
+
+    #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->dispatch($request);
@@ -135,9 +168,10 @@ class Router implements
             $this->setStrategy(new ApplicationStrategy());
         }
 
-        $dispatcher = new Dispatcher($this->routesData);
-        $dispatcher->setStrategy($this->getStrategy());
-        $dispatcher->setRouteMap($this->routeMap);
+        $strategy = $this->getStrategy();
+        assert($strategy !== null);
+
+        $dispatcher = new Dispatcher($this->routesData, $strategy, $this->routeMap);
         return $dispatcher->matchRequest($request);
     }
 
@@ -165,7 +199,7 @@ class Router implements
             $this->setStrategy(new ApplicationStrategy());
         }
 
-        $this->processGroups();
+        $this->collectGroupRoutes();
         $this->buildNameIndex();
 
         $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
@@ -185,8 +219,8 @@ class Router implements
                 continue;
             }
 
-            $identifier = $route->getScheme() . static::IDENTIFIER_SEPARATOR . $route->getHost()
-                . static::IDENTIFIER_SEPARATOR . $route->getPort() . static::IDENTIFIER_SEPARATOR . $route->getPath();
+            $identifier = $route->getScheme() . self::IDENTIFIER_SEPARATOR . $route->getHost()
+                . self::IDENTIFIER_SEPARATOR . $route->getPort() . self::IDENTIFIER_SEPARATOR . $route->getPath();
 
             if ('OPTIONS' === $route->getMethod()) {
                 unset($options[$identifier]);
@@ -197,7 +231,12 @@ class Router implements
                 $options[$identifier] = [];
             }
 
-            $options[$identifier][] = $route->getMethod();
+            $method = $route->getMethod();
+            if (is_array($method)) {
+                $options[$identifier] = array_merge($options[$identifier], $method);
+            } else {
+                $options[$identifier][] = $method;
+            }
         }
 
         $this->buildOptionsRoutes($options, $index);
@@ -227,7 +266,7 @@ class Router implements
         $strategy = $this->getStrategy();
 
         foreach ($options as $identifier => $methods) {
-            [$scheme, $host, $port, $path] = explode(static::IDENTIFIER_SEPARATOR, $identifier);
+            [$scheme, $host, $port, $path] = explode(self::IDENTIFIER_SEPARATOR, $identifier);
             $route = new Route('OPTIONS', $path, $strategy->getOptionsCallable($methods));
 
             if (!empty($scheme)) {
@@ -283,14 +322,6 @@ class Router implements
     }
 
     protected function collectGroupRoutes(): void
-    {
-        foreach ($this->groups as $key => $group) {
-            unset($this->groups[$key]);
-            $group();
-        }
-    }
-
-    protected function processGroups(): void
     {
         foreach ($this->groups as $key => $group) {
             unset($this->groups[$key]);

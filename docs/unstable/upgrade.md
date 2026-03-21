@@ -7,6 +7,9 @@ sections:
     PHP 8.3 Language Features: php-83-language-features
     RouterInterface: routerinterface
     Route Matching: route-matching
+    URL Generation: url-generation
+    Dispatcher Composition: dispatcher-composition
+    OPTIONS Callable Changes: options-callable-changes
     Cached Router: cached-router
     setVars Changes: setvars-changes
     Removed Features: removed-features
@@ -48,6 +51,62 @@ function registerRoutes(RouterInterface $router): void
 A new `match()` method is available on both `Router` and `Cache\Router`. It returns a `MatchResult` value object containing a `MatchStatus` enum (`Found`, `NotFound`, `MethodNotAllowed`) without executing your handlers.
 
 This is a purely additive change and requires no action unless you want to take advantage of it. See [Route Matching](/unstable/route-matching) for details.
+
+## URL Generation
+
+A new `UrlGeneratorInterface` provides reverse routing from named routes. Both `Router` and `Cache\Router` implement this interface.
+
+~~~php
+<?php declare(strict_types=1);
+
+use League\Route\UrlGeneratorInterface;
+
+$router = new League\Route\Router;
+
+$router->get('/users/{id}', 'UserController::show')->setName('users.show');
+
+$url = $router->generateUrl('users.show', ['id' => '42']);
+// => /users/42
+~~~
+
+This is a purely additive change. See [Routes](/unstable/routes) for full documentation including query string parameters and error handling.
+
+If you type-hint against `UrlGeneratorInterface` separately from `RouterInterface`, your code can generate URLs without depending on the full router.
+
+## Dispatcher Composition
+
+The internal `Dispatcher` class no longer extends `FastRoute\Dispatcher\GroupCountBased`. It now wraps the FastRoute dispatcher via composition.
+
+**If you extended `League\Route\Dispatcher`**, your code will need updating:
+
+- The class no longer inherits from `GroupCountBasedDispatcher`. Calls to `parent::dispatch()` will fail.
+- The constructor now requires three arguments: `$routesData`, `$strategy`, and `$routeMap`. The old `setRouteMap()` method has been removed.
+- `Dispatcher` no longer implements `RouteConditionHandlerInterface`. The `setHost()`, `setName()`, `setPort()`, and `setScheme()` methods are no longer available on the Dispatcher.
+
+A new `DispatcherInterface` (marked `@internal`) has been introduced with `dispatchRequest()` and `matchRequest()`. This is an internal interface and may change without notice; do not implement it in your own code.
+
+**If you only use the `Router` class** (the typical case), no changes are required.
+
+## OPTIONS Callable Changes
+
+The callable returned by `OptionsHandlerInterface::getOptionsCallable()` now receives `(ServerRequestInterface $request, array $vars)` when invoked. Previously, the `JsonStrategy` implementation ignored these parameters.
+
+**If you have a custom strategy implementing `OptionsHandlerInterface`**, update the closure returned by `getOptionsCallable()` to accept these parameters:
+
+~~~php
+<?php declare(strict_types=1);
+
+public function getOptionsCallable(array $methods): callable
+{
+    return function (ServerRequestInterface $request, array $vars) use ($methods): ResponseInterface {
+        // $request is now available for CORS handling
+        $origin = $request->getHeaderLine('Origin');
+        // ...
+    };
+}
+~~~
+
+The `OptionsHandlerInterface` method signature itself has not changed. Only the contract of the returned callable has been tightened.
 
 ## Cached Router
 

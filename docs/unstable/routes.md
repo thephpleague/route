@@ -6,6 +6,7 @@ sections:
     Route Conditions: route-conditions
     Route Groups: route-groups
     Wildcard Routes: wildcard-routes
+    URL Generation: url-generation
     Route Introspection: route-introspection
     Default Route Variables: default-route-variables
 ---
@@ -238,6 +239,74 @@ $router->map('GET', 'user/mTeam/{name:wordStartsWithM}', function (
 ~~~
 
 The above pattern matcher will create an internal regular expression string: `{$1:(m|M)[a-zA-Z]+}`, where `$1` will interpret to `name`, the variable listed before the colon.
+
+## URL Generation
+
+Named routes can be used to generate URLs, the inverse of route matching. Both `Router` and `Cache\Router` implement `UrlGeneratorInterface`.
+
+~~~php
+<?php declare(strict_types=1);
+
+$router = new League\Route\Router;
+
+$router->get('/users/{id}', 'UserController::show')->setName('users.show');
+$router->get('/posts/{slug:slug}', 'PostController::show')->setName('posts.show');
+
+$url = $router->generateUrl('users.show', ['id' => '42']);
+// => /users/42
+
+$url = $router->generateUrl('posts.show', ['slug' => 'hello-world']);
+// => /hello-world
+~~~
+
+### Missing Parameters
+
+If required parameters are not provided, an `InvalidArgumentException` is thrown with a message listing the missing parameters.
+
+~~~php
+<?php declare(strict_types=1);
+
+$router->get('/users/{id}/posts/{postId}', 'PostController::show')->setName('user.posts.show');
+
+$router->generateUrl('user.posts.show', ['id' => '42']);
+// throws InvalidArgumentException: Missing required parameters {postId} for route "user.posts.show"
+~~~
+
+### Extra Parameters as Query String
+
+Any substitution keys that do not match a route parameter are appended as a query string.
+
+~~~php
+<?php declare(strict_types=1);
+
+$router->get('/users/{id}', 'UserController::show')->setName('users.show');
+
+$url = $router->generateUrl('users.show', ['id' => '42', 'page' => '2', 'sort' => 'name']);
+// => /users/42?page=2&sort=name
+~~~
+
+### Type-hinting
+
+If you need URL generation without a full router dependency, type-hint against `UrlGeneratorInterface`:
+
+~~~php
+<?php declare(strict_types=1);
+
+use League\Route\UrlGeneratorInterface;
+
+class NavigationBuilder
+{
+    public function __construct(private UrlGeneratorInterface $urlGenerator) {}
+
+    public function buildMenu(): array
+    {
+        return [
+            'home' => $this->urlGenerator->generateUrl('home'),
+            'profile' => $this->urlGenerator->generateUrl('profile', ['id' => '1']),
+        ];
+    }
+}
+~~~
 
 ## Route Introspection
 

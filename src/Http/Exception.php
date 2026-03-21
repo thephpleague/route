@@ -48,10 +48,13 @@ class Exception extends \Exception implements HttpExceptionInterface
         }
 
         if ($response->getBody()->isWritable()) {
-            $response->getBody()->write(json_encode([
+            $body = json_encode([
                 'status_code' => $this->status,
                 'reason_phrase' => $this->message,
-            ]));
+            ]);
+            if (is_string($body)) {
+                $response->getBody()->write($body);
+            }
         }
 
         return $response->withStatus($this->status, $this->message);
