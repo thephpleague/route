@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace League\Route\Strategy;
 
 use JsonSerializable;
+use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
 use League\Route\Http;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
-use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
+use Override;
 use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Throwable;
@@ -28,13 +29,13 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         });
     }
 
-    #[\Override]
+    #[Override]
     public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface
     {
         return $this->buildJsonResponseMiddleware($exception);
     }
 
-    #[\Override]
+    #[Override]
     public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface
     {
         return $this->buildJsonResponseMiddleware($exception);
@@ -43,7 +44,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
     /**
      * @param array<string> $methods
      */
-    #[\Override]
+    #[Override]
     public function getOptionsCallable(array $methods): callable
     {
         return function () use ($methods): ResponseInterface {
@@ -54,18 +55,15 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         };
     }
 
-    #[\Override]
+    #[Override]
     public function getThrowableHandler(): MiddlewareInterface
     {
-        return new class ($this->responseFactory->createResponse()) implements MiddlewareInterface
-        {
-            public function __construct(protected readonly ResponseInterface $response)
-            {
-            }
+        return new class ($this->responseFactory->createResponse()) implements MiddlewareInterface {
+            public function __construct(protected readonly ResponseInterface $response) {}
 
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $handler
+                RequestHandlerInterface $handler,
             ): ResponseInterface {
                 try {
                     return $handler->handle($request);
@@ -78,7 +76,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
 
                     $response->getBody()->write(json_encode([
                         'status_code'   => 500,
-                        'reason_phrase' => $exception->getMessage()
+                        'reason_phrase' => $exception->getMessage(),
                     ]));
 
                     $response = $response->withAddedHeader('content-type', 'application/json');
@@ -88,7 +86,7 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
         };
     }
 
-    #[\Override]
+    #[Override]
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface
     {
         $controller = $route->getCallable($this->getContainer());
@@ -105,17 +103,15 @@ class JsonStrategy extends AbstractStrategy implements ContainerAwareInterface, 
 
     protected function buildJsonResponseMiddleware(Http\Exception $exception): MiddlewareInterface
     {
-        return new class ($this->responseFactory->createResponse(), $exception) implements MiddlewareInterface
-        {
+        return new class ($this->responseFactory->createResponse(), $exception) implements MiddlewareInterface {
             public function __construct(
                 protected readonly ResponseInterface $response,
                 protected readonly Http\Exception $exception,
-            ) {
-            }
+            ) {}
 
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $handler
+                RequestHandlerInterface $handler,
             ): ResponseInterface {
                 return $this->exception->buildJsonResponse($this->response);
             }

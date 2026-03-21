@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace League\Route\Http;
 
 use League\Route\Http\Exception\HttpExceptionInterface;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 
 class Exception extends \Exception implements HttpExceptionInterface
@@ -18,12 +19,12 @@ class Exception extends \Exception implements HttpExceptionInterface
         protected $message = '',
         ?\Exception $previous = null,
         protected array $headers = [],
-        int $code = 0
+        int $code = 0,
     ) {
         parent::__construct($this->message, $code, $previous);
     }
 
-    #[\Override]
+    #[Override]
     public function getStatusCode(): int
     {
         return $this->status;
@@ -32,13 +33,13 @@ class Exception extends \Exception implements HttpExceptionInterface
     /**
      * @return array<string, string>
      */
-    #[\Override]
+    #[Override]
     public function getHeaders(): array
     {
         return $this->headers;
     }
 
-    #[\Override]
+    #[Override]
     public function buildJsonResponse(ResponseInterface $response): ResponseInterface
     {
         $this->headers['content-type'] = 'application/json';
@@ -51,7 +52,7 @@ class Exception extends \Exception implements HttpExceptionInterface
         if ($response->getBody()->isWritable()) {
             $response->getBody()->write(json_encode([
                 'status_code' => $this->status,
-                'reason_phrase' => $this->message
+                'reason_phrase' => $this->message,
             ]));
         }
 

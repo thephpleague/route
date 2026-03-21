@@ -2,48 +2,36 @@
 
 declare(strict_types=1);
 
-namespace League\Route;
-
-use PHPUnit\Framework\TestCase;
+use League\Route\ContainerAwareInterface;
+use League\Route\ContainerAwareTrait;
+use League\Route\RouteConditionHandlerTrait;
 use Psr\Container\ContainerInterface;
-use RuntimeException;
 
-class TraitImplementationTest extends TestCase
-{
-    public function testContainerAwareTraitSetsAndGetsContainer(): void
-    {
-        $class = new class implements ContainerAwareInterface
-        {
-            use ContainerAwareTrait;
-        };
+test('container aware trait sets and gets the container correctly', function () {
+    $class = new class implements ContainerAwareInterface {
+        use ContainerAwareTrait;
+    };
 
-        $container = $this->createMock(ContainerInterface::class);
-        $this->assertInstanceOf(ContainerAwareInterface::class, $class->setContainer($container));
-        $this->assertInstanceOf(ContainerInterface::class, $class->getContainer());
-    }
+    $container = Mockery::mock(ContainerInterface::class);
 
-    public function testThrowsWhenContainerAwareTraitOnWrongInstance(): void
-    {
-        $this->expectException(RuntimeException::class);
+    expect($class->setContainer($container))->toBeInstanceOf(ContainerAwareInterface::class);
+    expect($class->getContainer())->toBeInstanceOf(ContainerInterface::class);
+});
 
-        $class = new class
-        {
-            use ContainerAwareTrait;
-        };
+test('container aware trait throws a runtime exception when used on a non-container-aware instance', function () {
+    $class = new class {
+        use ContainerAwareTrait;
+    };
 
-        $container = $this->createMock(ContainerInterface::class);
-        $class->setContainer($container);
-    }
+    $container = Mockery::mock(ContainerInterface::class);
 
-    public function testThrowsWhenRouteConditionTraitOnWrongInstance(): void
-    {
-        $this->expectException(RuntimeException::class);
+    expect(fn() => $class->setContainer($container))->toThrow(RuntimeException::class);
+});
 
-        $class = new class
-        {
-            use RouteConditionHandlerTrait;
-        };
+test('route condition handler trait throws a runtime exception when used on a non-route-condition-handler instance', function () {
+    $class = new class {
+        use RouteConditionHandlerTrait;
+    };
 
-        $class->setHost('example.com');
-    }
-}
+    expect(fn() => $class->setHost('example.com'))->toThrow(RuntimeException::class);
+});

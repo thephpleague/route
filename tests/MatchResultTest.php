@@ -2,54 +2,43 @@
 
 declare(strict_types=1);
 
-namespace League\Route;
+use League\Route\MatchResult;
+use League\Route\MatchStatus;
+use League\Route\Route;
 
-use PHPUnit\Framework\TestCase;
+test('found result reports correctly and exposes route and status', function () {
+    $route = new Route('GET', '/test', static function () {});
+    $result = MatchResult::found($route);
 
-class MatchResultTest extends TestCase
-{
-    public function testFoundResult(): void
-    {
-        $route = new Route('GET', '/test', static function () {
-        });
-        $result = MatchResult::found($route);
+    expect($result->isFound())->toBeTrue();
+    expect($result->isMethodNotAllowed())->toBeFalse();
+    expect($result->getRoute())->toBe($route);
+    expect($result->getStatus())->toBe(MatchStatus::Found);
+});
 
-        $this->assertTrue($result->isFound());
-        $this->assertFalse($result->isMethodNotAllowed());
-        $this->assertSame($route, $result->getRoute());
-        $this->assertSame(MatchStatus::Found, $result->getStatus());
-    }
+test('not found result reports correctly and exposes status', function () {
+    $result = MatchResult::notFound();
 
-    public function testNotFoundResult(): void
-    {
-        $result = MatchResult::notFound();
+    expect($result->isFound())->toBeFalse();
+    expect($result->isMethodNotAllowed())->toBeFalse();
+    expect($result->getStatus())->toBe(MatchStatus::NotFound);
+});
 
-        $this->assertFalse($result->isFound());
-        $this->assertFalse($result->isMethodNotAllowed());
-        $this->assertSame(MatchStatus::NotFound, $result->getStatus());
-    }
+test('method not allowed result reports correctly and exposes allowed methods and status', function () {
+    $result = MatchResult::methodNotAllowed(['GET', 'POST']);
 
-    public function testMethodNotAllowedResult(): void
-    {
-        $result = MatchResult::methodNotAllowed(['GET', 'POST']);
+    expect($result->isFound())->toBeFalse();
+    expect($result->isMethodNotAllowed())->toBeTrue();
+    expect($result->getAllowedMethods())->toBe(['GET', 'POST']);
+    expect($result->getStatus())->toBe(MatchStatus::MethodNotAllowed);
+});
 
-        $this->assertFalse($result->isFound());
-        $this->assertTrue($result->isMethodNotAllowed());
-        $this->assertSame(['GET', 'POST'], $result->getAllowedMethods());
-        $this->assertSame(MatchStatus::MethodNotAllowed, $result->getStatus());
-    }
+test('get route throws a logic exception when the result is not found', function () {
+    expect(fn() => MatchResult::notFound()->getRoute())->toThrow(LogicException::class);
+});
 
-    public function testGetRouteThrowsOnNotFound(): void
-    {
-        $this->expectException(\LogicException::class);
-        MatchResult::notFound()->getRoute();
-    }
+test('get allowed methods throws a logic exception when the result is found', function () {
+    $route = new Route('GET', '/test', static function () {});
 
-    public function testGetAllowedMethodsThrowsOnFound(): void
-    {
-        $this->expectException(\LogicException::class);
-        $route = new Route('GET', '/test', static function () {
-        });
-        MatchResult::found($route)->getAllowedMethods();
-    }
-}
+    expect(fn() => MatchResult::found($route)->getAllowedMethods())->toThrow(LogicException::class);
+});

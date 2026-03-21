@@ -16,10 +16,10 @@ class MethodNotAllowedException extends Http\Exception
         array $allowed = [],
         string $message = 'Method Not Allowed',
         ?Exception $previous = null,
-        int $code = 0
+        int $code = 0,
     ) {
         $headers = [
-            'Allow' => implode(', ', $allowed)
+            'Allow' => implode(', ', $allowed),
         ];
 
         parent::__construct(405, $message, $previous, $headers, $code);

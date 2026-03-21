@@ -8,6 +8,7 @@ use FastRoute\{DataGenerator, RouteCollector, RouteParser};
 use InvalidArgumentException;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{ApplicationStrategy, OptionsHandlerInterface, StrategyAwareInterface, StrategyAwareTrait};
+use Override;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -44,7 +45,7 @@ class Router implements
         '/{(.+?):word}/'          => '{$1:[a-zA-Z]+}',
         '/{(.+?):alphanum_dash}/' => '{$1:[a-zA-Z0-9-_]+}',
         '/{(.+?):slug}/'          => '{$1:[a-z0-9-]+}',
-        '/{(.+?):uuid}/'          => '{$1:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}+}'
+        '/{(.+?):uuid}/'          => '{$1:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}+}',
     ];
 
     /**
@@ -66,7 +67,7 @@ class Router implements
     {
         $this->routeCollector = $this->routeCollector ?? new RouteCollector(
             new RouteParser\Std(),
-            new DataGenerator\GroupCountBased()
+            new DataGenerator\GroupCountBased(),
         );
     }
 
@@ -85,7 +86,7 @@ class Router implements
         return $group;
     }
 
-    #[\Override]
+    #[Override]
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
         if (false === $this->routesPrepared) {
@@ -127,13 +128,13 @@ class Router implements
         throw new InvalidArgumentException(sprintf('No route of the name (%s) exists', $name));
     }
 
-    #[\Override]
+    #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->dispatch($request);
     }
 
-    #[\Override]
+    #[Override]
     public function match(ServerRequestInterface $request): MatchResult
     {
         if (false === $this->routesPrepared) {
@@ -154,11 +155,11 @@ class Router implements
      * @param array<string>|string $method
      * @param callable|array<string>|string|RequestHandlerInterface $handler
      */
-    #[\Override]
+    #[Override]
     public function map(
         string|array $method,
         string $path,
-        callable|array|string|RequestHandlerInterface $handler
+        callable|array|string|RequestHandlerInterface $handler,
     ): Route {
         $path = sprintf('/%s', ltrim($path, '/'));
         $route = new Route($method, $path, $handler);

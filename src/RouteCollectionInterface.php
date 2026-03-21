@@ -30,7 +30,7 @@ interface RouteCollectionInterface
     public function map(
         string|array $method,
         string $path,
-        callable|array|string|RequestHandlerInterface $handler
+        callable|array|string|RequestHandlerInterface $handler,
     ): Route;
 
     /**

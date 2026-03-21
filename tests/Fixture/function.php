@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace League\Route\Fixture;
+namespace League\Route\Test\Fixture;
 
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 

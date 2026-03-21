@@ -2,387 +2,269 @@
 
 declare(strict_types=1);
 
-namespace League\Route\Strategy;
-
-use Exception;
 use League\Route\Http\Exception as HttpException;
-use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
+use League\Route\Http\Exception\MethodNotAllowedException;
+use League\Route\Http\Exception\NotFoundException;
 use League\Route\Route;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface, StreamInterface};
+use League\Route\Strategy\JsonStrategy;
+use Mockery\MockInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use stdClass;
 
-class JsonStrategyTest extends TestCase
-{
-    public function testStrategyInvokesRouteCallable(): void
-    {
-        $route = $this->createMock(Route::class);
+test('strategy invokes route callable returning a response and sets content-type header', function () {
+    /** @var Route&MockInterface $route */
+    $route = Mockery::mock(Route::class);
 
-        $expectedResponse = $this->createMock(ResponseInterface::class);
-        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
-        $expectedVars     = ['something', 'else'];
+    /** @var ResponseInterface&MockInterface $expectedResponse */
+    $expectedResponse = Mockery::mock(ResponseInterface::class);
 
-        $route
-            ->expects($this->once())
-            ->method('getCallable')
-            ->willReturn(function (
-                ServerRequestInterface $request,
-                array $vars = []
-            ) use (
-                $expectedRequest,
-                $expectedResponse,
-                $expectedVars
-            ): ResponseInterface {
-                $this->assertSame($expectedRequest, $request);
-                $this->assertSame($expectedVars, $vars);
-                return $expectedResponse;
-            })
-        ;
+    /** @var ServerRequestInterface&MockInterface $expectedRequest */
+    $expectedRequest = Mockery::mock(ServerRequestInterface::class);
 
-        $route
-            ->expects($this->once())
-            ->method('getVars')
-            ->willReturn($expectedVars)
-        ;
+    $expectedVars = ['something', 'else'];
 
-        $expectedResponse
-            ->expects($this->once())
-            ->method('hasHeader')
-            ->with($this->equalTo('content-type'))
-            ->willReturn(false)
-        ;
+    $route->shouldReceive('getCallable')->once()->andReturn(
+        function (ServerRequestInterface $request, array $vars = []) use ($expectedRequest, $expectedResponse, $expectedVars): ResponseInterface {
+            expect($request)->toBe($expectedRequest);
+            expect($vars)->toBe($expectedVars);
+            return $expectedResponse;
+        },
+    );
 
-        $expectedResponse
-            ->expects($this->once())
-            ->method('withHeader')
-            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->willReturnSelf()
-        ;
+    $route->shouldReceive('getVars')->once()->andReturn($expectedVars);
 
-        $factory = $this->createMock(ResponseFactoryInterface::class);
+    $expectedResponse->shouldReceive('hasHeader')->once()->with('content-type')->andReturn(false);
+    $expectedResponse->shouldReceive('withHeader')->once()->with('content-type', 'application/json')->andReturn($expectedResponse);
 
-        $strategy = new JsonStrategy($factory);
-        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
-        $this->assertSame($expectedResponse, $response);
-    }
+    /** @var ResponseFactoryInterface&MockInterface $factory */
+    $factory = Mockery::mock(ResponseFactoryInterface::class);
 
-    public function testStrategyInvokesRouteCallableWithArrayReturn(): void
-    {
-        $route = $this->createMock(Route::class);
+    $strategy = new JsonStrategy($factory);
+    $response = $strategy->invokeRouteCallable($route, $expectedRequest);
 
-        $expectedResponse = $this->createMock(ResponseInterface::class);
-        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
-        $body             = $this->createMock(StreamInterface::class);
-        $expectedVars     = ['something', 'else'];
+    expect($response)->toBe($expectedResponse);
+});
 
-        $expectedResponse
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn($body)
-        ;
+test('strategy invokes route callable returning an array and encodes it as json body', function () {
+    /** @var Route&MockInterface $route */
+    $route = Mockery::mock(Route::class);
 
-        $expectedResponse
-            ->expects($this->once())
-            ->method('withHeader')
-            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->willReturnSelf()
-        ;
+    /** @var ResponseInterface&MockInterface $expectedResponse */
+    $expectedResponse = Mockery::mock(ResponseInterface::class);
 
-        $expectedResponse
-            ->expects($this->once())
-            ->method('hasHeader')
-            ->with($this->equalTo('content-type'))
-            ->willReturn(false)
-        ;
+    /** @var ServerRequestInterface&MockInterface $expectedRequest */
+    $expectedRequest = Mockery::mock(ServerRequestInterface::class);
 
-        $body
-            ->expects($this->once())
-            ->method('write')
-            ->with($this->equalTo(json_encode([$expectedVars[0] => $expectedVars[1]])))
-        ;
+    /** @var StreamInterface&MockInterface $body */
+    $body = Mockery::mock(StreamInterface::class);
 
-        $route
-            ->expects($this->once())
-            ->method('getCallable')
-            ->willReturn(function (
-                ServerRequestInterface $request,
-                array $vars = []
-            ) use (
-                $expectedRequest,
-                $expectedVars
-            ): array {
-                $this->assertSame($expectedRequest, $request);
-                $this->assertSame($expectedVars, $vars);
-                return [$vars[0] => $vars[1]];
-            })
-        ;
+    $expectedVars = ['something', 'else'];
 
-        $route
-            ->expects($this->once())
-            ->method('getVars')
-            ->willReturn($expectedVars)
-        ;
+    $route->shouldReceive('getCallable')->once()->andReturn(
+        function (ServerRequestInterface $request, array $vars = []) use ($expectedRequest, $expectedVars): array {
+            expect($request)->toBe($expectedRequest);
+            expect($vars)->toBe($expectedVars);
+            return [$vars[0] => $vars[1]];
+        },
+    );
 
-        $factory = $this->createMock(ResponseFactoryInterface::class);
+    $route->shouldReceive('getVars')->once()->andReturn($expectedVars);
 
-        $factory
-            ->expects($this->once())
-            ->method('createResponse')
-            ->willReturn($expectedResponse)
-        ;
+    $expectedResponse->shouldReceive('getBody')->once()->andReturn($body);
+    $expectedResponse->shouldReceive('hasHeader')->once()->with('content-type')->andReturn(false);
+    $expectedResponse->shouldReceive('withHeader')->once()->with('content-type', 'application/json')->andReturn($expectedResponse);
 
-        $strategy = new JsonStrategy($factory);
-        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
-        $this->assertSame($expectedResponse, $response);
-    }
+    $body->shouldReceive('write')->once()->with(json_encode([$expectedVars[0] => $expectedVars[1]]));
 
-    /**
-     * Asserts that the strategy returns the correct middleware to decorate NotFoundException.
-     *
-     * @return void
-     */
-    public function testStrategyReturnsCorrectNotFoundDecorator(): void
-    {
-        $exception      = $this->createMock(NotFoundException::class);
-        $request        = $this->createMock(ServerRequestInterface::class);
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
-        $response       = $this->createMock(ResponseInterface::class);
+    /** @var ResponseFactoryInterface&MockInterface $factory */
+    $factory = Mockery::mock(ResponseFactoryInterface::class);
+    $factory->shouldReceive('createResponse')->once()->andReturn($expectedResponse);
 
-        $exception
-            ->expects($this->once())
-            ->method('buildJsonResponse')
-            ->with($this->equalTo($response))
-            ->willReturn($response)
-        ;
+    $strategy = new JsonStrategy($factory);
+    $response = $strategy->invokeRouteCallable($route, $expectedRequest);
 
-        $factory = $this->createMock(ResponseFactoryInterface::class);
+    expect($response)->toBe($expectedResponse);
+});
 
-        $factory
-            ->expects($this->once())
-            ->method('createResponse')
-            ->willReturn($response)
-        ;
+test('strategy invokes route callable returning an object and encodes it as json body', function () {
+    /** @var Route&MockInterface $route */
+    $route = Mockery::mock(Route::class);
 
-        $strategy = new JsonStrategy($factory);
+    /** @var ResponseInterface&MockInterface $expectedResponse */
+    $expectedResponse = Mockery::mock(ResponseInterface::class);
 
-        $handler = $strategy->getNotFoundDecorator($exception);
-        $actualResponse = $handler->process($request, $requestHandler);
-        $this->assertSame($response, $actualResponse);
-    }
+    /** @var ServerRequestInterface&MockInterface $expectedRequest */
+    $expectedRequest = Mockery::mock(ServerRequestInterface::class);
 
-    public function testStrategyReturnsCorrectMethodNotAllowedDecorator(): void
-    {
-        $exception      = $this->createMock(MethodNotAllowedException::class);
-        $request        = $this->createMock(ServerRequestInterface::class);
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
-        $response       = $this->createMock(ResponseInterface::class);
+    /** @var StreamInterface&MockInterface $body */
+    $body = Mockery::mock(StreamInterface::class);
 
-        $exception
-            ->expects($this->once())
-            ->method('buildJsonResponse')
-            ->with($this->equalTo($response))
-            ->willReturn($response)
-        ;
+    $expectedVars   = ['something', 'else'];
+    $expectedObject = new stdClass();
+    $expectedObject->something = 'else';
 
-        $factory = $this->createMock(ResponseFactoryInterface::class);
+    $route->shouldReceive('getCallable')->once()->andReturn(
+        function (ServerRequestInterface $request) use ($expectedRequest, $expectedObject): stdClass {
+            expect($request)->toBe($expectedRequest);
+            return $expectedObject;
+        },
+    );
 
-        $factory
-            ->expects($this->once())
-            ->method('createResponse')
-            ->willReturn($response)
-        ;
+    $route->shouldReceive('getVars')->once()->andReturn($expectedVars);
 
-        $strategy = new JsonStrategy($factory);
-        $handler = $strategy->getMethodNotAllowedDecorator($exception);
-        $actualResponse = $handler->process($request, $requestHandler);
-        $this->assertSame($response, $actualResponse);
-    }
+    $expectedResponse->shouldReceive('getBody')->once()->andReturn($body);
+    $expectedResponse->shouldReceive('hasHeader')->once()->with('content-type')->andReturn(false);
+    $expectedResponse->shouldReceive('withHeader')->once()->with('content-type', 'application/json')->andReturn($expectedResponse);
 
-    public function testStrategyReturnsCorrectThrowableHandler(): void
-    {
-        $request        = $this->createMock(ServerRequestInterface::class);
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
-        $response       = $this->createMock(ResponseInterface::class);
-        $body           = $this->createMock(StreamInterface::class);
+    $body->shouldReceive('write')->once()->with(json_encode([$expectedVars[0] => $expectedVars[1]]));
 
-        $requestHandler
-            ->expects($this->once())
-            ->method('handle')
-            ->with($this->equalTo($request))
-            ->will($this->throwException(new Exception('Exception thrown')))
-        ;
+    /** @var ResponseFactoryInterface&MockInterface $factory */
+    $factory = Mockery::mock(ResponseFactoryInterface::class);
+    $factory->shouldReceive('createResponse')->once()->andReturn($expectedResponse);
 
-        $response
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn($body)
-        ;
+    $strategy = new JsonStrategy($factory);
+    $response = $strategy->invokeRouteCallable($route, $expectedRequest);
 
-        $response
-            ->expects($this->once())
-            ->method('withAddedHeader')
-            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->willReturnSelf()
-        ;
+    expect($response)->toBe($expectedResponse);
+});
 
-        $response
-            ->expects($this->once())
-            ->method('withStatus')
-            ->with($this->equalTo(500), $this->equalTo('Exception thrown'))
-            ->willReturnSelf()
-        ;
+test('strategy not found decorator builds and returns a json response', function () {
+    /** @var NotFoundException&MockInterface $exception */
+    $exception = Mockery::mock(NotFoundException::class);
 
-        $body
-            ->expects($this->once())
-            ->method('write')
-            ->with($this->equalTo(json_encode([
-                'status_code'   => 500,
-                'reason_phrase' => 'Exception thrown'
-            ])))
-        ;
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
 
-        $factory = $this->createMock(ResponseFactoryInterface::class);
+    /** @var RequestHandlerInterface&MockInterface $requestHandler */
+    $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
-        $factory
-            ->expects($this->once())
-            ->method('createResponse')
-            ->willReturn($response)
-        ;
+    /** @var ResponseInterface&MockInterface $response */
+    $response = Mockery::mock(ResponseInterface::class);
 
-        $strategy = new JsonStrategy($factory);
-        $handler = $strategy->getThrowableHandler();
-        $actualResponse = $handler->process($request, $requestHandler);
-        $this->assertSame($response, $actualResponse);
-    }
+    $exception->shouldReceive('buildJsonResponse')->once()->with($response)->andReturn($response);
 
-    public function testStrategyReturnsCorrectHttpExceptionHandler(): void
-    {
-        $exception      = $this->createMock(HttpException::class);
-        $request        = $this->createMock(ServerRequestInterface::class);
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
-        $response       = $this->createMock(ResponseInterface::class);
+    /** @var ResponseFactoryInterface&MockInterface $factory */
+    $factory = Mockery::mock(ResponseFactoryInterface::class);
+    $factory->shouldReceive('createResponse')->once()->andReturn($response);
 
-        $exception
-            ->expects($this->once())
-            ->method('buildJsonResponse')
-            ->with($this->equalTo($response))
-            ->willReturn($response)
-        ;
+    $strategy = new JsonStrategy($factory);
+    $handler  = $strategy->getNotFoundDecorator($exception);
 
-        $requestHandler
-            ->expects($this->once())
-            ->method('handle')
-            ->with($this->equalTo($request))
-            ->will($this->throwException($exception))
-        ;
+    $actualResponse = $handler->process($request, $requestHandler);
 
-        $factory = $this->createMock(ResponseFactoryInterface::class);
+    expect($actualResponse)->toBe($response);
+});
 
-        $factory
-            ->expects($this->once())
-            ->method('createResponse')
-            ->willReturn($response)
-        ;
+test('strategy method not allowed decorator builds and returns a json response', function () {
+    /** @var MethodNotAllowedException&MockInterface $exception */
+    $exception = Mockery::mock(MethodNotAllowedException::class);
 
-        $strategy = new JsonStrategy($factory);
-        $handler = $strategy->getThrowableHandler();
-        $actualResponse = $handler->process($request, $requestHandler);
-        $this->assertSame($response, $actualResponse);
-    }
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
 
-    public function testStrategyInvokesRouteCallableWithObjectReturn(): void
-    {
-        $route = $this->createMock(Route::class);
+    /** @var RequestHandlerInterface&MockInterface $requestHandler */
+    $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
-        $expectedResponse = $this->createMock(ResponseInterface::class);
-        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
-        $body             = $this->createMock(StreamInterface::class);
-        $expectedVars     = ['something', 'else'];
-        $expectedObject = new stdClass();
+    /** @var ResponseInterface&MockInterface $response */
+    $response = Mockery::mock(ResponseInterface::class);
 
-        $expectedResponse
-            ->expects($this->once())
-            ->method('getBody')
-            ->willReturn($body)
-        ;
+    $exception->shouldReceive('buildJsonResponse')->once()->with($response)->andReturn($response);
 
-        $expectedResponse
-            ->expects($this->once())
-            ->method('withHeader')
-            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->willReturnSelf()
-        ;
+    /** @var ResponseFactoryInterface&MockInterface $factory */
+    $factory = Mockery::mock(ResponseFactoryInterface::class);
+    $factory->shouldReceive('createResponse')->once()->andReturn($response);
 
-        $expectedResponse
-            ->expects($this->once())
-            ->method('hasHeader')
-            ->with($this->equalTo('content-type'))
-            ->willReturn(false)
-        ;
+    $strategy = new JsonStrategy($factory);
+    $handler  = $strategy->getMethodNotAllowedDecorator($exception);
 
-        $expectedObject->something = 'else';
+    $actualResponse = $handler->process($request, $requestHandler);
 
-        $body
-            ->expects($this->once())
-            ->method('write')
-            ->with($this->equalTo(json_encode([$expectedVars[0] => $expectedVars[1]])))
-        ;
+    expect($actualResponse)->toBe($response);
+});
 
-        $route
-            ->expects($this->once())
-            ->method('getCallable')
-            ->willReturn(function (
-                ServerRequestInterface $request
-            ) use (
-                $expectedRequest,
-                $expectedObject
-            ): stdClass {
-                $this->assertSame($expectedRequest, $request);
-                return $expectedObject;
-            })
-        ;
+test('strategy throwable handler returns a json error response for a generic exception', function () {
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
 
-        $route
-            ->expects($this->once())
-            ->method('getVars')
-            ->willReturn($expectedVars)
-        ;
+    /** @var RequestHandlerInterface&MockInterface $requestHandler */
+    $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
-        $factory = $this->createMock(ResponseFactoryInterface::class);
+    /** @var ResponseInterface&MockInterface $response */
+    $response = Mockery::mock(ResponseInterface::class);
 
-        $factory
-            ->expects($this->once())
-            ->method('createResponse')
-            ->willReturn($expectedResponse)
-        ;
+    /** @var StreamInterface&MockInterface $body */
+    $body = Mockery::mock(StreamInterface::class);
 
-        $strategy = new JsonStrategy($factory);
-        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
-        $this->assertSame($expectedResponse, $response);
-    }
+    $requestHandler->shouldReceive('handle')->once()->with($request)->andThrow(new Exception('Exception thrown'));
 
-    public function testStrategyProvidesOptionsRouteCallable(): void
-    {
-        $request  = $this->createMock(ServerRequestInterface::class);
-        $response = $this->createMock(ResponseInterface::class);
-        $factory  = $this->createMock(ResponseFactoryInterface::class);
+    $response->shouldReceive('getBody')->once()->andReturn($body);
+    $response->shouldReceive('withAddedHeader')->once()->with('content-type', 'application/json')->andReturn($response);
+    $response->shouldReceive('withStatus')->once()->with(500, 'Exception thrown')->andReturn($response);
 
-        $response
-            ->expects($this->exactly(2))
-            ->method('withHeader')
-            ->willReturnSelf()
-        ;
+    $body->shouldReceive('write')->once()->with(json_encode([
+        'status_code'   => 500,
+        'reason_phrase' => 'Exception thrown',
+    ]));
 
-        $factory
-            ->expects($this->once())
-            ->method('createResponse')
-            ->willReturn($response)
-        ;
+    /** @var ResponseFactoryInterface&MockInterface $factory */
+    $factory = Mockery::mock(ResponseFactoryInterface::class);
+    $factory->shouldReceive('createResponse')->once()->andReturn($response);
 
-        $strategy = new JsonStrategy($factory);
-        $callable = $strategy->getOptionsCallable(['GET', 'POST']);
+    $strategy       = new JsonStrategy($factory);
+    $handler        = $strategy->getThrowableHandler();
+    $actualResponse = $handler->process($request, $requestHandler);
 
-        $callable($request);
-    }
-}
+    expect($actualResponse)->toBe($response);
+});
+
+test('strategy throwable handler delegates to buildJsonResponse for an http exception', function () {
+    /** @var HttpException&MockInterface $exception */
+    $exception = Mockery::mock(HttpException::class);
+
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+
+    /** @var RequestHandlerInterface&MockInterface $requestHandler */
+    $requestHandler = Mockery::mock(RequestHandlerInterface::class);
+
+    /** @var ResponseInterface&MockInterface $response */
+    $response = Mockery::mock(ResponseInterface::class);
+
+    $exception->shouldReceive('buildJsonResponse')->once()->with($response)->andReturn($response);
+    $requestHandler->shouldReceive('handle')->once()->with($request)->andThrow($exception);
+
+    /** @var ResponseFactoryInterface&MockInterface $factory */
+    $factory = Mockery::mock(ResponseFactoryInterface::class);
+    $factory->shouldReceive('createResponse')->once()->andReturn($response);
+
+    $strategy       = new JsonStrategy($factory);
+    $handler        = $strategy->getThrowableHandler();
+    $actualResponse = $handler->process($request, $requestHandler);
+
+    expect($actualResponse)->toBe($response);
+});
+
+test('strategy options callable returns a response with allow and access-control-allow-methods headers', function () {
+    /** @var ResponseInterface&MockInterface $response */
+    $response = Mockery::mock(ResponseInterface::class);
+
+    /** @var ResponseFactoryInterface&MockInterface $factory */
+    $factory = Mockery::mock(ResponseFactoryInterface::class);
+
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+
+    $response->shouldReceive('withHeader')->twice()->andReturn($response);
+
+    $factory->shouldReceive('createResponse')->once()->andReturn($response);
+
+    $strategy = new JsonStrategy($factory);
+    $callable = $strategy->getOptionsCallable(['GET', 'POST']);
+
+    $result = $callable($request);
+
+    expect($result)->toBe($response);
+});

@@ -4,18 +4,13 @@
 [![Latest Version](https://img.shields.io/github/release/thephpleague/route.svg?style=flat-square)](https://github.com/thephpleague/route/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/thephpleague/route/test.yml?style=flat-square)](https://github.com/thephpleague/route/actions/workflows/test.yml)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/thephpleague/route.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/route/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/route.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/route)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/route.svg?style=flat-square)](https://packagist.org/packages/league/route)
 
-This package is compliant with [PSR-1], [PSR-2], [PSR-4], [PSR-7], [PSR-11], [PSR-12], [PSR-15], [PSR-16] and [PSR-17]. If you notice compliance oversights, please send a patch via pull request.
+This package is compliant with [PSR-4], [PSR-7], [PSR-11], [PSR-15], [PSR-16] and [PSR-17]. If you notice compliance oversights, please send a patch via pull request.
 
-[PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
-[PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
 [PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
 [PSR-7]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-7-http-message.md
 [PSR-11]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-11-container.md
-[PSR-12]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-12-extended-coding-style-guide.md
 [PSR-15]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-15-request-handlers.md
 [PSR-16]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md
 [PSR-17]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-17-http-factory.md
@@ -45,7 +40,7 @@ Contribute to this documentation in the [docs directory](https://github.com/thep
 ## Testing
 
 ``` bash
-$ vendor/bin/phpunit
+$ composer test
 ```
 
 ## Contributing

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace League\Route\Fixture;
+namespace League\Route\Test\Fixture;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,7 +12,7 @@ class Controller
     public function __invoke(
         ServerRequestInterface $request,
         ResponseInterface $response,
-        callable $next
+        callable $next,
     ): ResponseInterface {
         $response = $response->withHeader('invoke', 'true');
         return $next($request, $response);
@@ -21,7 +21,7 @@ class Controller
     public function action(
         ServerRequestInterface $request,
         ResponseInterface $response,
-        callable $next
+        callable $next,
     ): ResponseInterface {
         $response = $response->withHeader('action', 'true');
         return $next($request, $response);

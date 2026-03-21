@@ -7,7 +7,7 @@ We accept contributions via Pull Requests on [Github](https://github.com/thephpl
 
 ## Pull Requests
 
-- **[PSR-12 Coding Standard](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-12-extended-coding-style-guide.md)** - The easiest way to apply the conventions is to install [PHP Code Sniffer](http://pear.php.net/package/PHP_CodeSniffer).
+- **[PER Coding Style](https://www.php-fig.org/per/coding-style/)** - Run `vendor/bin/php-cs-fixer fix` to apply the conventions automatically.
 
 - **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 
@@ -25,7 +25,7 @@ We accept contributions via Pull Requests on [Github](https://github.com/thephpl
 ## Running Tests
 
 ``` bash
-$ vendor/bin/phpunit
+$ composer test
 ```
 
 

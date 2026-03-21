@@ -2,251 +2,183 @@
 
 declare(strict_types=1);
 
-namespace League\Route;
-
-use League\Route\Fixture\{Controller, MiddlewareController};
-use PHPUnit\Framework\TestCase;
+use League\Route\Route;
+use League\Route\RouteGroup;
+use League\Route\Test\Fixture\Controller;
+use League\Route\Test\Fixture\MiddlewareController;
+use Mockery\MockInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
-use RuntimeException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class RouteTest extends TestCase
-{
-    public function testRouteSetsAndResolvesInvokableClassCallable(): void
-    {
-        $callable = new Controller();
-        $route = new Route('GET', '/', $callable);
-        $this->assertIsCallable($route->getCallable());
-    }
+test('route sets and resolves an invokable class callable', function () {
+    $callable = new Controller();
+    $route    = new Route('GET', '/', $callable);
+    expect(is_callable($route->getCallable()))->toBeTrue();
+});
 
-    public function testRouteSetsAndResolvesClassMethodArrayCallable(): void
-    {
-        $callable = [new Controller(), 'action'];
-        $route = new Route('GET', '/', $callable);
-        $this->assertIsCallable($route->getCallable());
-    }
+test('route sets and resolves a class method array callable', function () {
+    $callable = [new Controller(), 'action'];
+    $route    = new Route('GET', '/', $callable);
+    expect(is_callable($route->getCallable()))->toBeTrue();
+});
 
-    public function testRouteSetsAndResolvesLazilyLoadedClassMethodArrayCallableWithoutContainer(): void
-    {
-        $callable = [new Controller(), 'action'];
-        $route = new Route('GET', '/', $callable);
-        $this->assertIsCallable($route->getCallable());
-    }
+test('route sets and resolves a lazily loaded class method array callable without a container', function () {
+    $callable = [new Controller(), 'action'];
+    $route    = new Route('GET', '/', $callable);
+    expect(is_callable($route->getCallable()))->toBeTrue();
+});
 
-    public function testRouteSetsAndResolvesLazilyLoadedClassMethodArrayCallableWithContainer(): void
-    {
-        $container = $this->createMock(ContainerInterface::class);
+test('route sets and resolves a lazily loaded class method array callable using a container', function () {
+    /** @var ContainerInterface&MockInterface $container */
+    $container = Mockery::mock(ContainerInterface::class);
 
-        $container
-            ->expects($this->once())
-            ->method('has')
-            ->with($this->equalTo(Controller::class))
-            ->willReturn(true)
-        ;
+    $container->shouldReceive('has')->once()->with(Controller::class)->andReturn(true);
+    $container->shouldReceive('get')->once()->with(Controller::class)->andReturn(new Controller());
 
-        $container
-            ->expects($this->once())
-            ->method('get')
-            ->with($this->equalTo(Controller::class))
-            ->willReturn(new Controller())
-        ;
+    $callable = [Controller::class, 'action'];
+    $route    = new Route('GET', '/', $callable);
+    expect(is_callable($route->getCallable($container)))->toBeTrue();
+});
 
-        $callable = [Controller::class, 'action'];
-        $route = new Route('GET', '/', $callable);
-        $this->assertIsCallable($route->getCallable($container));
-    }
+test('route sets and resolves a named function callable', function () {
+    $callable = 'League\Route\Test\Fixture\namedFunctionCallable';
+    $route    = new Route('GET', '/', $callable);
+    expect(is_callable($route->getCallable()))->toBeTrue();
+});
 
-    public function testRouteSetsAndResolvesNamedFunctionCallable(): void
-    {
-        $callable = 'League\Route\Fixture\namedFunctionCallable';
-        $route = new Route('GET', '/', $callable);
-        $this->assertIsCallable($route->getCallable());
-    }
+test('route sets and resolves a class method callable as a string via a container', function () {
+    /** @var ContainerInterface&MockInterface $container */
+    $container = Mockery::mock(ContainerInterface::class);
 
-    public function testRouteSetsAndResolvesClassMethodCallableAsStringViaContainer(): void
-    {
-        $container = $this->createMock(ContainerInterface::class);
+    $container->shouldReceive('has')->once()->with(Controller::class)->andReturn(true);
+    $container->shouldReceive('get')->once()->with(Controller::class)->andReturn(new Controller());
 
-        $container
-            ->expects($this->once())
-            ->method('has')
-            ->with($this->equalTo(Controller::class))
-            ->willReturn(true)
-        ;
+    $callable    = 'League\Route\Test\Fixture\Controller::action';
+    $route       = new Route('GET', '/', $callable);
+    $newCallable = $route->getCallable($container);
 
-        $container
-            ->expects($this->once())
-            ->method('get')
-            ->with($this->equalTo(Controller::class))
-            ->willReturn(new Controller())
-        ;
+    expect($newCallable)->toBeArray();
+    expect($newCallable[0])->toBeInstanceOf(Controller::class);
+    expect($newCallable[1])->toEqual('action');
+});
 
-        $callable = 'League\Route\Fixture\Controller::action';
-        $route = new Route('GET', '/', $callable);
+test('route sets and resolves a class method callable as a string without a container', function () {
+    /** @var ContainerInterface&MockInterface $container */
+    $container = Mockery::mock(ContainerInterface::class);
 
-        $newCallable = $route->getCallable($container);
-        $this->assertIsArray($newCallable);
-        $this->assertInstanceOf(Controller::class, $newCallable[0]);
-        $this->assertEquals('action', $newCallable[1]);
-    }
+    $container->shouldReceive('has')->once()->with(Controller::class)->andReturn(false);
 
-    public function testRouteSetsAndResolvesClassMethodCallableAsStringWithoutContainer(): void
-    {
-        $container = $this->createMock(ContainerInterface::class);
+    $callable    = 'League\Route\Test\Fixture\Controller::action';
+    $route       = new Route('GET', '/', $callable);
+    $newCallable = $route->getCallable($container);
 
-        $container
-            ->expects($this->once())
-            ->method('has')
-            ->with($this->equalTo(Controller::class))
-            ->willReturn(false)
-        ;
+    expect($newCallable)->toBeArray();
+    expect($newCallable[0])->toBeInstanceOf(Controller::class);
+    expect($newCallable[1])->toEqual('action');
+});
 
-        $callable = 'League\Route\Fixture\Controller::action';
-        $route    = new Route('GET', '/', $callable);
+test('route sets and resolves a request handler callable as a string via a container', function () {
+    /** @var ContainerInterface&MockInterface $container */
+    $container = Mockery::mock(ContainerInterface::class);
 
-        $newCallable = $route->getCallable($container);
-        $this->assertIsArray($newCallable);
-        $this->assertInstanceOf(Controller::class, $newCallable[0]);
-        $this->assertEquals('action', $newCallable[1]);
-    }
+    $container->shouldReceive('has')->once()->with(MiddlewareController::class)->andReturn(true);
+    $container->shouldReceive('get')->once()->with(MiddlewareController::class)->andReturn(new MiddlewareController());
 
-    public function testRouteSetsAndResolvesRequestHandlerCallableAsStringViaContainer(): void
-    {
-        $container = $this->createMock(ContainerInterface::class);
+    $callable    = 'League\Route\Test\Fixture\MiddlewareController';
+    $route       = new Route('GET', '/', $callable);
+    $newCallable = $route->getCallable($container);
 
-        $container
-            ->expects($this->once())
-            ->method('has')
-            ->with($this->equalTo(MiddlewareController::class))
-            ->willReturn(true)
-        ;
+    expect($newCallable)->toBeArray();
+    expect($newCallable[0])->toBeInstanceOf(MiddlewareController::class);
+    expect($newCallable[1])->toEqual('handle');
+});
 
-        $container
-            ->expects($this->once())
-            ->method('get')
-            ->with($this->equalTo(MiddlewareController::class))
-            ->willReturn(new MiddlewareController())
-        ;
+test('route can set and get all properties', function () {
+    $route = new Route('GET', '/something', static function () {});
 
-        $callable = 'League\Route\Fixture\MiddlewareController';
-        $route    = new Route('GET', '/', $callable);
+    /** @var RouteGroup&MockInterface $group */
+    $group = Mockery::mock(RouteGroup::class);
+    $group->shouldReceive('getPrefix')->once()->andReturn('/group');
 
-        $newCallable = $route->getCallable($container);
-        $this->assertIsArray($newCallable);
-        $this->assertInstanceOf(MiddlewareController::class, $newCallable[0]);
-        $this->assertEquals('handle', $newCallable[1]);
-    }
+    expect($route->setParentGroup($group)->getParentGroup())->toBe($group);
+    expect($route->getPath())->toBe('/group/something');
+    expect($route->getMethod())->toBe('GET');
 
-    public function testRouteCanSetAndGetAllProperties(): void
-    {
-        $route = new Route('GET', '/something', static function () {
-        });
+    $name = 'a.name';
+    expect($route->setName($name)->getName())->toBe($name);
 
-        $group = $this
-            ->getMockBuilder(RouteGroup::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+    $scheme = 'http';
+    expect($route->setScheme($scheme)->getScheme())->toBe($scheme);
 
-        $group
-            ->expects($this->once())
-            ->method('getPrefix')
-            ->willReturn('/group')
-        ;
+    $host = 'example.com';
+    expect($route->setHost($host)->getHost())->toBe($host);
 
-        $this->assertSame($group, $route->setParentGroup($group)->getParentGroup());
+    $vars = ['example', 'something'];
+    expect($route->setVars($vars)->getVars())->toBe($vars);
 
-        $this->assertSame('/group/something', $route->getPath());
-        $this->assertSame('GET', $route->getMethod());
+    $port = 8080;
+    expect($route->setPort($port)->getPort())->toBe($port);
 
-        $name = 'a.name';
-        $this->assertSame($name, $route->setName($name)->getName());
+    $middleware = new class implements MiddlewareInterface {
+        public function process(
+            ServerRequestInterface $request,
+            RequestHandlerInterface $handler,
+        ): ResponseInterface {}
+    };
 
-        $scheme = 'http';
-        $this->assertSame($scheme, $route->setScheme($scheme)->getScheme());
+    $route->middlewares([$middleware, $middleware]);
+    expect($route->getMiddlewareStack())->toBe([$middleware, $middleware]);
+});
 
-        $host = 'example.com';
-        $this->assertSame($host, $route->setHost($host)->getHost());
+test('pre-set vars survive after dispatch path vars are applied', function () {
+    $route = new Route('GET', '/users/{id}', static function () {});
+    $route->setVars(['default_role' => 'viewer']);
+    $route->setPathVars(['id' => '42']);
 
-        $vars = ['example', 'something'];
-        $this->assertSame($vars, $route->setVars($vars)->getVars());
+    $vars = $route->getVars();
+    expect($vars['default_role'])->toBe('viewer');
+    expect($vars['id'])->toBe('42');
+});
 
-        $port = 8080;
-        $this->assertSame($port, $route->setPort($port)->getPort());
+test('path vars take precedence over default vars when keys conflict', function () {
+    $route = new Route('GET', '/users/{id}', static function () {});
+    $route->setVars(['id' => 'default']);
+    $route->setPathVars(['id' => '42']);
 
-        $middleware = new class implements MiddlewareInterface
-        {
-            public function process(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler
-            ): ResponseInterface {
-            }
-        };
+    expect($route->getVars()['id'])->toBe('42');
+});
 
-        $route->middlewares([$middleware, $middleware]);
+test('setPathVars does not accumulate across multiple calls', function () {
+    $route = new Route('GET', '/users/{id}', static function () {});
+    $route->setVars(['default_role' => 'viewer']);
 
-        $this->assertSame([
-            $middleware, $middleware
-        ], $route->getMiddlewareStack());
-    }
+    $route->setPathVars(['id' => '42']);
+    $route->setPathVars(['id' => '99']);
 
-    public function testPreSetVarsSurviveDispatchPathVars(): void
-    {
-        $route = new Route('GET', '/users/{id}', static function () {
-        });
-        $route->setVars(['default_role' => 'viewer']);
-        $route->setPathVars(['id' => '42']);
+    $vars = $route->getVars();
+    expect($vars['id'])->toBe('99');
+    expect($vars['default_role'])->toBe('viewer');
+    expect($vars)->toHaveCount(2);
+});
 
-        $vars = $route->getVars();
-        $this->assertSame('viewer', $vars['default_role']);
-        $this->assertSame('42', $vars['id']);
-    }
+test('getPath replaces wildcard segments with provided values', function () {
+    $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}', static function () {});
 
-    public function testPathVarsTakePrecedenceOverDefaultVars(): void
-    {
-        $route = new Route('GET', '/users/{id}', static function () {
-        });
-        $route->setVars(['id' => 'default']);
-        $route->setPathVars(['id' => '42']);
+    $path = $route->getPath([
+        'wildcard'            => 'replaced-wildcard',
+        'wildcardWithMatcher' => 'replaced-wildcard-with-matcher',
+    ]);
 
-        $this->assertSame('42', $route->getVars()['id']);
-    }
+    expect($path)->toBe('/a/replaced-wildcard/and/replaced-wildcard-with-matcher');
+});
 
-    public function testSetPathVarsDoesNotAccumulateAcrossMultipleCalls(): void
-    {
-        $route = new Route('GET', '/users/{id}', static function () {
-        });
-        $route->setVars(['default_role' => 'viewer']);
+test('route throws a RuntimeException when processed without a strategy', function () {
+    $request        = Mockery::mock(ServerRequestInterface::class);
+    $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
-        $route->setPathVars(['id' => '42']);
-        $route->setPathVars(['id' => '99']);
-
-        $vars = $route->getVars();
-        $this->assertSame('99', $vars['id']);
-        $this->assertSame('viewer', $vars['default_role']);
-        $this->assertCount(2, $vars);
-    }
-
-    public function testGetPathReplacesWildcards(): void
-    {
-        $route = new Route('GET', '/a/{wildcard}/and/{wildcardWithMatcher:uuid}', static function () {
-        });
-
-        $path = $route->getPath([
-            'wildcard'            => 'replaced-wildcard',
-            'wildcardWithMatcher' => 'replaced-wildcard-with-matcher',
-        ]);
-
-        $this->assertSame('/a/replaced-wildcard/and/replaced-wildcard-with-matcher', $path);
-    }
-
-    public function testRouteThrowsWithNoStrategy(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $request = $this->createMock(ServerRequestInterface::class);
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
-        (new Route('GET', '/something', static function () {
-        }))->process($request, $requestHandler);
-    }
-}
+    expect(fn() => (new Route('GET', '/something', static function () {}))->process($request, $requestHandler))
+        ->toThrow(RuntimeException::class);
+});

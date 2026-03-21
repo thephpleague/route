@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace League\Route;
 
+use Closure;
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait, StrategyInterface};
+use Override;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use RuntimeException;
@@ -23,7 +25,7 @@ class Route implements
     use RouteConditionHandlerTrait;
     use StrategyAwareTrait;
 
-    /** @var \Closure|array<int, mixed>|string|object */
+    /** @var Closure|array<int, mixed>|string|object */
     protected mixed $handler;
 
     /** @var array<string> */
@@ -42,7 +44,7 @@ class Route implements
         protected string $path,
         callable|array|string|RequestHandlerInterface $handler,
         protected ?RouteGroup $group = null,
-        array $vars = []
+        array $vars = [],
     ) {
         $this->defaultVars = $vars;
         $this->handler = ($handler instanceof RequestHandlerInterface) ? [$handler, 'handle'] : $handler;
@@ -112,10 +114,10 @@ class Route implements
         return array_merge($this->defaultVars, $this->pathVars);
     }
 
-    #[\Override]
+    #[Override]
     public function process(
         ServerRequestInterface $request,
-        RequestHandlerInterface $handler
+        RequestHandlerInterface $handler,
     ): ResponseInterface {
         $strategy = $this->getStrategy();
 

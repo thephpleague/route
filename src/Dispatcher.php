@@ -9,6 +9,7 @@ use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Middleware\{MiddlewareAwareInterface, MiddlewareAwareTrait};
 use League\Route\Strategy\{StrategyAwareInterface, StrategyAwareTrait, StrategyInterface};
+use Override;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
@@ -78,7 +79,7 @@ class Dispatcher extends GroupCountBasedDispatcher implements
         return $this->handle($request);
     }
 
-    #[\Override]
+    #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $middleware = $this->shiftMiddleware();

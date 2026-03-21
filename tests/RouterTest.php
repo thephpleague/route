@@ -2,267 +2,228 @@
 
 declare(strict_types=1);
 
-namespace League\Route;
+use League\Route\MatchStatus;
+use League\Route\Router;
+use League\Route\Strategy\ApplicationStrategy;
+use Mockery\MockInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
-use InvalidArgumentException;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\{ServerRequestInterface, UriInterface};
+test('router maps and returns route for each HTTP method', function () {
+    $router   = new Router();
+    $path     = '/something';
+    $callable = function () {};
 
-class RouterTest extends TestCase
-{
-    public function testCRouterMapsAndReturnsRoute(): void
-    {
-        $router   = new Router();
-        $path     = '/something';
-        $callable = function () {
-        };
-
-        foreach (
-            ['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method
-        ) {
-            $route = $router->map($method, $path, $callable);
-            $this->assertSame($method, $route->getMethod());
-            $this->assertSame($path, $route->getPath());
-            $this->assertSame($callable, $route->getCallable());
-        }
+    foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
+        $route = $router->map($method, $path, $callable);
+        expect($route->getMethod())->toBe($method);
+        expect($route->getPath())->toBe($path);
+        expect($route->getCallable())->toBe($callable);
     }
+});
 
-    public function testCollectionMapsAndReturnsGroup(): void
-    {
-        $router   = new Router();
-        $prefix   = '/something';
-        $callable = static function () {
-        };
+test('router maps and returns a route group with correct prefix', function () {
+    $router   = new Router();
+    $prefix   = '/something';
+    $callable = static function () {};
 
-        $group = $router->group($prefix, $callable);
-        $this->assertSame($prefix, $group->getPrefix());
-    }
+    $group = $router->group($prefix, $callable);
+    expect($group->getPrefix())->toBe($prefix);
+});
 
-    public function testCollectionCanSetAndGetNamedRoute(): void
-    {
-        $router = new Router();
-        $name   = 'route';
+test('router can set and retrieve a named route', function () {
+    $router = new Router();
+    $name   = 'route';
 
-        $expected = $router
-            ->map('get', '/something', function () {
-            })
-            ->setName($name)
-        ;
+    $expected = $router
+        ->map('get', '/something', function () {})
+        ->setName($name)
+    ;
 
-        $actual = $router->getNamedRoute($name);
-        $this->assertSame($expected, $actual);
-    }
+    $actual = $router->getNamedRoute($name);
+    expect($actual)->toBe($expected);
+});
 
-    public function testCollectionThrowsExceptionWhenAttemptingToGetNamedRouteThatDoesNotExist(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        (new Router())->getNamedRoute('umm');
-    }
+test('router throws an exception when retrieving a named route that does not exist', function () {
+    expect(fn() => (new Router())->getNamedRoute('umm'))->toThrow(InvalidArgumentException::class);
+});
 
-    /**
-     * Asserts that appropriately configured regex strings are added to patternMatchers.
-     *
-     * @return void
-     */
-    public function testNewPatternMatchesCanBeAddedAtRuntime(): void
-    {
-        $router = new class () extends Router
-        {
-            public array $patternMatchers = [];
-        };
+test('new pattern matchers can be added at runtime', function () {
+    $router = new class extends Router {
+        public array $patternMatchers = [];
+    };
 
-        $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');
-        $matchers = $router->patternMatchers;
-        $this->assertArrayHasKey('/{(.+?):mockMatcher}/', $matchers);
-        $this->assertEquals('{$1:[a-zA-Z]}', $matchers['/{(.+?):mockMatcher}/']);
-    }
+    $router->addPatternMatcher('mockMatcher', '[a-zA-Z]');
+    $matchers = $router->patternMatchers;
 
-    public function testMatchReturnsFoundForRegisteredRoute(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    expect(array_key_exists('/{(.+?):mockMatcher}/', $matchers))->toBeTrue();
+    expect($matchers['/{(.+?):mockMatcher}/'])->toEqual('{$1:[a-zA-Z]}');
+});
 
-        $uri->method('getPath')->willReturn('/example/route');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
+test('match returns found status for a registered route', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $router = new Router();
-        $router->map('GET', '/example/{something}', static function () {
-        });
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
 
-        $result = $router->match($request);
+    $router = new Router();
+    $router->map('GET', '/example/{something}', static function () {});
 
-        $this->assertTrue($result->isFound());
-        $this->assertSame(MatchStatus::Found, $result->getStatus());
-    }
+    $result = $router->match($request);
 
-    public function testMatchReturnsNotFoundForUnregisteredRoute(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    expect($result->isFound())->toBeTrue();
+    expect($result->getStatus())->toBe(MatchStatus::Found);
+});
 
-        $uri->method('getPath')->willReturn('/does-not-exist');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
+test('match returns not found status for an unregistered route', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/does-not-exist');
 
-        $router = new Router();
-        $router->map('GET', '/example/{something}', static function () {
-        });
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
 
-        $result = $router->match($request);
+    $router = new Router();
+    $router->map('GET', '/example/{something}', static function () {});
 
-        $this->assertFalse($result->isFound());
-        $this->assertSame(MatchStatus::NotFound, $result->getStatus());
-    }
+    $result = $router->match($request);
 
-    public function testMatchReturnsMethodNotAllowedWhenMethodDoesNotMatch(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    expect($result->isFound())->toBeFalse();
+    expect($result->getStatus())->toBe(MatchStatus::NotFound);
+});
 
-        $uri->method('getPath')->willReturn('/example/route');
-        $request->method('getMethod')->willReturn('POST');
-        $request->method('getUri')->willReturn($uri);
+test('match returns method not allowed when the HTTP method does not match', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $router = new Router();
-        $router->map('GET', '/example/{something}', static function () {
-        });
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('POST');
+    $request->allows('getUri')->andReturn($uri);
 
-        $result = $router->match($request);
+    $router = new Router();
+    $router->map('GET', '/example/{something}', static function () {});
 
-        $this->assertFalse($result->isFound());
-        $this->assertTrue($result->isMethodNotAllowed());
-        $this->assertSame(MatchStatus::MethodNotAllowed, $result->getStatus());
-        $this->assertContains('GET', $result->getAllowedMethods());
-    }
+    $result = $router->match($request);
 
-    public function testGetRoutesReturnsRegisteredRoutes(): void
-    {
-        $router = new Router();
-        $router->get('/foo', static function () {
-        });
-        $router->post('/bar', static function () {
-        });
+    expect($result->isFound())->toBeFalse();
+    expect($result->isMethodNotAllowed())->toBeTrue();
+    expect($result->getStatus())->toBe(MatchStatus::MethodNotAllowed);
+    expect($result->getAllowedMethods())->toContain('GET');
+});
 
-        $routes = $router->getRoutes();
-        $this->assertCount(2, $routes);
-        $this->assertSame('/foo', $routes[0]->getPath());
-        $this->assertSame('/bar', $routes[1]->getPath());
-    }
+test('getRoutes returns all registered routes', function () {
+    $router = new Router();
+    $router->get('/foo', static function () {});
+    $router->post('/bar', static function () {});
 
-    public function testGetRoutesIncludesNamedRoutes(): void
-    {
-        $router = new Router();
-        $router->get('/foo', static function () {
-        })->setName('foo.route');
-        $router->get('/bar', static function () {
-        });
+    $routes = $router->getRoutes();
+    expect($routes)->toHaveCount(2);
+    expect($routes[0]->getPath())->toBe('/foo');
+    expect($routes[1]->getPath())->toBe('/bar');
+});
 
-        $routes = $router->getRoutes();
-        $this->assertCount(2, $routes);
-    }
+test('getRoutes includes named routes', function () {
+    $router = new Router();
+    $router->get('/foo', static function () {})->setName('foo.route');
+    $router->get('/bar', static function () {});
 
-    public function testGetRoutesIncludesGroupRoutes(): void
-    {
-        $router = new Router();
-        $router->get('/top', static function () {
-        });
-        $router->group('/api', function ($group) {
-            $group->get('/users', static function () {
-            });
-        });
+    expect($router->getRoutes())->toHaveCount(2);
+});
 
-        $routes = $router->getRoutes();
-        $this->assertCount(2, $routes);
-        $this->assertSame('/top', $routes[0]->getPath());
-        $this->assertSame('/api/users', $routes[1]->getPath());
-    }
+test('getRoutes includes routes registered inside a group', function () {
+    $router = new Router();
+    $router->get('/top', static function () {});
+    $router->group('/api', function ($group) {
+        $group->get('/users', static function () {});
+    });
 
-    public function testGetRoutesReturnsEmptyArrayForEmptyRouter(): void
-    {
-        $router = new Router();
-        $this->assertSame([], $router->getRoutes());
-    }
+    $routes = $router->getRoutes();
+    expect($routes)->toHaveCount(2);
+    expect($routes[0]->getPath())->toBe('/top');
+    expect($routes[1]->getPath())->toBe('/api/users');
+});
 
-    public function testGetRoutesDoesNotDuplicateAfterDispatch(): void
-    {
-        $router = new Router();
-        $router->setStrategy(new \League\Route\Strategy\ApplicationStrategy());
-        $router->get('/foo', static function () {
-        });
-        $router->group('/api', function ($group) {
-            $group->get('/bar', static function () {
-            });
-        });
+test('getRoutes returns an empty array when no routes are registered', function () {
+    expect((new Router())->getRoutes())->toBe([]);
+});
 
-        $routesBefore = $router->getRoutes();
-        $this->assertCount(2, $routesBefore);
+test('getRoutes does not duplicate routes after multiple calls', function () {
+    $router = new Router();
+    $router->setStrategy(new ApplicationStrategy());
+    $router->get('/foo', static function () {});
+    $router->group('/api', function ($group) {
+        $group->get('/bar', static function () {});
+    });
 
-        $routesAgain = $router->getRoutes();
-        $this->assertCount(2, $routesAgain);
-    }
+    expect($router->getRoutes())->toHaveCount(2);
+    expect($router->getRoutes())->toHaveCount(2);
+});
 
-    public function testSetRoutesDataInjectsCachedState(): void
-    {
-        $router = new Router();
-        $router->map('GET', '/foo', static function () {
-        });
+test('setRoutesData injects cached state and allows matching', function () {
+    $router = new Router();
+    $router->map('GET', '/foo', static function () {});
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
-        $uri->method('getPath')->willReturn('/foo');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/foo');
 
-        $router->prepareRoutes($request);
-        $data = $router->getRoutesData();
-        $map = $router->getRouteMap();
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
 
-        $this->assertNotEmpty($data);
-        $this->assertNotEmpty($map);
+    $router->prepareRoutes($request);
+    $data = $router->getRoutesData();
+    $map  = $router->getRouteMap();
 
-        $newRouter = new Router();
-        $newRouter->map('GET', '/foo', static function () {
-        });
-        $newRouter->setRoutesData($data, $map);
+    expect($data)->not->toBeEmpty();
+    expect($map)->not->toBeEmpty();
 
-        $result = $newRouter->match($request);
-        $this->assertTrue($result->isFound());
-    }
+    $newRouter = new Router();
+    $newRouter->map('GET', '/foo', static function () {});
+    $newRouter->setRoutesData($data, $map);
 
-    public function testMatchWithSchemeConditionReturnsNotFound(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    expect($newRouter->match($request)->isFound())->toBeTrue();
+});
 
-        $uri->method('getPath')->willReturn('/secure');
-        $uri->method('getScheme')->willReturn('http');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
+test('match returns not found when the scheme condition does not match', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/secure');
+    $uri->allows('getScheme')->andReturn('http');
 
-        $router = new Router();
-        $router->map('GET', '/secure', static function () {
-        })->setScheme('https');
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
 
-        $result = $router->match($request);
-        $this->assertFalse($result->isFound());
-    }
+    $router = new Router();
+    $router->map('GET', '/secure', static function () {})->setScheme('https');
 
-    public function testMatchWithHostConditionReturnsNotFound(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    expect($router->match($request)->isFound())->toBeFalse();
+});
 
-        $uri->method('getPath')->willReturn('/api/users');
-        $uri->method('getHost')->willReturn('wrong.example.com');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
+test('match returns not found when the host condition does not match', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/api/users');
+    $uri->allows('getHost')->andReturn('wrong.example.com');
 
-        $router = new Router();
-        $router->map('GET', '/api/users', static function () {
-        })->setHost('api.example.com');
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
 
-        $result = $router->match($request);
-        $this->assertFalse($result->isFound());
-    }
-}
+    $router = new Router();
+    $router->map('GET', '/api/users', static function () {})->setHost('api.example.com');
+
+    expect($router->match($request)->isFound())->toBeFalse();
+});

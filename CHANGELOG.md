@@ -16,8 +16,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Corrupt cache auto-recovery in cached router.
 
 ### Changed
-- Minimum PHP version raised to 8.2.
+- Minimum PHP version raised to 8.3.
 - PHPStan analysis raised from level 4 to level 6.
+- Switched from PHP_CodeSniffer (PSR-12) to PHP CS Fixer (PER-CS2.0).
+- Switched from PHPUnit to Pest v4.
+- Switched from PHPUnit mocks to Mockery.
+- Test namespace changed from `League\Route\` to `League\Route\Test\`.
 - Cached router completely redesigned: caches compiled FastRoute data (scalars only) instead of serialising the entire Router object (#353).
 - `Route::setVars()` now sets declaration-time defaults only; dispatcher uses `setPathVars()` internally (#350).
 - `Route::getVars()` returns merged result of default vars and path vars, with path vars taking precedence.
@@ -30,7 +34,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Closure wrapping removed from `Route` constructor.
 - BETA status removed from cached router.
 - Request-dependent route filtering removed from `prepareRoutes()`.
-- Support for PHP 8.1 dropped.
+- Support for PHP 8.1 and 8.2 dropped.
+- Scrutinizer CI integration removed.
 
 ## [6.2.0] 2024-11
 

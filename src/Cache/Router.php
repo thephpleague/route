@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace League\Route\Cache;
 
 use League\Route\MatchResult;
+use League\Route\Route;
 use League\Route\Router as MainRouter;
 use League\Route\RouterInterface;
+use Override;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\SimpleCache\CacheInterface;
+use Throwable;
 
 class Router implements RouterInterface
 {
@@ -19,24 +22,24 @@ class Router implements RouterInterface
         callable $builder,
         protected CacheInterface $cache,
         protected bool $cacheEnabled = true,
-        protected string $cacheKey = 'league/route/cache'
+        protected string $cacheKey = 'league/route/cache',
     ) {
         $this->builder = $builder;
     }
 
-    #[\Override]
+    #[Override]
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
         return $this->buildRouter($request)->dispatch($request);
     }
 
-    #[\Override]
+    #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->dispatch($request);
     }
 
-    #[\Override]
+    #[Override]
     public function match(ServerRequestInterface $request): MatchResult
     {
         return $this->buildRouter($request)->match($request);
@@ -57,7 +60,7 @@ class Router implements RouterInterface
             if (is_string($cached)) {
                 $cachedData = unserialize($cached, ['allowed_classes' => false]);
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $cachedData = null;
         }
 
@@ -112,7 +115,7 @@ class Router implements RouterInterface
         return md5($signature);
     }
 
-    /** @return array<int, \League\Route\Route> */
+    /** @return array<int, Route> */
     protected function buildRouteMap(MainRouter $router): array
     {
         $routes = $router->getRoutes();

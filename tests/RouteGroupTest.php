@@ -2,120 +2,91 @@
 
 declare(strict_types=1);
 
-namespace League\Route;
+use League\Route\Route;
+use League\Route\RouteCollectionInterface;
+use League\Route\RouteGroup;
+use League\Route\Router;
+use League\Route\Strategy\JsonStrategy;
 
-use PHPUnit\Framework\TestCase;
+test('route group is invoked and propagates host, scheme, and port to all registered routes', function () {
+    $callback = static function () {};
 
-class RouteGroupTest extends TestCase
-{
-    public function testGroupIsInvokedAndAddsRoutesToCollection(): void
-    {
-        $callback = static function () {
-        };
+    $route = Mockery::mock(Route::class);
+    $route->allows('setParentGroup')->andReturnSelf();
+    $route->allows('getStrategy')->andReturnNull();
+    $route->shouldReceive('setHost')->times(8)->with('example.com')->andReturnSelf();
+    $route->shouldReceive('setScheme')->times(8)->with('https')->andReturnSelf();
+    $route->shouldReceive('setPort')->times(8)->with(8080)->andReturnSelf();
 
-        $router = $this->createMock(Router::class);
-        $route  = $this->createMock(Route::class);
+    $router = Mockery::mock(Router::class);
+    $router
+        ->shouldReceive('map')
+        ->times(7)
+        ->with(
+            Mockery::pattern('/^(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)$/'),
+            '/acme/route',
+            $callback,
+        )
+        ->andReturn($route)
+    ;
 
-        $route
-            ->expects($this->exactly(8))
-            ->method('setHost')
-            ->with($this->equalTo('example.com'))
-            ->willReturnSelf()
-        ;
+    $group = new RouteGroup('/acme', function ($route) use ($callback) {
+        $route->get('/route', $callback)->setHost('example.com')->setPort(8080)->setScheme('https');
+        $route->post('/route', $callback);
+        $route->put('/route', $callback);
+        $route->patch('/route', $callback);
+        $route->delete('/route', $callback);
+        $route->options('/route', $callback);
+        $route->head('/route', $callback);
+    }, $router);
 
-        $route
-            ->expects($this->exactly(8))
-            ->method('setScheme')
-            ->with($this->equalTo('https'))
-            ->willReturnSelf()
-        ;
+    $group->setHost('example.com')->setScheme('https')->setPort(8080);
+    $group();
 
-        $route
-            ->expects($this->exactly(8))
-            ->method('setPort')
-            ->with($this->equalTo(8080))
-            ->willReturnSelf()
-        ;
+    expect($group)->toBeInstanceOf(RouteGroup::class);
+});
 
-        $router
-            ->expects($this->exactly(7))
-            ->method('map')
-            ->with(
-                $this->matchesRegularExpression('/^(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)$/'),
-                $this->equalTo('/acme/route'),
-                $this->equalTo($callback)
-            )
-            ->willReturn($route)
-        ;
+test('route group sets its strategy on each registered route', function () {
+    $callback = static function () {};
 
+    $router = Mockery::mock(RouteCollectionInterface::class);
 
-        $group = new RouteGroup('/acme', function ($route) use ($callback) {
-            $route->get('/route', $callback)
-                ->setHost('example.com')->setPort(8080)->setScheme('https');
-            $route->post('/route', $callback);
-            $route->put('/route', $callback);
-            $route->patch('/route', $callback);
-            $route->delete('/route', $callback);
-            $route->options('/route', $callback);
-            $route->head('/route', $callback);
-        }, $router);
+    $strategy = Mockery::mock(JsonStrategy::class);
 
-        $group
-            ->setHost('example.com')
-            ->setScheme('https')
-            ->setPort(8080)
-        ;
+    $route = Mockery::mock(Route::class);
 
-        $group();
-    }
+    $router
+        ->shouldReceive('map')
+        ->once()
+        ->with('GET', '/acme/route', $callback)
+        ->andReturn($route)
+    ;
 
-    public function testGroupAddsStrategyToRoute(): void
-    {
-        $callback = static function () {
-        };
+    $route->allows('setParentGroup')->andReturnSelf();
+    $route->allows('getStrategy')->andReturnNull();
+    $route->shouldReceive('setStrategy')->once()->with($strategy)->andReturnSelf();
 
-        $router   = $this->createMock(RouteCollectionInterface::class);
-        $strategy = $this->createMock(Strategy\JsonStrategy::class);
-        $route    = $this->createMock(Route::class);
+    $group = new RouteGroup('/acme', function ($route) use ($callback) {
+        $route->get('/route', $callback);
+    }, $router);
 
-        $router
-            ->expects($this->once())
-            ->method('map')
-            ->with($this->equalTo('GET'), $this->equalTo('/acme/route'), $this->equalTo($callback))
-            ->willReturn($route)
-        ;
+    $group->setStrategy($strategy);
+    $group();
 
-        $route
-            ->expects($this->once())
-            ->method('setStrategy')
-            ->with($this->equalTo($strategy))
-            ->willReturnSelf()
-        ;
+    expect($group)->toBeInstanceOf(RouteGroup::class);
+});
 
-        $group = new RouteGroup('/acme', function ($route) use ($callback) {
-            $route->get('/route', $callback);
-        }, $router);
+test('named routes registered inside a group are retrievable from the router', function () {
+    $router   = new Router();
+    $name     = 'route';
+    $expected = null;
 
-        $group->setStrategy($strategy);
+    $router->group('/acme', function (RouteGroup $group) use ($name, &$expected) {
+        $expected = $group->get('/route', function () {})->setName($name);
+    });
 
-        $group();
-    }
+    $actual = $router->getNamedRoute($name);
 
-    public function testGroupWithNamedRoutes(): void
-    {
-        $router = new Router();
-        $name   = 'route';
-        $expected = null;
-
-        $router->group('/acme', function (RouteGroup $group) use ($name, &$expected) {
-            $expected = $group->get('/route', function () {
-            })
-            ->setName($name);
-        });
-
-        $actual = $router->getNamedRoute($name);
-
-        $this->assertNotNull($actual);
-        $this->assertSame($expected, $actual);
-    }
-}
+    expect($actual)->not->toBeNull();
+    expect($actual)->toBe($expected);
+});

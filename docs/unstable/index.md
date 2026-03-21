@@ -10,8 +10,6 @@ sections:
 [![Author](https://img.shields.io/badge/author-@philipobenito-blue.svg?style=flat-square)](https://twitter.com/philipobenito)
 [![Latest Version](https://img.shields.io/github/release/thephpleague/route.svg?style=flat-square)](https://github.com/thephpleague/route/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/thephpleague/route/blob/master/LICENSE.md)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/thephpleague/route.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/route/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/route.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/route)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/route.svg?style=flat-square)](https://packagist.org/packages/league/route)
 
 ## What is Route?
@@ -39,7 +37,7 @@ Route was created by Phil Bennett. Find him on Twitter at [@philipobenito](https
 
 ## System Requirements
 
-You need `PHP >= 8.2.0` to use `League\Route` but the latest stable version of PHP is recommended.
+You need `PHP >= 8.3.0` to use `League\Route` but the latest stable version of PHP is recommended.
 
 You will also require an implementation of PSR-7 HTTP Message. Throughout the documentation we will be using the [Laminas Diactoros Project](https://github.com/laminas/laminas-diactoros/), however, there are many implementations to choose from on [Packagist](https://packagist.org/providers/psr/http-message-implementation).
 

@@ -2,96 +2,79 @@
 
 declare(strict_types=1);
 
-namespace League\Route\Strategy;
-
-use Exception;
-use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
+use League\Route\Http\Exception\MethodNotAllowedException;
+use League\Route\Http\Exception\NotFoundException;
 use League\Route\Route;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use League\Route\Strategy\ApplicationStrategy;
+use Mockery\MockInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class ApplicationStrategyTest extends TestCase
-{
-    public function testStrategyInvokesRouteCallable(): void
-    {
-        $route = $this->createMock(Route::class);
+test('strategy invokes route callable and returns response', function () {
+    /** @var Route&MockInterface $route */
+    $route = Mockery::mock(Route::class);
 
-        $expectedResponse = $this->createMock(ResponseInterface::class);
-        $expectedRequest  = $this->createMock(ServerRequestInterface::class);
-        $expectedVars     = ['something', 'else'];
+    $expectedResponse = Mockery::mock(ResponseInterface::class);
+    $expectedRequest  = Mockery::mock(ServerRequestInterface::class);
+    $expectedVars     = ['something', 'else'];
 
-        $route
-            ->expects($this->once())
-            ->method('getCallable')
-            ->willReturn(function (
-                ServerRequestInterface $request,
-                array $vars = []
-            ) use (
-                $expectedRequest,
-                $expectedResponse,
-                $expectedVars
-            ): ResponseInterface {
-                $this->assertSame($expectedRequest, $request);
-                $this->assertSame($expectedVars, $vars);
-                return $expectedResponse;
-            })
-        ;
+    $route->shouldReceive('getCallable')->once()->andReturn(
+        function (ServerRequestInterface $request, array $vars = []) use ($expectedRequest, $expectedResponse, $expectedVars): ResponseInterface {
+            expect($request)->toBe($expectedRequest);
+            expect($vars)->toBe($expectedVars);
+            return $expectedResponse;
+        },
+    );
 
-        $route
-            ->expects($this->once())
-            ->method('getVars')
-            ->willReturn($expectedVars)
-        ;
+    $route->shouldReceive('getVars')->once()->andReturn($expectedVars);
 
-        $strategy = new ApplicationStrategy();
-        $response = $strategy->invokeRouteCallable($route, $expectedRequest);
+    $strategy = new ApplicationStrategy();
+    $response = $strategy->invokeRouteCallable($route, $expectedRequest);
 
-        $this->assertSame($expectedResponse, $response);
-    }
+    expect($response)->toBe($expectedResponse);
+});
 
-    public function testStrategyReturnsCorrectNotFoundDecorator(): void
-    {
-        $this->expectException(NotFoundException::class);
+test('strategy not found decorator throws NotFoundException when processed', function () {
+    /** @var NotFoundException&MockInterface $exception */
+    $exception = Mockery::mock(NotFoundException::class);
 
-        $exception      = $this->createMock(NotFoundException::class);
-        $request        = $this->createMock(ServerRequestInterface::class);
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
 
-        $strategy  = new ApplicationStrategy();
-        $decorator = $strategy->getNotFoundDecorator($exception);
-        $decorator->process($request, $requestHandler);
-    }
+    /** @var RequestHandlerInterface&MockInterface $requestHandler */
+    $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
-    public function testStrategyReturnsCorrectMethodNotAllowedDecorator(): void
-    {
-        $this->expectException(MethodNotAllowedException::class);
+    $strategy  = new ApplicationStrategy();
+    $decorator = $strategy->getNotFoundDecorator($exception);
+    $decorator->process($request, $requestHandler);
+})->throws(NotFoundException::class);
 
-        $exception      = $this->createMock(MethodNotAllowedException::class);
-        $request        = $this->createMock(ServerRequestInterface::class);
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+test('strategy method not allowed decorator throws MethodNotAllowedException when processed', function () {
+    /** @var MethodNotAllowedException&MockInterface $exception */
+    $exception = Mockery::mock(MethodNotAllowedException::class);
 
-        $strategy  = new ApplicationStrategy();
-        $decorator = $strategy->getMethodNotAllowedDecorator($exception);
-        $decorator->process($request, $requestHandler);
-    }
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
 
-    public function testStrategyReturnsCorrectThrowableHandler(): void
-    {
-        $this->expectException(Exception::class);
+    /** @var RequestHandlerInterface&MockInterface $requestHandler */
+    $requestHandler = Mockery::mock(RequestHandlerInterface::class);
 
-        $request        = $this->createMock(ServerRequestInterface::class);
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
+    $strategy  = new ApplicationStrategy();
+    $decorator = $strategy->getMethodNotAllowedDecorator($exception);
+    $decorator->process($request, $requestHandler);
+})->throws(MethodNotAllowedException::class);
 
-        $requestHandler
-            ->expects($this->once())
-            ->method('handle')
-            ->with($this->equalTo($request))
-            ->will($this->throwException(new Exception()))
-        ;
+test('strategy throwable handler re-throws exception from request handler', function () {
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
 
-        $strategy = new ApplicationStrategy();
-        $handler  = $strategy->getThrowableHandler();
-        $handler->process($request, $requestHandler);
-    }
-}
+    /** @var RequestHandlerInterface&MockInterface $requestHandler */
+    $requestHandler = Mockery::mock(RequestHandlerInterface::class);
+
+    $requestHandler->shouldReceive('handle')->once()->with($request)->andThrow(new Exception());
+
+    $strategy = new ApplicationStrategy();
+    $handler  = $strategy->getThrowableHandler();
+    $handler->process($request, $requestHandler);
+})->throws(Exception::class);

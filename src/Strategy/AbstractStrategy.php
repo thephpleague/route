@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace League\Route\Strategy;
 
+use Override;
 use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractStrategy implements StrategyInterface
@@ -13,7 +14,7 @@ abstract class AbstractStrategy implements StrategyInterface
      */
     protected array $responseDecorators = [];
 
-    #[\Override]
+    #[Override]
     public function addResponseDecorator(callable $decorator): StrategyInterface
     {
         $this->responseDecorators[] = $decorator;

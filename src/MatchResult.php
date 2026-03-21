@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace League\Route;
 
+use LogicException;
+
 final class MatchResult
 {
     /**
@@ -13,8 +15,7 @@ final class MatchResult
         private readonly MatchStatus $status,
         private readonly ?Route $route,
         private readonly array $allowedMethods,
-    ) {
-    }
+    ) {}
 
     public static function found(Route $route): self
     {
@@ -47,7 +48,7 @@ final class MatchResult
     public function getRoute(): Route
     {
         if ($this->route === null) {
-            throw new \LogicException('No route available for a non-matched result');
+            throw new LogicException('No route available for a non-matched result');
         }
         return $this->route;
     }
@@ -58,7 +59,7 @@ final class MatchResult
     public function getAllowedMethods(): array
     {
         if ($this->status !== MatchStatus::MethodNotAllowed) {
-            throw new \LogicException('Allowed methods are only available for method-not-allowed results');
+            throw new LogicException('Allowed methods are only available for method-not-allowed results');
         }
         return $this->allowedMethods;
     }

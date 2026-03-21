@@ -12,7 +12,7 @@ class UnavailableForLegalReasonsException extends Http\Exception
     public function __construct(
         string $message = 'Unavailable For Legal Reasons',
         ?Exception $previous = null,
-        int $code = 0
+        int $code = 0,
     ) {
         parent::__construct(451, $message, $previous, [], $code);
     }

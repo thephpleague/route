@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace League\Route\Strategy;
 
+use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
 use League\Route\Http\Exception\{MethodNotAllowedException, NotFoundException};
 use League\Route\Route;
-use League\Route\{ContainerAwareInterface, ContainerAwareTrait};
+use Override;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Throwable;
@@ -15,26 +16,25 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
 {
     use ContainerAwareTrait;
 
-    #[\Override]
+    #[Override]
     public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception): MiddlewareInterface
     {
         return $this->throwThrowableMiddleware($exception);
     }
 
-    #[\Override]
+    #[Override]
     public function getNotFoundDecorator(NotFoundException $exception): MiddlewareInterface
     {
         return $this->throwThrowableMiddleware($exception);
     }
 
-    #[\Override]
+    #[Override]
     public function getThrowableHandler(): MiddlewareInterface
     {
-        return new class implements MiddlewareInterface
-        {
+        return new class implements MiddlewareInterface {
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $handler
+                RequestHandlerInterface $handler,
             ): ResponseInterface {
                 try {
                     return $handler->handle($request);
@@ -45,7 +45,7 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
         };
     }
 
-    #[\Override]
+    #[Override]
     public function invokeRouteCallable(Route $route, ServerRequestInterface $request): ResponseInterface
     {
         $controller = $route->getCallable($this->getContainer());
@@ -55,15 +55,12 @@ class ApplicationStrategy extends AbstractStrategy implements ContainerAwareInte
 
     protected function throwThrowableMiddleware(Throwable $error): MiddlewareInterface
     {
-        return new class ($error) implements MiddlewareInterface
-        {
-            public function __construct(protected readonly Throwable $error)
-            {
-            }
+        return new class ($error) implements MiddlewareInterface {
+            public function __construct(protected readonly Throwable $error) {}
 
             public function process(
                 ServerRequestInterface $request,
-                RequestHandlerInterface $handler
+                RequestHandlerInterface $handler,
             ): ResponseInterface {
                 throw $this->error;
             }

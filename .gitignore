@@ -14,6 +14,7 @@ composer.lock
 # Testing
 .phpunit*
 .phpcs*
+.php-cs-fixer.cache
 coverage/
 
 # Caching

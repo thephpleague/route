@@ -67,7 +67,7 @@ trait RouteConditionHandlerTrait
         throw new RuntimeException(sprintf(
             'Trait (%s) must be consumed by an instance of (%s)',
             __TRAIT__,
-            RouteConditionHandlerInterface::class
+            RouteConditionHandlerInterface::class,
         ));
     }
 

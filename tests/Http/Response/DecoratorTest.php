@@ -2,37 +2,29 @@
 
 declare(strict_types=1);
 
-namespace League\Route\Http\Response;
-
-use PHPUnit\Framework\TestCase;
+use League\Route\Http\Response\Decorator\DefaultHeaderDecorator;
 use Psr\Http\Message\ResponseInterface;
 
-class DecoratorTest extends TestCase
-{
-    public function testDecoratesWithDefaultHeaders(): void
-    {
-        $decorator = new Decorator\DefaultHeaderDecorator([
-            'content-type' => 'application/json',
-            'custom-key' => 'custom value',
-        ]);
+test('default header decorator only adds headers that are not already present on the response', function () {
+    $decorator = new DefaultHeaderDecorator([
+        'content-type' => 'application/json',
+        'custom-key' => 'custom value',
+    ]);
 
-        $response = $this->createMock(ResponseInterface::class);
+    $response = Mockery::mock(ResponseInterface::class);
 
-        $response
-            ->expects($this->exactly(2))
-            ->method('hasHeader')
-            ->willReturnCallback(function (string $header) {
-                return $header !== 'content-type';
-            })
-        ;
+    $response
+        ->shouldReceive('hasHeader')
+        ->twice()
+        ->andReturnUsing(fn(string $header) => $header !== 'content-type');
 
-        $response
-            ->expects($this->once())
-            ->method('withAddedHeader')
-            ->with($this->equalTo('content-type'), $this->equalTo('application/json'))
-            ->willReturnSelf()
-        ;
+    $response
+        ->shouldReceive('withAddedHeader')
+        ->once()
+        ->with('content-type', 'application/json')
+        ->andReturnSelf();
 
-        $decorator($response);
-    }
-}
+    $result = $decorator($response);
+
+    expect($result)->toBeInstanceOf(ResponseInterface::class);
+});

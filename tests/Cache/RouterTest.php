@@ -2,267 +2,256 @@
 
 declare(strict_types=1);
 
-namespace League\Route\Cache;
-
+use League\Route\Cache\FileCache;
+use League\Route\Cache\Router;
 use League\Route\Router as MainRouter;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface, UriInterface};
+use Mockery\MockInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
+use Psr\SimpleCache\CacheInterface;
 
-class RouterTest extends TestCase
-{
-    public function testDispatchesFoundRouteThenFromCache(): void
-    {
-        $cacheFile = __DIR__ . '/routeCache.cache';
+test('dispatches a found route and then serves the same route from cache', function () {
+    $cacheFile = __DIR__ . '/routeCache.cache';
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $uri
-            ->expects($this->exactly(2))
-            ->method('getPath')
-            ->willReturn('/example/route')
-        ;
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+    $request->allows('withAttribute')->andReturn($request);
 
-        $request
-            ->expects($this->exactly(2))
-            ->method('getMethod')
-            ->willReturn('GET')
-        ;
+    $cacheStore = new FileCache($cacheFile, 86400);
 
-        $request
-            ->expects($this->exactly(2))
-            ->method('getUri')
-            ->willReturn($uri)
-        ;
+    $router = new Router(function (MainRouter $router): MainRouter {
+        $router->map('GET', '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args,
+        ): ResponseInterface {
+            expect($args)->toBe(['something' => 'route']);
+            return Mockery::mock(ResponseInterface::class);
+        });
 
-        $request
-            ->expects($this->exactly(2))
-            ->method('withAttribute')
-            ->willReturn($request)
-        ;
+        return $router;
+    }, $cacheStore);
 
-        $cacheStore = new FileCache($cacheFile, 86400);
+    $firstResponse = $router->dispatch($request);
+    expect($firstResponse)->toBeInstanceOf(ResponseInterface::class);
+    expect($cacheFile)->toBeFile();
 
-        $router = new Router(function (MainRouter $router): MainRouter {
-            $router->map('GET', '/example/{something}', function (
-                ServerRequestInterface $request,
-                array $args
-            ): ResponseInterface {
-                $this->assertSame([
-                    'something' => 'route'
-                ], $args);
+    $secondResponse = $router->dispatch($request);
+    expect($secondResponse)->toBeInstanceOf(ResponseInterface::class);
 
-                return $this->createMock(ResponseInterface::class);
-            });
+    unlink($cacheFile);
+});
 
-            return $router;
-        }, $cacheStore);
+test('dispatches without touching cache when caching is disabled', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $returnedResponse = $router->dispatch($request);
-        $this->assertInstanceOf(ResponseInterface::class, $returnedResponse);
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+    $request->allows('withAttribute')->andReturn($request);
 
-        $this->assertFileExists($cacheFile);
+    /** @var CacheInterface&MockInterface $cache */
+    $cache = Mockery::mock(CacheInterface::class);
+    $cache->shouldNotReceive('get');
+    $cache->shouldNotReceive('set');
 
-        $returnedResponse = $router->dispatch($request);
-        $this->assertInstanceOf(ResponseInterface::class, $returnedResponse);
+    $router = new Router(function (MainRouter $router): MainRouter {
+        $router->map('GET', '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args,
+        ): ResponseInterface {
+            return Mockery::mock(ResponseInterface::class);
+        });
 
-        unlink($cacheFile);
-    }
+        return $router;
+    }, $cache, false);
 
-    public function testDispatchesWithCacheDisabled(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    $response = $router->dispatch($request);
+    expect($response)->toBeInstanceOf(ResponseInterface::class);
+});
 
-        $uri->method('getPath')->willReturn('/example/route');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
-        $request->method('withAttribute')->willReturn($request);
+test('rebuilds router and overwrites cache when route signature changes', function () {
+    $cacheFile = __DIR__ . '/routeCacheSignature.cache';
 
-        $cache = $this->createMock(\Psr\SimpleCache\CacheInterface::class);
-        $cache->expects($this->never())->method('get');
-        $cache->expects($this->never())->method('set');
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $router = new Router(function (MainRouter $router): MainRouter {
-            $router->map('GET', '/example/{something}', function (
-                ServerRequestInterface $request,
-                array $args
-            ): ResponseInterface {
-                return $this->createMock(ResponseInterface::class);
-            });
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+    $request->allows('withAttribute')->andReturn($request);
 
-            return $router;
-        }, $cache, false);
+    $cacheStore = new FileCache($cacheFile, 86400);
 
-        $returnedResponse = $router->dispatch($request);
-        $this->assertInstanceOf(ResponseInterface::class, $returnedResponse);
-    }
+    $firstRouter = new Router(function (MainRouter $router): MainRouter {
+        $router->map('GET', '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args,
+        ): ResponseInterface {
+            return Mockery::mock(ResponseInterface::class);
+        });
 
-    public function testRebuildsRouterWhenSignatureChanges(): void
-    {
-        $cacheFile = __DIR__ . '/routeCacheSignature.cache';
+        return $router;
+    }, $cacheStore);
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    $firstRouter->dispatch($request);
+    expect($cacheFile)->toBeFile();
 
-        $uri->method('getPath')->willReturn('/example/route');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
-        $request->method('withAttribute')->willReturn($request);
+    /** @var UriInterface&MockInterface $uri2 */
+    $uri2 = Mockery::mock(UriInterface::class);
+    $uri2->allows('getPath')->andReturn('/example/route');
 
-        $cacheStore = new FileCache($cacheFile, 86400);
+    /** @var ServerRequestInterface&MockInterface $request2 */
+    $request2 = Mockery::mock(ServerRequestInterface::class);
+    $request2->allows('getMethod')->andReturn('GET');
+    $request2->allows('getUri')->andReturn($uri2);
+    $request2->allows('withAttribute')->andReturn($request2);
 
-        $firstRouter = new Router(function (MainRouter $router): MainRouter {
-            $router->map('GET', '/example/{something}', function (
-                ServerRequestInterface $request,
-                array $args
-            ): ResponseInterface {
-                return $this->createMock(ResponseInterface::class);
-            });
+    $secondRouter = new Router(function (MainRouter $router): MainRouter {
+        $router->map('GET', '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args,
+        ): ResponseInterface {
+            return Mockery::mock(ResponseInterface::class);
+        });
+        $router->map('POST', '/other', function (
+            ServerRequestInterface $request,
+            array $args,
+        ): ResponseInterface {
+            return Mockery::mock(ResponseInterface::class);
+        });
 
-            return $router;
-        }, $cacheStore);
+        return $router;
+    }, $cacheStore);
 
-        $firstRouter->dispatch($request);
-        $this->assertFileExists($cacheFile);
+    $response = $secondRouter->dispatch($request2);
+    expect($response)->toBeInstanceOf(ResponseInterface::class);
 
-        $secondRouter = new Router(function (MainRouter $router): MainRouter {
-            $router->map('GET', '/example/{something}', function (
-                ServerRequestInterface $request,
-                array $args
-            ): ResponseInterface {
-                return $this->createMock(ResponseInterface::class);
-            });
-            $router->map('POST', '/other', function (
-                ServerRequestInterface $request,
-                array $args
-            ): ResponseInterface {
-                return $this->createMock(ResponseInterface::class);
-            });
+    unlink($cacheFile);
+});
 
-            return $router;
-        }, $cacheStore);
+test('match delegates to the inner router and returns a found result', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $uri2 = $this->createMock(UriInterface::class);
-        $uri2->method('getPath')->willReturn('/example/route');
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
 
-        $request2 = $this->createMock(ServerRequestInterface::class);
-        $request2->method('getMethod')->willReturn('GET');
-        $request2->method('getUri')->willReturn($uri2);
-        $request2->method('withAttribute')->willReturn($request2);
+    /** @var CacheInterface&MockInterface $cache */
+    $cache = Mockery::mock(CacheInterface::class);
+    $cache->allows('get')->andReturn(null);
+    $cache->allows('set')->andReturn(true);
 
-        $returnedResponse = $secondRouter->dispatch($request2);
-        $this->assertInstanceOf(ResponseInterface::class, $returnedResponse);
+    $router = new Router(function (MainRouter $router): MainRouter {
+        $router->map('GET', '/example/{something}', static function () {});
+        return $router;
+    }, $cache);
 
-        unlink($cacheFile);
-    }
+    $result = $router->match($request);
+    expect($result->isFound())->toBeTrue();
+});
 
-    public function testMatchDelegatesToInnerRouter(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+test('handle delegates to dispatch and returns a response', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $uri->method('getPath')->willReturn('/example/route');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+    $request->allows('withAttribute')->andReturn($request);
 
-        $cache = $this->createMock(\Psr\SimpleCache\CacheInterface::class);
-        $cache->method('get')->willReturn(null);
-        $cache->method('set')->willReturn(true);
+    /** @var CacheInterface&MockInterface $cache */
+    $cache = Mockery::mock(CacheInterface::class);
+    $cache->allows('get')->andReturn(null);
+    $cache->allows('set')->andReturn(true);
 
-        $router = new Router(function (MainRouter $router): MainRouter {
-            $router->map('GET', '/example/{something}', static function () {
-            });
-            return $router;
-        }, $cache);
+    $router = new Router(function (MainRouter $router): MainRouter {
+        $router->map('GET', '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args,
+        ): ResponseInterface {
+            return Mockery::mock(ResponseInterface::class);
+        });
+        return $router;
+    }, $cache);
 
-        $result = $router->match($request);
-        $this->assertTrue($result->isFound());
-    }
+    $response = $router->handle($request);
+    expect($response)->toBeInstanceOf(ResponseInterface::class);
+});
 
-    public function testHandleDelegatesToDispatch(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+test('recovers from a corrupt cache file and dispatches successfully', function () {
+    $cacheFile = sys_get_temp_dir() . '/league_route_corrupt_' . uniqid() . '.cache';
+    file_put_contents($cacheFile, 'this is not valid serialized data');
 
-        $uri->method('getPath')->willReturn('/example/route');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
-        $request->method('withAttribute')->willReturn($request);
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $cache = $this->createMock(\Psr\SimpleCache\CacheInterface::class);
-        $cache->method('get')->willReturn(null);
-        $cache->method('set')->willReturn(true);
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+    $request->allows('withAttribute')->andReturn($request);
 
-        $router = new Router(function (MainRouter $router): MainRouter {
-            $router->map('GET', '/example/{something}', function (
-                ServerRequestInterface $request,
-                array $args
-            ): ResponseInterface {
-                return $this->createMock(ResponseInterface::class);
-            });
-            return $router;
-        }, $cache);
+    $cacheStore = new FileCache($cacheFile, 86400);
 
-        $response = $router->handle($request);
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-    }
+    $router = new Router(function (MainRouter $router): MainRouter {
+        $router->map('GET', '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args,
+        ): ResponseInterface {
+            return Mockery::mock(ResponseInterface::class);
+        });
+        return $router;
+    }, $cacheStore);
 
-    public function testRecoverFromCorruptCache(): void
-    {
-        $cacheFile = sys_get_temp_dir() . '/league_route_corrupt_' . uniqid() . '.cache';
-        file_put_contents($cacheFile, 'this is not valid serialized data');
+    $response = $router->dispatch($request);
+    expect($response)->toBeInstanceOf(ResponseInterface::class);
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
+    @unlink($cacheFile);
+});
 
-        $uri->method('getPath')->willReturn('/example/route');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
-        $request->method('withAttribute')->willReturn($request);
+test('builder that returns void still registers routes correctly', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/example/route');
 
-        $cacheStore = new FileCache($cacheFile, 86400);
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+    $request->allows('withAttribute')->andReturn($request);
 
-        $router = new Router(function (MainRouter $router): MainRouter {
-            $router->map('GET', '/example/{something}', function (
-                ServerRequestInterface $request,
-                array $args
-            ): ResponseInterface {
-                return $this->createMock(ResponseInterface::class);
-            });
-            return $router;
-        }, $cacheStore);
+    /** @var CacheInterface&MockInterface $cache */
+    $cache = Mockery::mock(CacheInterface::class);
+    $cache->allows('get')->andReturn(null);
+    $cache->allows('set')->andReturn(true);
 
-        $response = $router->dispatch($request);
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+    $router = new Router(function (MainRouter $router): void {
+        $router->map('GET', '/example/{something}', function (
+            ServerRequestInterface $request,
+            array $args,
+        ): ResponseInterface {
+            return Mockery::mock(ResponseInterface::class);
+        });
+    }, $cache);
 
-        @unlink($cacheFile);
-    }
-
-    public function testBuilderModifiesRouterInPlace(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $uri = $this->createMock(UriInterface::class);
-
-        $uri->method('getPath')->willReturn('/example/route');
-        $request->method('getMethod')->willReturn('GET');
-        $request->method('getUri')->willReturn($uri);
-        $request->method('withAttribute')->willReturn($request);
-
-        $cache = $this->createMock(\Psr\SimpleCache\CacheInterface::class);
-        $cache->method('get')->willReturn(null);
-        $cache->method('set')->willReturn(true);
-
-        $router = new Router(function (MainRouter $router): void {
-            $router->map('GET', '/example/{something}', function (
-                ServerRequestInterface $request,
-                array $args
-            ): ResponseInterface {
-                return $this->createMock(\Psr\Http\Message\ResponseInterface::class);
-            });
-        }, $cache);
-
-        $response = $router->dispatch($request);
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-    }
-}
+    $response = $router->dispatch($request);
+    expect($response)->toBeInstanceOf(ResponseInterface::class);
+});

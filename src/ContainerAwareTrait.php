@@ -27,7 +27,7 @@ trait ContainerAwareTrait
         throw new RuntimeException(sprintf(
             'Trait (%s) must be consumed by an instance of (%s)',
             __TRAIT__,
-            ContainerAwareInterface::class
+            ContainerAwareInterface::class,
         ));
     }
 }

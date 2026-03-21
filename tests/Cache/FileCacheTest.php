@@ -2,112 +2,104 @@
 
 declare(strict_types=1);
 
-namespace League\Route\Cache;
+use League\Route\Cache\FileCache;
 
-use PHPUnit\Framework\TestCase;
+test('getMultiple throws BadMethodCallException', function () {
+    $cache = new FileCache('/tmp/test.cache', 86400);
+    expect(fn() => $cache->getMultiple(['key1', 'key2']))->toThrow(BadMethodCallException::class);
+});
 
-class FileCacheTest extends TestCase
-{
-    public function testGetMultipleThrowsBadMethodCallException(): void
-    {
-        $cache = new FileCache('/tmp/test.cache', 86400);
-        $this->expectException(\BadMethodCallException::class);
-        $cache->getMultiple(['key1', 'key2']);
-    }
+test('setMultiple throws BadMethodCallException', function () {
+    $cache = new FileCache('/tmp/test.cache', 86400);
+    expect(fn() => $cache->setMultiple(['key1' => 'val1']))->toThrow(BadMethodCallException::class);
+});
 
-    public function testSetMultipleThrowsBadMethodCallException(): void
-    {
-        $cache = new FileCache('/tmp/test.cache', 86400);
-        $this->expectException(\BadMethodCallException::class);
-        $cache->setMultiple(['key1' => 'val1']);
-    }
+test('deleteMultiple throws BadMethodCallException', function () {
+    $cache = new FileCache('/tmp/test.cache', 86400);
+    expect(fn() => $cache->deleteMultiple(['key1']))->toThrow(BadMethodCallException::class);
+});
 
-    public function testDeleteMultipleThrowsBadMethodCallException(): void
-    {
-        $cache = new FileCache('/tmp/test.cache', 86400);
-        $this->expectException(\BadMethodCallException::class);
-        $cache->deleteMultiple(['key1']);
-    }
+test('get returns cached content when file exists and has not expired', function () {
+    $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
+    $cache = new FileCache($cacheFile, 86400);
 
-    public function testGetReturnsContentWhenCacheFileExistsAndNotExpired(): void
-    {
-        $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
-        $cache = new FileCache($cacheFile, 86400);
+    $cache->set('key', 'cached-content');
 
-        $cache->set('key', 'cached-content');
-        $this->assertSame('cached-content', $cache->get('key'));
+    expect($cache->get('key'))->toBe('cached-content');
 
-        @unlink($cacheFile);
-    }
+    @unlink($cacheFile);
+});
 
-    public function testGetReturnsDefaultWhenCacheFileDoesNotExist(): void
-    {
-        $cache = new FileCache('/tmp/non_existent_' . uniqid() . '.cache', 86400);
-        $this->assertNull($cache->get('key'));
-        $this->assertSame('default', $cache->get('key', 'default'));
-    }
+test('get returns null when cache file does not exist', function () {
+    $cache = new FileCache('/tmp/non_existent_' . uniqid() . '.cache', 86400);
 
-    public function testHasReturnsFalseWhenFileDoesNotExist(): void
-    {
-        $cache = new FileCache('/tmp/non_existent_' . uniqid() . '.cache', 86400);
-        $this->assertFalse($cache->has('key'));
-    }
+    expect($cache->get('key'))->toBeNull();
+});
 
-    public function testHasReturnsTrueWhenFileExistsAndFresh(): void
-    {
-        $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
-        $cache = new FileCache($cacheFile, 86400);
+test('get returns provided default when cache file does not exist', function () {
+    $cache = new FileCache('/tmp/non_existent_' . uniqid() . '.cache', 86400);
 
-        $cache->set('key', 'content');
-        $this->assertTrue($cache->has('key'));
+    expect($cache->get('key', 'default'))->toBe('default');
+});
 
-        @unlink($cacheFile);
-    }
+test('has returns false when cache file does not exist', function () {
+    $cache = new FileCache('/tmp/non_existent_' . uniqid() . '.cache', 86400);
 
-    public function testHasReturnsFalseWhenFileExpired(): void
-    {
-        $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
-        $cache = new FileCache($cacheFile, 0);
+    expect($cache->has('key'))->toBeFalse();
+});
 
-        file_put_contents($cacheFile, 'content');
-        sleep(1);
-        $this->assertFalse($cache->has('key'));
+test('has returns true when cache file exists and is fresh', function () {
+    $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
+    $cache = new FileCache($cacheFile, 86400);
 
-        @unlink($cacheFile);
-    }
+    $cache->set('key', 'content');
 
-    public function testSetWritesContentToFile(): void
-    {
-        $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
-        $cache = new FileCache($cacheFile, 86400);
+    expect($cache->has('key'))->toBeTrue();
 
-        $result = $cache->set('key', 'some-content');
-        $this->assertTrue($result);
-        $this->assertFileExists($cacheFile);
-        $this->assertSame('some-content', file_get_contents($cacheFile));
+    @unlink($cacheFile);
+});
 
-        @unlink($cacheFile);
-    }
+test('has returns false when cache file has expired', function () {
+    $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
+    $cache = new FileCache($cacheFile, 0);
 
-    public function testDeleteRemovesCacheFile(): void
-    {
-        $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
-        file_put_contents($cacheFile, 'content');
+    file_put_contents($cacheFile, 'content');
+    sleep(1);
 
-        $cache = new FileCache($cacheFile, 86400);
-        $cache->delete('key');
+    expect($cache->has('key'))->toBeFalse();
 
-        $this->assertFileDoesNotExist($cacheFile);
-    }
+    @unlink($cacheFile);
+});
 
-    public function testClearRemovesCacheFile(): void
-    {
-        $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
-        file_put_contents($cacheFile, 'content');
+test('set writes content to cache file and returns true', function () {
+    $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
+    $cache = new FileCache($cacheFile, 86400);
 
-        $cache = new FileCache($cacheFile, 86400);
-        $cache->clear();
+    $result = $cache->set('key', 'some-content');
 
-        $this->assertFileDoesNotExist($cacheFile);
-    }
-}
+    expect($result)->toBeTrue();
+    expect($cacheFile)->toBeFile();
+    expect(file_get_contents($cacheFile))->toBe('some-content');
+
+    @unlink($cacheFile);
+});
+
+test('delete removes the cache file', function () {
+    $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
+    file_put_contents($cacheFile, 'content');
+
+    $cache = new FileCache($cacheFile, 86400);
+    $cache->delete('key');
+
+    expect($cacheFile)->not->toBeFile();
+});
+
+test('clear removes the cache file', function () {
+    $cacheFile = sys_get_temp_dir() . '/league_route_test_' . uniqid() . '.cache';
+    file_put_contents($cacheFile, 'content');
+
+    $cache = new FileCache($cacheFile, 86400);
+    $cache->clear();
+
+    expect($cacheFile)->not->toBeFile();
+});
