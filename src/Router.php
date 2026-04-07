@@ -37,7 +37,7 @@ class Router implements
     /** @var array<string> */
     protected array $pendingMiddlewareGroups = [];
 
-    /** @var Route[] */
+    /** @var int[] */
     protected array $namedRoutes = [];
 
     /** @var array<string, string> */
@@ -142,8 +142,8 @@ class Router implements
 
         $this->buildNameIndex();
 
-        if (isset($this->namedRoutes[$name])) {
-            return $this->namedRoutes[$name];
+        if (isset($this->namedRoutes[$name], $this->routes[$this->namedRoutes[$name]])) {
+            return $this->routes[$this->namedRoutes[$name]];
         }
 
         throw new InvalidArgumentException(sprintf('No route of the name (%s) exists', $name));
@@ -276,11 +276,10 @@ class Router implements
         $this->collectGroupRoutes();
         $this->buildNameIndex();
 
-        $routes = array_merge(array_values($this->routes), array_values($this->namedRoutes));
         $options = [];
         $index = 0;
 
-        foreach ($routes as $route) {
+        foreach ($this->routes as $route) {
             if ($route->getStrategy() === null) {
                 $route->setStrategy($this->getStrategy());
             }
@@ -327,8 +326,7 @@ class Router implements
     {
         foreach ($this->routes as $key => $route) {
             if ($route->getName() !== null) {
-                unset($this->routes[$key]);
-                $this->namedRoutes[$route->getName()] = $route;
+                $this->namedRoutes[$route->getName()] = $key;
             }
         }
     }
@@ -396,7 +394,7 @@ class Router implements
             $this->buildNameIndex();
         }
 
-        return array_values(array_merge($this->routes, $this->namedRoutes));
+        return $this->routes;
     }
 
     protected function collectGroupRoutes(): void
