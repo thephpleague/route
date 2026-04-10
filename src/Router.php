@@ -394,7 +394,7 @@ class Router implements
             $this->buildNameIndex();
         }
 
-        return $this->routes;
+        return array_values($this->routes);
     }
 
     protected function collectGroupRoutes(): void
