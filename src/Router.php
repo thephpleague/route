@@ -142,7 +142,7 @@ class Router implements
 
         $this->buildNameIndex();
 
-        if (isset($this->namedRoutes[$name], $this->routes[$this->namedRoutes[$name]])) {
+        if (isset($this->namedRoutes[$name])) {
             return $this->routes[$this->namedRoutes[$name]];
         }
 
