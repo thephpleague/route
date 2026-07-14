@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use League\Route\MatchStatus;
+use League\Route\Route;
 use League\Route\Router;
 use League\Route\Strategy\ApplicationStrategy;
 use Mockery\MockInterface;
@@ -14,12 +15,20 @@ test('router maps and returns route for each HTTP method', function () {
     $path = '/something';
     $callable = function () {};
 
-    foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
+    foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'query'] as $method) {
         $route = $router->map($method, $path, $callable);
         expect($route->getMethod())->toBe($method);
         expect($route->getPath())->toBe($path);
         expect($route->getCallable())->toBe($callable);
     }
+});
+
+test('query verb helper returns route with QUERY method', function () {
+    $router = new Router();
+    $route = $router->query('/path', fn() => null);
+
+    expect($route)->toBeInstanceOf(Route::class);
+    expect($route->getMethod())->toBe('QUERY');
 });
 
 test('router maps and returns a route group with correct prefix', function () {
