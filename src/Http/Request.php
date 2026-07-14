@@ -13,4 +13,5 @@ final class Request
     public const string METHOD_DELETE = 'DELETE';
     public const string METHOD_HEAD = 'HEAD';
     public const string METHOD_OPTIONS = 'OPTIONS';
+    public const string METHOD_QUERY = 'QUERY';
 }

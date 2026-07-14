@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use League\Route\MatchStatus;
+use League\Route\Route;
 use League\Route\Router;
 use League\Route\Strategy\ApplicationStrategy;
 use Mockery\MockInterface;
@@ -14,12 +15,20 @@ test('router maps and returns route for each HTTP method', function () {
     $path = '/something';
     $callable = function () {};
 
-    foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options'] as $method) {
+    foreach (['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'query'] as $method) {
         $route = $router->map($method, $path, $callable);
         expect($route->getMethod())->toBe($method);
         expect($route->getPath())->toBe($path);
         expect($route->getCallable())->toBe($callable);
     }
+});
+
+test('query verb helper returns route with QUERY method', function () {
+    $router = new Router();
+    $route = $router->query('/path', fn() => null);
+
+    expect($route)->toBeInstanceOf(Route::class);
+    expect($route->getMethod())->toBe('QUERY');
 });
 
 test('router maps and returns a route group with correct prefix', function () {
@@ -149,6 +158,26 @@ test('getRoutes returns routes in the order of assingment', function () {
     expect($routes[0]->getPath())->toBe('/foo');
     expect($routes[1]->getPath())->toBe('/bar');
     expect($routes[2]->getPath())->toBe('/baz');
+});
+
+test('naming a static route does not let a later variable route shadow it', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/some-path');
+
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+
+    $router = new Router();
+    $router->map('GET', '/some-path', static function () {})->setName('someName');
+    $router->map('GET', '/{path}', static function () {});
+
+    $result = $router->match($request);
+
+    expect($result->isFound())->toBeTrue();
+    expect($result->getStatus())->toBe(MatchStatus::Found);
 });
 
 test('getRoutes includes routes registered inside a group', function () {

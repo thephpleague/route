@@ -38,4 +38,7 @@ interface RouteCollectionInterface
 
     /** @param callable|array<string>|string|RequestHandlerInterface $handler */
     public function put(string $path, callable|array|string|RequestHandlerInterface $handler): Route;
+
+    /** @param callable|array<string>|string|RequestHandlerInterface $handler */
+    public function query(string $path, callable|array|string|RequestHandlerInterface $handler): Route;
 }

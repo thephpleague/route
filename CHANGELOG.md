@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Route freezing: routes become immutable after `prepareRoutes()`, preventing silent post-compilation misconfiguration.
 - `FreezeableInterface`, `FreezeableTrait`, and `FreezeGuard` for route immutability lifecycle.
 - Optional segment support in `generateUrl()`: routes using FastRoute `[/{param}]` syntax resolve correctly with defaults from `setVars()` or omit the segment when unset.
+- `query()` route helper on `Router` and `RouteGroup` (via `RouteCollectionInterface`) for the HTTP QUERY method (draft-ietf-httpbis-safe-method-w-body).
 
 ### Changed
 - Minimum PHP version raised to 8.3.
@@ -58,6 +59,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Scrutinizer CI integration removed.
 - `Dispatcher::setRouteMap()` removed (route map now set via constructor).
 - Duplicate `Router::processGroups()` method removed (consolidated into `collectGroupRoutes()`).
+
+### Fixed
+- Naming a route no longer alters route registration order, which could cause a `FastRoute\BadRouteException` when a named static route was shadowed by a later variable route (#362, #363).
 
 ## [6.2.0] 2024-11
 

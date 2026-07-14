@@ -56,4 +56,10 @@ trait RouteCollectionTrait
     {
         return $this->map(Request::METHOD_PUT, $path, $handler);
     }
+
+    /** @param callable|array<string>|string|RequestHandlerInterface $handler */
+    public function query(string $path, callable|array|string|RequestHandlerInterface $handler): Route
+    {
+        return $this->map(Request::METHOD_QUERY, $path, $handler);
+    }
 }

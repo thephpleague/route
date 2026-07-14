@@ -26,9 +26,12 @@ $router->patch('/acme/route', 'Acme\Controller::patchMethod');
 $router->delete('/acme/route', 'Acme\Controller::deleteMethod');
 $router->head('/acme/route', 'Acme\Controller::headMethod');
 $router->options('/acme/route', 'Acme\Controller::optionsMethod');
+$router->query('/acme/route', 'Acme\Controller::queryMethod');
 ~~~
 
 Each of the above routes will respond to the same URI but will invoke a different callable based on the HTTP request method.
+
+The `query` verb registers a route for the HTTP QUERY method, a safe, idempotent method that, unlike GET, permits a request body.
 
 ## Route Conditions
 
