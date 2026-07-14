@@ -19,10 +19,30 @@
     Dependency Injection: '/unstable/dependency-injection/'
     Upgrade Guide: '/unstable/upgrade/'
 -
-    default: true
+  default: true
+  version: 7.x
+  name: League\Route 7.x
+  type: Current
+  requires: PHP >= 8.3
+  release: 7.0.0 - 2026-07
+  support: Active
+  url: /7.x/
+  menu:
+    Getting Started: '/7.x/'
+    Basic Usage: '/7.x/usage/'
+    HTTP: '/7.x/http/'
+    Routes: '/7.x/routes/'
+    Route Matching: '/7.x/route-matching/'
+    Controllers: '/7.x/controllers/'
+    Strategies: '/7.x/strategies/'
+    Middleware: '/7.x/middleware/'
+    Cached Router: '/7.x/cached-router/'
+    Dependency Injection: '/7.x/dependency-injection/'
+    Upgrade Guide: '/7.x/upgrade/'
+-
     version: 6.x
     name: League\Route 6.x
-    type: Current
+    type: Old
     requires: PHP >= 8.1
     release: 6.2.0 - 2024-11
     support: 2026-12

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+## [7.0.0] 2026-07-14
+
 ### Added
 - `RouterInterface` extending PSR-15 `RequestHandlerInterface` for Router/Cache\Router substitutability.
 - `MatchResult` value object and `MatchStatus` enum for matching routes without dispatching (#328, #352).
