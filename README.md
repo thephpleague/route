@@ -13,7 +13,7 @@ This package is compliant with [PSR-4], [PSR-7], [PSR-11], [PSR-15], [PSR-16] an
 [PSR-11]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-11-container.md
 [PSR-15]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-15-request-handlers.md
 [PSR-16]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md
-[PSR-17]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-17-http-factory.md
+[PSR-17]: https://github.com/php-fig/fig-standards/blob/7.x/accepted/PSR-17-http-factory.md
 
 ## Install
 
@@ -35,7 +35,7 @@ The following versions of PHP are supported by this version.
 
 Route has [full documentation](http://route.thephpleague.com), powered by [Jekyll](http://jekyllrb.com/).
 
-Contribute to this documentation in the [docs directory](https://github.com/thephpleague/route/tree/master/docs/).
+Contribute to this documentation in the [docs directory](https://github.com/thephpleague/route/tree/7.x/docs/).
 
 ## Testing
 
@@ -45,7 +45,7 @@ $ composer test
 
 ## Contributing
 
-Please see [CONTRIBUTING](https://github.com/thephpleague/route/blob/master/CONTRIBUTING.md) for details.
+Please see [CONTRIBUTING](https://github.com/thephpleague/route/blob/7.x/CONTRIBUTING.md) for details.
 
 ## Credits
 
@@ -55,4 +55,4 @@ Please see [CONTRIBUTING](https://github.com/thephpleague/route/blob/master/CONT
 
 ## License
 
-The MIT License (MIT). Please see [License File](https://github.com/thephpleague/route/blob/master/LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](https://github.com/thephpleague/route/blob/7.x/LICENSE.md) for more information.
