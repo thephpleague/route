@@ -138,6 +138,19 @@ test('getRoutes includes named routes', function () {
     expect($router->getRoutes())->toHaveCount(2);
 });
 
+test('getRoutes returns routes in the order of assingment', function () {
+    $router = new Router();
+    $router->get('/foo', static function () {})->setName('foo.route');
+    $router->get('/bar', static function () {});
+    $router->get('/baz', static function () {})->setName('baz.route');
+
+    $routes = $router->getRoutes();
+    expect($routes)->toHaveCount(3);
+    expect($routes[0]->getPath())->toBe('/foo');
+    expect($routes[1]->getPath())->toBe('/bar');
+    expect($routes[2]->getPath())->toBe('/baz');
+});
+
 test('getRoutes includes routes registered inside a group', function () {
     $router = new Router();
     $router->get('/top', static function () {});
