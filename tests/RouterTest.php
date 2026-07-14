@@ -151,6 +151,26 @@ test('getRoutes returns routes in the order of assingment', function () {
     expect($routes[2]->getPath())->toBe('/baz');
 });
 
+test('naming a static route does not let a later variable route shadow it', function () {
+    /** @var UriInterface&MockInterface $uri */
+    $uri = Mockery::mock(UriInterface::class);
+    $uri->allows('getPath')->andReturn('/some-path');
+
+    /** @var ServerRequestInterface&MockInterface $request */
+    $request = Mockery::mock(ServerRequestInterface::class);
+    $request->allows('getMethod')->andReturn('GET');
+    $request->allows('getUri')->andReturn($uri);
+
+    $router = new Router();
+    $router->map('GET', '/some-path', static function () {})->setName('someName');
+    $router->map('GET', '/{path}', static function () {});
+
+    $result = $router->match($request);
+
+    expect($result->isFound())->toBeTrue();
+    expect($result->getStatus())->toBe(MatchStatus::Found);
+});
+
 test('getRoutes includes routes registered inside a group', function () {
     $router = new Router();
     $router->get('/top', static function () {});

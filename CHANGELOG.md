@@ -59,6 +59,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - `Dispatcher::setRouteMap()` removed (route map now set via constructor).
 - Duplicate `Router::processGroups()` method removed (consolidated into `collectGroupRoutes()`).
 
+### Fixed
+- Naming a route no longer alters route registration order, which could cause a `FastRoute\BadRouteException` when a named static route was shadowed by a later variable route (#362, #363).
+
 ## [6.2.0] 2024-11
 
 ### Changed
