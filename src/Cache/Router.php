@@ -72,10 +72,13 @@ class Router implements RouterInterface, UrlGeneratorInterface
         try {
             $cached = $this->cache->get($this->cacheKey);
             if (is_string($cached)) {
+                set_error_handler(static fn(): bool => true);
                 $cachedData = unserialize($cached, ['allowed_classes' => false]);
             }
         } catch (Throwable) {
             $cachedData = null;
+        } finally {
+            restore_error_handler();
         }
 
         $routeSignature = $this->buildSignatureHash($router);

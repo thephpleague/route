@@ -3,6 +3,7 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.0/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
+         failOnWarning="true"
          cacheDirectory=".phpunit.cache">
     <testsuites>
         <testsuite name="League Test Suite">
