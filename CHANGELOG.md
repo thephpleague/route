@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Route freezing: routes become immutable after `prepareRoutes()`, preventing silent post-compilation misconfiguration.
 - `FreezeableInterface`, `FreezeableTrait`, and `FreezeGuard` for route immutability lifecycle.
 - Optional segment support in `generateUrl()`: routes using FastRoute `[/{param}]` syntax resolve correctly with defaults from `setVars()` or omit the segment when unset.
+- `query()` route helper on `Router` and `RouteGroup` (via `RouteCollectionInterface`) for the HTTP QUERY method (draft-ietf-httpbis-safe-method-w-body).
 
 ### Changed
 - Minimum PHP version raised to 8.3.
